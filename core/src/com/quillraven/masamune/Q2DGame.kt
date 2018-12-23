@@ -8,7 +8,6 @@ import com.quillraven.masamune.screen.Q2DScreen
 private const val TAG = "Game"
 
 abstract class Q2DGame : ApplicationListener {
-
     private var screen: Q2DScreen? = null
     private val screenCache by lazy { ObjectMap<Class<out Q2DScreen>, Q2DScreen>() }
 
@@ -31,7 +30,7 @@ abstract class Q2DGame : ApplicationListener {
     }
 
     override fun render() {
-        screen?.render(Gdx.graphics.rawDeltaTime)
+        screen?.render(Math.min(0.25f, Gdx.graphics.rawDeltaTime))
     }
 
     override fun pause() {
