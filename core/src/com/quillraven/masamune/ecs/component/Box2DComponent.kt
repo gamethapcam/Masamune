@@ -6,6 +6,8 @@ import com.badlogic.gdx.utils.Pool
 
 class Box2DComponent : Pool.Poolable, Component {
     var body: Body? = null
+    var width = 0f
+    var height = 0f
     var prevX = 0f
     var prevY = 0f
     var interpolatedX = 0f

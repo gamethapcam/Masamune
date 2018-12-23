@@ -12,6 +12,7 @@ object DesktopLauncher {
             vSyncEnabled = false
             width = 1280
             height = 720
+            samples = 16
         }
         LwjglApplication(MainGame(), config).logLevel = Application.LOG_DEBUG
     }
