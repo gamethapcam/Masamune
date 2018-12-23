@@ -17,6 +17,7 @@ abstract class Q2DGame : ApplicationListener {
         screen?.hide()
         if (dispose) {
             screen?.dispose()
+            screenCache.remove(screen?.javaClass)
         }
 
         screen = screenCache.get(type)

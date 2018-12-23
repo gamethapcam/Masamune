@@ -1,24 +1,24 @@
 package com.quillraven.masamune.screen
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.maps.tiled.TiledMap
+import com.quillraven.masamune.map.EMapType
 
 class LoadingScreen : Q2DScreen() {
+    private val assetManager = game.assetManager
+
     override fun hide() {
 
     }
 
     override fun show() {
-
+        for (mapType in EMapType.values()) {
+            assetManager.load(mapType.filePath, TiledMap::class.java)
+        }
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0f, 0f, 1f, 1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-
-        if (Gdx.input.isKeyPressed(Input.Keys.X)) {
-            game.setScreen(GameScreen::class.java)
+        if (assetManager.update()) {
+            game.setScreen(GameScreen::class.java, true)
         }
     }
 

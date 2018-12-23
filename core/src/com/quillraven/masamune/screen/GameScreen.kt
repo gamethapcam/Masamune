@@ -1,10 +1,9 @@
 package com.quillraven.masamune.screen
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.FixtureDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
+import com.quillraven.masamune.map.EMapType
 
 class GameScreen : Q2DScreen() {
     override fun hide() {
@@ -26,14 +25,12 @@ class GameScreen : Q2DScreen() {
         }
         body.createFixture(fixtureDef)
         box.dispose()
+
+        game.mapManager.setMap(EMapType.MAP01)
     }
 
     override fun render(delta: Float) {
         game.ecsEngine.update(delta)
-
-        if (Gdx.input.isKeyPressed(Input.Keys.X)) {
-            game.setScreen(LoadingScreen::class.java)
-        }
     }
 
     override fun pause() {

@@ -1,11 +1,11 @@
-package com.quillraven.masamune.ecs.systems
+package com.quillraven.masamune.ecs.system
 
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.math.MathUtils
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
-import com.quillraven.masamune.ecs.components.Box2DComponent
+import com.quillraven.masamune.ecs.component.Box2DComponent
 
 private const val FIXED_STEP = 1 / 60f
 
