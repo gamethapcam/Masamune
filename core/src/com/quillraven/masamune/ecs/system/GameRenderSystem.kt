@@ -30,7 +30,7 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
     private val testTex = Texture("test.png")
 
     init {
-        game.gameEventManager.mapSignal.add(this)
+        game.gameEventManager.addMapEventListener(this)
     }
 
     override fun update(deltaTime: Float) {
@@ -52,7 +52,7 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
     }
 
     override fun receive(signal: Signal<MapEvent>?, `object`: MapEvent?) {
-        mapRenderer.map = `object`?.newTiledMap
+        mapRenderer.map = `object`!!.map
     }
 
     override fun dispose() {

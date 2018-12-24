@@ -24,8 +24,7 @@ class MapManager constructor(game: MainGame) {
         loadCollisionObjects(tiledMap)
         loadCharacters(tiledMap)
 
-        gameEventManager.mapEvent.newTiledMap = tiledMap
-        gameEventManager.mapSignal.dispatch(gameEventManager.mapEvent)
+        gameEventManager.dispatchMapEvent(type, tiledMap, tiledMap.properties.get("width", 0f, Float::class.java), tiledMap.properties.get("height", 0f, Float::class.java))
     }
 
     private fun loadCollisionObjects(tiledMap: TiledMap) {

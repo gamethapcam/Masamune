@@ -26,7 +26,7 @@ class CameraSystem constructor(game: MainGame, private val camera: Camera = game
     private val currentBoundaries = Rectangle(0f, 0f, 0f, 0f)
 
     init {
-        game.gameEventManager.mapSignal.add(this)
+        game.gameEventManager.addMapEventListener(this)
     }
 
     override fun processEntity(entity: Entity?, deltaTime: Float) {
@@ -36,7 +36,7 @@ class CameraSystem constructor(game: MainGame, private val camera: Camera = game
             // find new boundary
             // default is map boundary
             currentBoundaries.set(mapBoundaries)
-            for (i in 0..numBoundaries - 1) {
+            for (i in 0 until numBoundaries) {
                 if (rectCache.get(i).contains(b2dCmp.interpolatedX, b2dCmp.interpolatedY)) {
                     currentBoundaries.set(rectCache.get(i))
                     break
@@ -53,12 +53,10 @@ class CameraSystem constructor(game: MainGame, private val camera: Camera = game
     }
 
     override fun receive(signal: Signal<MapEvent>?, `object`: MapEvent?) {
-        val tiledMap = `object`!!.newTiledMap!!
-
         currentBoundaries.set(0f, 0f, 0f, 0f)
-        mapBoundaries.set(0f, 0f, tiledMap.properties.get("width", 10000f, Float::class.java), tiledMap.properties.get("height", 10000f, Float::class.java))
+        mapBoundaries.set(0f, 0f, `object`!!.width, `object`.height)
 
-        val mapLayer = tiledMap.layers.get("cameraBoundaries")
+        val mapLayer = `object`.map.layers.get("cameraBoundaries")
         if (mapLayer == null) {
             Gdx.app.debug(TAG, "There is no cameraBoundaries layer defined")
             return
