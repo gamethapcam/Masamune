@@ -1,59 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="23">
+<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="9">
  <tileset firstgid="1" source="tileset_01.tsx"/>
  <layer id="1" name="ground" width="64" height="64">
   <data encoding="base64" compression="zlib">
-   eJzt1v1qgzAUh+HcWu+qYx8drB+b7bXVv2Tb3SxCDhwOMVmww+P6Fh6qiYb8khjdhhC2AAAAAAAAAAAAAAAAAAAAwB3YJEv3Y+n89zoGm4yl+7TEGHTRw0rzj79r+v9Ox2IXvUWPUa+uFb3KL/Nv668OMpZM9e81ZZf8um6vjktr/7iy/MdM9tGTqddqz31wkLF1/mXd6+w5ufH47fryQvrXqbKX6LmQvau0eVlR/n7GvR+ZsrM5HxxknJtfZ3pvbP/TQcYSWZ97U96as9a+V7p/p1B/tjW5tjRWwUHGkqn+XW7U/prm3zo0tCN7hN0Tp8bXi7nzUxsj7/P/1+8n7/l1//QzL992ssfl3vX/wZjfvvusW+2FHpXW56mxrUPmvi8HGWv5RVDlQ2LrQ6aNwdTre7x///0AB/aLVw==
+   eJzt1j0KgzAAgFGP7dD/UkpLT9pTNEMDUkyjg5jEN7wlYuAzidp3XdcDAAAAAAAAAAAAAAAU7J2Qu56zdtec/hrmLKH/tqH+V2L8vpH+6Dmju/b+1P6O7Y/G+8fWfUzqbLTUHw3XPLU/fsdb6i9lzqX7T8Els77/zkTt/cfgGpwHzyF3zlsQ+w/B/muXuWfqf1ANhnt16vdtzpyl8/5bxtpdU30Am0mfOQ==
   </data>
  </layer>
- <layer id="2" name="background" width="64" height="64">
+ <layer id="3" name="background0" width="64" height="64">
   <data encoding="base64" compression="zlib">
-   eJzt100KwjAQhuGc0ZVQEATv5L/eKt1023s4gQRCSG0LyjTJ+8BHtY0wE9OUGgMAAAAAAAAAAAAAAAAAAIBWHH322oUo6KLPJ7Uq9HTJdzcHLa2FtP+gpbUQ5uDg45TWv/XHXjJE54dk3ODH5K6V1vOv5PaAlqTPgF1mjM2cq0m493O9A0DL+vkhqpbW95A8Ja8/1rJld8lbcl75u63//0vdJFfJRbuQwqTvCrUYtQtQVkv/uf3pW29jkjklrX83F1N92ShTc9Cb8vb7D49QKsc=
+   eJztztsJgDAABMH034DGV1r1ihAOYQb2f8cAAAAAAAAAAAAAAAAA4K+udKenPVJyppW29kjJkWba2yMAwCdef+gFdA==
   </data>
  </layer>
- <layer id="4" name="background2" width="64" height="64">
-  <data encoding="base64" compression="zlib">
-   eJzt0jEKgDAMBdDcsCC4FgTvfwYVOnTTLcW8B4EOGX6SRgAAAAAAAAAAAABQwZ4dYCFHdoAF2EEt7a4+3mfUvn/l2WfPf9iyQyTp7y2/07IDAAAA8NkFQ1kESA==
-  </data>
- </layer>
- <layer id="5" name="background3" width="64" height="64">
-  <data encoding="base64" compression="zlib">
-   eJztzwENAAAIw7D7xL8PZJyEVsGWAAAAAAAAAAAAAADwybQDij6/AwAAAPctf/AAtw==
-  </data>
- </layer>
- <objectgroup color="#ff0000" id="6" name="collision">
-  <object id="5" x="-0.333333" y="1505.33" width="223.667" height="30.6667"/>
-  <object id="6" x="-0.500167" y="1538.67" width="32.3337" height="508.667"/>
-  <object id="7" x="32.4998" y="2017.67" width="767.667" height="30.0003"/>
-  <object id="8" x="767.5" y="1505.67" width="33.0003" height="414.667"/>
-  <object id="9" x="320.167" y="1504.33" width="445.667" height="31.3333"/>
-  <object id="10" x="161.166" y="1985" width="31.667" height="31.3333"/>
-  <object id="11" x="384.166" y="1984.33" width="125" height="31.3333"/>
-  <object id="12" x="448.833" y="1921.67" width="31" height="62.6666"/>
-  <object id="15" x="512.667" y="1503.33">
-   <polygon points="0,0 -0.666667,-31.3333 -34,-32 -32.6667,-127.333 28.6667,-127.333 31.3333,-93.3333 62.6667,-94.6667 61.3333,-64.6667 124.667,-62.6667 127.333,-1.33333"/>
-  </object>
-  <object id="20" x="767.167" y="1983.33" width="31" height="31.9999"/>
-  <object id="22" x="512.667" y="1536.67">
-   <polyline points="0,0 0,64.6667 63.3333,63.3333 66.6667,31.3333 96.6667,30.6667 96.6667,0.666667"/>
-  </object>
- </objectgroup>
- <objectgroup color="#00ffff" id="7" name="cameraBoundaries" visible="0" opacity="0.5">
-  <object id="16" x="0" y="1507" width="799" height="540"/>
- </objectgroup>
- <objectgroup id="3" name="characters">
-  <object id="1" gid="242" x="574" y="1664" width="32" height="32"/>
-  <object id="2" gid="145" x="90" y="1952" width="32" height="32"/>
-  <object id="3" gid="106" x="348" y="1837" width="32" height="32"/>
-  <object id="4" gid="107" x="609" y="1941" width="32" height="32"/>
-  <object id="17" gid="148" x="192" y="1854" width="32" height="32">
+ <objectgroup id="2" name="character">
+  <object id="1" gid="148" x="155" y="1852" width="32" height="32">
    <properties>
     <property name="type" value="PLAYER"/>
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="8" name="gameObjects">
-  <object id="18" gid="217" x="767.667" y="1951.67" width="32" height="32"/>
-  <object id="19" gid="217" x="768.333" y="1983.67" width="32" height="32"/>
+ <objectgroup color="#ff0000" id="4" name="collision">
+  <object id="2" x="2.5" y="1569" width="189.5" height="30.8333"/>
+  <object id="3" x="256.25" y="1569.25" width="447" height="30.5"/>
+  <object id="4" x="672.5" y="1600.75" width="30.5" height="285.5"/>
+  <object id="5" x="1.75" y="2016.75" width="669.5" height="30"/>
+  <object id="6" x="672.25" y="1952" width="30.5" height="96"/>
+  <object id="7" x="2.25" y="1601.5" width="29.5" height="412"/>
+ </objectgroup>
+ <objectgroup color="#aaffff" id="5" name="cameraBoundary">
+  <object id="8" x="0.333333" y="1571" width="701" height="477"/>
  </objectgroup>
 </map>

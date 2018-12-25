@@ -10,8 +10,8 @@ object DesktopLauncher {
     fun main(arg: Array<String>) {
         val config = LwjglApplicationConfiguration().apply {
             vSyncEnabled = false
-            width = 16 * 32
-            height = 9 * 32
+            width = 1280
+            height = 720
         }
         LwjglApplication(MainGame(), config).logLevel = Application.LOG_DEBUG
     }

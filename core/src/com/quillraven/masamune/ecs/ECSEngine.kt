@@ -28,6 +28,9 @@ class ECSEngine : PooledEngine(), Disposable {
         addSystem(Box2DSystem(game))
         addSystem(CameraSystem(game))
         addSystem(GameRenderSystem(game))
+
+        // debug stuff
+        // addSystem(Box2DDebugRenderSystem(game))
     }
 
     override fun dispose() {

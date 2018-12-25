@@ -5,11 +5,17 @@ import com.badlogic.gdx.maps.objects.PolygonMapObject
 import com.badlogic.gdx.maps.objects.PolylineMapObject
 import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.ChainShape
+import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.*
 
 private const val TAG = "MapManager"
+
+private const val LAYER_COLLISION = "collision"
+private const val LAYER_CHARACTER = "character"
+private const val LAYER_CAMERA_BOUNDARY = "cameraBoundary"
 
 class MapManager constructor(game: MainGame) {
     private val ecsEngine = game.ecsEngine
@@ -18,19 +24,30 @@ class MapManager constructor(game: MainGame) {
     private val world = game.world
     private val rectVertices = FloatArray(8)
 
+    private val camBoundaryCache = Array<Rectangle>()
+    private var numCamBoundaries = 0
+
     fun setMap(type: EMapType) {
         val tiledMap = assetManger.get(type.filePath, TiledMap::class.java)
 
         loadCollisionObjects(tiledMap)
         loadCharacters(tiledMap)
+        getCameraBoundaries(tiledMap)
 
         gameEventManager.dispatchMapEvent(type, tiledMap, tiledMap.properties.get("width", 0f, Float::class.java), tiledMap.properties.get("height", 0f, Float::class.java))
     }
 
+    fun getCameraBoundaries(fill: Array<Rectangle>) {
+        fill.clear()
+        for (i in 0 until numCamBoundaries) {
+            fill.add(camBoundaryCache.get(i))
+        }
+    }
+
     private fun loadCollisionObjects(tiledMap: TiledMap) {
-        val mapLayer = tiledMap.layers.get("collision")
+        val mapLayer = tiledMap.layers.get(LAYER_COLLISION)
         if (mapLayer == null) {
-            Gdx.app.debug(TAG, "There is no collision layer")
+            Gdx.app.debug(TAG, "There is no $LAYER_COLLISION layer")
             return
         }
 
@@ -54,7 +71,7 @@ class MapManager constructor(game: MainGame) {
                 }
                 is PolylineMapObject -> createCollisionObject(mapObj.polyline.x, mapObj.polyline.y, mapObj.polyline.vertices)
                 is PolygonMapObject -> createCollisionObject(mapObj.polygon.x, mapObj.polygon.y, mapObj.polygon.vertices, true)
-                else -> Gdx.app.debug(TAG, "Unsupported collision map object of type ${mapObj.javaClass}")
+                else -> Gdx.app.debug(TAG, "Unsupported $LAYER_COLLISION map object of type ${mapObj.javaClass}")
             }
         }
     }
@@ -87,21 +104,49 @@ class MapManager constructor(game: MainGame) {
     }
 
     private fun loadCharacters(tiledMap: TiledMap) {
-        val mapLayer = tiledMap.layers.get("characters")
+        val mapLayer = tiledMap.layers.get(LAYER_CHARACTER)
         if (mapLayer == null) {
-            Gdx.app.debug(TAG, "There is no characters layer")
+            Gdx.app.debug(TAG, "There is no $LAYER_CHARACTER layer")
             return
         }
 
         for (mapObj in mapLayer.objects) {
             val charType = mapObj.properties.get("type", "", String::class.java)
             if (charType.isBlank()) {
-                Gdx.app.debug(TAG, "Type is not defined for character tile ${mapObj.properties.get("id", Int::class.java)}")
+                Gdx.app.debug(TAG, "Type is not defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
             }
 
             if ("PLAYER" == charType) {
                 ecsEngine.createPlayer(mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE)
+            }
+        }
+    }
+
+    private fun getCameraBoundaries(tiledMap: TiledMap) {
+        numCamBoundaries = 0
+
+        val mapLayer = tiledMap.layers.get(LAYER_CAMERA_BOUNDARY)
+        if (mapLayer == null) {
+            Gdx.app.debug(TAG, "There is no $LAYER_CAMERA_BOUNDARY layer defined")
+            return
+        }
+
+        for (mapObj in mapLayer.objects) {
+            if (mapObj is RectangleMapObject) {
+                if (camBoundaryCache.size <= numCamBoundaries) {
+                    camBoundaryCache.add(Rectangle(0f, 0f, 0f, 0f))
+                }
+
+                camBoundaryCache.get(numCamBoundaries).set(mapObj.rectangle).apply {
+                    x *= UNIT_SCALE
+                    y *= UNIT_SCALE
+                    width *= UNIT_SCALE
+                    height *= UNIT_SCALE
+                }
+                ++numCamBoundaries
+            } else {
+                Gdx.app.error(TAG, "There is a non-rectangle camera boundary area")
             }
         }
     }

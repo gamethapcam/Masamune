@@ -7,23 +7,19 @@ import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Camera
-import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.UNIT_SCALE
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.CameraComponent
 import com.quillraven.masamune.event.MapEvent
 
-private const val TAG = "CameraSystem"
-
 class CameraSystem constructor(game: MainGame, private val camera: Camera = game.gameViewPort.camera) : IteratingSystem(Family.all(CameraComponent::class.java).get()), Listener<MapEvent> {
-    private val rectCache = Array<Rectangle>()
-    private var numBoundaries = 0
-    private val mapBoundaries = Rectangle(0f, 0f, 0f, 0f)
-    private val currentBoundaries = Rectangle(0f, 0f, 0f, 0f)
+    private val camBoundaries = Array<Rectangle>()
+    private val mapBoundary = Rectangle(0f, 0f, 0f, 0f)
+    private val currentBoundary = Rectangle(0f, 0f, 0f, 0f)
+    private val mapManager by lazy { (Gdx.app.applicationListener as MainGame).mapManager }
 
     init {
         game.gameEventManager.addMapEventListener(this)
@@ -32,13 +28,13 @@ class CameraSystem constructor(game: MainGame, private val camera: Camera = game
     override fun processEntity(entity: Entity?, deltaTime: Float) {
         val b2dCmp = (engine as ECSEngine).box2DMapper.get(entity)
 
-        if (!currentBoundaries.contains(b2dCmp.interpolatedX, b2dCmp.interpolatedY)) {
+        if (!currentBoundary.contains(b2dCmp.interpolatedX, b2dCmp.interpolatedY)) {
             // find new boundary
             // default is map boundary
-            currentBoundaries.set(mapBoundaries)
-            for (i in 0 until numBoundaries) {
-                if (rectCache.get(i).contains(b2dCmp.interpolatedX, b2dCmp.interpolatedY)) {
-                    currentBoundaries.set(rectCache.get(i))
+            currentBoundary.set(mapBoundary)
+            for (rect in camBoundaries) {
+                if (rect.contains(b2dCmp.interpolatedX, b2dCmp.interpolatedY)) {
+                    currentBoundary.set(rect)
                     break
                 }
             }
@@ -47,38 +43,14 @@ class CameraSystem constructor(game: MainGame, private val camera: Camera = game
         val camW = camera.viewportWidth * 0.5f
         val camH = camera.viewportHeight * 0.5f
         camera.position.apply {
-            x = MathUtils.clamp(b2dCmp.interpolatedX, currentBoundaries.x + camW, currentBoundaries.x + currentBoundaries.width - camW)
-            y = MathUtils.clamp(b2dCmp.interpolatedY, currentBoundaries.y + camH, currentBoundaries.y + currentBoundaries.height - camH)
+            x = MathUtils.clamp(b2dCmp.interpolatedX, currentBoundary.x + camW, currentBoundary.x + currentBoundary.width - camW)
+            y = MathUtils.clamp(b2dCmp.interpolatedY, currentBoundary.y + camH, currentBoundary.y + currentBoundary.height - camH)
         }
     }
 
     override fun receive(signal: Signal<MapEvent>?, `object`: MapEvent?) {
-        currentBoundaries.set(0f, 0f, 0f, 0f)
-        mapBoundaries.set(0f, 0f, `object`!!.width, `object`.height)
-
-        val mapLayer = `object`.map.layers.get("cameraBoundaries")
-        if (mapLayer == null) {
-            Gdx.app.debug(TAG, "There is no cameraBoundaries layer defined")
-            return
-        }
-
-        numBoundaries = 0
-        for (mapObj in mapLayer.objects) {
-            if (mapObj is RectangleMapObject) {
-                if (rectCache.size <= numBoundaries) {
-                    rectCache.add(Rectangle(0f, 0f, 0f, 0f))
-                }
-
-                rectCache.get(numBoundaries).set(mapObj.rectangle).apply {
-                    x *= UNIT_SCALE
-                    y *= UNIT_SCALE
-                    width *= UNIT_SCALE
-                    height *= UNIT_SCALE
-                }
-                ++numBoundaries
-            } else {
-                Gdx.app.error(TAG, "There is a non-rectangle camera boundary area")
-            }
-        }
+        currentBoundary.set(0f, 0f, 0f, 0f)
+        mapBoundary.set(0f, 0f, `object`!!.width, `object`.height)
+        mapManager.getCameraBoundaries(camBoundaries)
     }
 }
