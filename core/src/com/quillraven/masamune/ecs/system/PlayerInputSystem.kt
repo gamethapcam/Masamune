@@ -5,12 +5,12 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.quillraven.masamune.ecs.ECSEngine
+import com.quillraven.masamune.ecs.CmpMapperB2D
 import com.quillraven.masamune.ecs.component.PlayerInputComponent
 
 class PlayerInputSystem : IteratingSystem(Family.all(PlayerInputComponent::class.java).get()) {
     override fun processEntity(entity: Entity?, deltaTime: Float) {
-        val b2dCmp = (engine as ECSEngine).box2DMapper.get(entity)
+        val b2dCmp = CmpMapperB2D.get(entity)
         val body = b2dCmp.body
 
         when {

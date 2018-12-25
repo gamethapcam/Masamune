@@ -8,13 +8,15 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack
 import com.badlogic.gdx.utils.Disposable
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
-import com.quillraven.masamune.ecs.ECSEngine
+import com.quillraven.masamune.ecs.CmpMapperB2D
+import com.quillraven.masamune.ecs.CmpMapperRender
 import com.quillraven.masamune.ecs.component.Box2DComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.event.MapEvent
@@ -29,7 +31,7 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
     private val scissors = Rectangle()
 
     private val renderEntities by lazy { engine.getEntitiesFor(Family.all(Box2DComponent::class.java, RenderComponent::class.java).get()) }
-    private val testTex = Texture("test.png")
+    private val testTex = Sprite(Texture("test.png"))
 
     init {
         game.gameEventManager.addMapEventListener(this)
@@ -51,8 +53,13 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
         }
         batch.begin()
         for (entity in renderEntities) {
-            val b2dCmp = (engine as ECSEngine).box2DMapper.get(entity)
-            batch.draw(testTex, b2dCmp.interpolatedX - b2dCmp.width * 0.5f, b2dCmp.interpolatedY - b2dCmp.height * 0.5f, b2dCmp.width, b2dCmp.height)
+            val b2dCmp = CmpMapperB2D.get(entity)
+            val renderCmp = CmpMapperRender.get(entity)
+            testTex.apply {
+                flip((renderCmp.flipX && !isFlipX) || (!renderCmp.flipX && isFlipX), (renderCmp.flipY && !isFlipY) || (!renderCmp.flipY && isFlipY))
+                setBounds(b2dCmp.interpolatedX - b2dCmp.width * 0.5f, b2dCmp.interpolatedY - b2dCmp.height * 0.5f, b2dCmp.width, b2dCmp.height)
+            }
+            testTex.draw(batch)
         }
         batch.end()
         batch.flush()
@@ -66,6 +73,6 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
 
     override fun dispose() {
         mapRenderer.dispose()
-        testTex.dispose()
+        testTex.texture.dispose()
     }
 }

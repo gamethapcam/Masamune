@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.Box2D
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
+import com.quillraven.masamune.ecs.CmpMapperB2D
 import com.quillraven.masamune.ecs.component.Box2DComponent
 
 private const val FIXED_STEP = 1 / 60f
@@ -27,7 +27,7 @@ class Box2DSystem constructor(game: MainGame) : EntitySystem() {
             if (setPrevPosition) {
                 setPrevPosition = false
                 for (entity in b2dEntities) {
-                    val b2dCmp = (engine as ECSEngine).box2DMapper.get(entity)
+                    val b2dCmp = CmpMapperB2D.get(entity)
                     b2dCmp.prevX = b2dCmp.body!!.position.x
                     b2dCmp.prevY = b2dCmp.body!!.position.y
                 }
@@ -38,7 +38,7 @@ class Box2DSystem constructor(game: MainGame) : EntitySystem() {
 
         val alpha = accumulator / FIXED_STEP
         for (entity in b2dEntities) {
-            val b2dCmp = (engine as ECSEngine).box2DMapper.get(entity)
+            val b2dCmp = CmpMapperB2D.get(entity)
             b2dCmp.interpolatedX = MathUtils.lerp(b2dCmp.prevX, b2dCmp.body!!.position.x, alpha)
             b2dCmp.interpolatedY = MathUtils.lerp(b2dCmp.prevY, b2dCmp.body!!.position.y, alpha)
         }

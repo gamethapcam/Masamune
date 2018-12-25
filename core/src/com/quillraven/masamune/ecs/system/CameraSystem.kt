@@ -5,13 +5,12 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.signals.Listener
 import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
+import com.quillraven.masamune.ecs.CmpMapperB2D
 import com.quillraven.masamune.ecs.component.CameraComponent
 import com.quillraven.masamune.event.MapEvent
 
@@ -19,14 +18,14 @@ class CameraSystem constructor(game: MainGame, private val camera: Camera = game
     private val camBoundaries = Array<Rectangle>()
     private val mapBoundary = Rectangle(0f, 0f, 0f, 0f)
     private val currentBoundary = Rectangle(0f, 0f, 0f, 0f)
-    private val mapManager by lazy { (Gdx.app.applicationListener as MainGame).mapManager }
+    private val mapManager by lazy { game.mapManager }
 
     init {
         game.gameEventManager.addMapEventListener(this)
     }
 
     override fun processEntity(entity: Entity?, deltaTime: Float) {
-        val b2dCmp = (engine as ECSEngine).box2DMapper.get(entity)
+        val b2dCmp = CmpMapperB2D.get(entity)
 
         if (!currentBoundary.contains(b2dCmp.interpolatedX, b2dCmp.interpolatedY)) {
             // find new boundary

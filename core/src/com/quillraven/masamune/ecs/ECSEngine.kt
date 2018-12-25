@@ -8,25 +8,23 @@ import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.utils.Disposable
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.bodyDef
-import com.quillraven.masamune.ecs.component.Box2DComponent
-import com.quillraven.masamune.ecs.component.CameraComponent
-import com.quillraven.masamune.ecs.component.PlayerInputComponent
-import com.quillraven.masamune.ecs.component.RenderComponent
-import com.quillraven.masamune.ecs.system.Box2DSystem
-import com.quillraven.masamune.ecs.system.CameraSystem
-import com.quillraven.masamune.ecs.system.GameRenderSystem
-import com.quillraven.masamune.ecs.system.PlayerInputSystem
+import com.quillraven.masamune.ecs.component.*
+import com.quillraven.masamune.ecs.system.*
 import com.quillraven.masamune.fixtureDef
 import com.quillraven.masamune.resetBodyAndFixtureDef
 
+internal val CmpMapperB2D = ComponentMapper.getFor(Box2DComponent::class.java)
+internal val CmpMapperRender = ComponentMapper.getFor(RenderComponent::class.java)
+internal val CmpMapperFlip = ComponentMapper.getFor(RenderFlipComponent::class.java)
+
 class ECSEngine : PooledEngine(), Disposable {
     private val game = Gdx.app.applicationListener as MainGame
-    internal val box2DMapper = ComponentMapper.getFor(Box2DComponent::class.java)
 
     init {
         addSystem(PlayerInputSystem())
         addSystem(Box2DSystem(game))
         addSystem(CameraSystem(game))
+        addSystem(RenderFlipSystem())
         addSystem(GameRenderSystem(game))
 
         // debug stuff
@@ -68,6 +66,7 @@ class ECSEngine : PooledEngine(), Disposable {
 
         entity.add(createComponent(CameraComponent::class.java))
         entity.add(createComponent(PlayerInputComponent::class.java))
+        entity.add(createComponent(RenderFlipComponent::class.java))
         entity.add(createComponent(RenderComponent::class.java))
 
         addEntity(entity)

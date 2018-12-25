@@ -3,12 +3,10 @@ package com.quillraven.masamune.ecs.component
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.Pool
 
-class RenderComponent : Pool.Poolable, Component {
-    var flipX = false
-    var flipY = false
+class RenderFlipComponent : Pool.Poolable, Component {
+    var flipCountdown = 0f
 
     override fun reset() {
-        flipX = false
-        flipY = false
+        flipCountdown = 0f
     }
 }

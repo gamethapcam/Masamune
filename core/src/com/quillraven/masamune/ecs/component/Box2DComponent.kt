@@ -16,5 +16,11 @@ class Box2DComponent : Pool.Poolable, Component {
     override fun reset() {
         body?.world?.destroyBody(body)
         body = null
+        width = 0f
+        height = 0f
+        prevX = 0f
+        prevY = 0f
+        interpolatedX = 0f
+        interpolatedY = 0f
     }
 }
