@@ -1,18 +1,22 @@
 package com.quillraven.masamune.ecs.system
 
-import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.signals.Listener
 import com.badlogic.ashley.signals.Signal
+import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.ObjectMap
+import com.badlogic.gdx.utils.StringBuilder
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
 import com.quillraven.masamune.ecs.CmpMapperB2D
@@ -21,7 +25,16 @@ import com.quillraven.masamune.ecs.component.Box2DComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.event.MapEvent
 
-class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<MapEvent>, Disposable {
+
+private const val TAG = "GameRenderSystem"
+
+private class YComparator : Comparator<Entity> {
+    override fun compare(o1: Entity, o2: Entity): Int {
+        return Math.signum(CmpMapperB2D.get(o2).interpolatedY - CmpMapperB2D.get(o1).interpolatedY).toInt()
+    }
+}
+
+class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(Box2DComponent::class.java, RenderComponent::class.java).get(), YComparator()), Listener<MapEvent>, Disposable {
     private val viewport = game.gameViewPort
     private val camera = viewport.camera as OrthographicCamera
     private val batch = game.batch
@@ -30,8 +43,8 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
     private val clipBounds = Rectangle()
     private val scissors = Rectangle()
 
-    private val renderEntities by lazy { engine.getEntitiesFor(Family.all(Box2DComponent::class.java, RenderComponent::class.java).get()) }
-    private val testTex = Sprite(Texture("test.png"))
+    private val assetManager = game.assetManager
+    private val spriteCache = ObjectMap<CharArray, Sprite>()
 
     init {
         game.gameEventManager.addMapEventListener(this)
@@ -52,19 +65,39 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
             mapRenderer.render()
         }
         batch.begin()
-        for (entity in renderEntities) {
-            val b2dCmp = CmpMapperB2D.get(entity)
-            val renderCmp = CmpMapperRender.get(entity)
-            testTex.apply {
-                flip((renderCmp.flipX && !isFlipX) || (!renderCmp.flipX && isFlipX), (renderCmp.flipY && !isFlipY) || (!renderCmp.flipY && isFlipY))
-                setBounds(b2dCmp.interpolatedX - b2dCmp.width * 0.5f, b2dCmp.interpolatedY - b2dCmp.height * 0.5f, b2dCmp.width, b2dCmp.height)
-            }
-            testTex.draw(batch)
-        }
+        forceSort()
+        super.update(deltaTime)
         batch.end()
         batch.flush()
 
         ScissorStack.popScissors()
+    }
+
+    override fun processEntity(entity: Entity, deltaTime: Float) {
+        val b2dCmp = CmpMapperB2D.get(entity)
+        val renderCmp = CmpMapperRender.get(entity)
+
+        if (renderCmp.sprite == null) {
+            renderCmp.sprite = getSprite(renderCmp.texturePath)
+        }
+
+        renderCmp.sprite!!.apply {
+            flip((renderCmp.flipX && !isFlipX) || (!renderCmp.flipX && isFlipX), (renderCmp.flipY && !isFlipY) || (!renderCmp.flipY && isFlipY))
+            setBounds(b2dCmp.interpolatedX - renderCmp.width * 0.5f, b2dCmp.interpolatedY - b2dCmp.height * 0.5f, renderCmp.width, renderCmp.height)
+            setOriginCenter()
+            rotation = b2dCmp.interpolatedAngle * MathUtils.radDeg
+            draw(batch)
+        }
+    }
+
+    private fun getSprite(texturePath: StringBuilder): Sprite {
+        var sprite = spriteCache.get(texturePath.chars)
+        if (sprite == null) {
+            Gdx.app.debug(TAG, "Creating sprite $texturePath")
+            sprite = assetManager.get("textures.atlas", TextureAtlas::class.java).createSprite(texturePath.toString())
+            spriteCache.put(texturePath.chars, sprite)
+        }
+        return sprite
     }
 
     override fun receive(signal: Signal<MapEvent>?, obj: MapEvent) {
@@ -73,6 +106,5 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
 
     override fun dispose() {
         mapRenderer.dispose()
-        testTex.texture.dispose()
     }
 }

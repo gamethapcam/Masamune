@@ -1,17 +1,14 @@
 package com.quillraven.masamune.ecs
 
 import com.badlogic.ashley.core.ComponentMapper
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.utils.Disposable
-import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.bodyDef
+import com.quillraven.masamune.*
 import com.quillraven.masamune.ecs.component.*
 import com.quillraven.masamune.ecs.system.*
-import com.quillraven.masamune.fixtureDef
-import com.quillraven.masamune.resetBodyAndFixtureDef
 
 internal val CmpMapperB2D = ComponentMapper.getFor(Box2DComponent::class.java)
 internal val CmpMapperRender = ComponentMapper.getFor(RenderComponent::class.java)
@@ -40,19 +37,19 @@ class ECSEngine : PooledEngine(), Disposable {
         }
     }
 
-    fun createPlayer(x: Float, y: Float) {
+    fun createCharacter(x: Float, y: Float, cfg: CharacterCfg): Entity {
         val entity = createEntity()
 
         resetBodyAndFixtureDef()
         entity.add(createComponent(Box2DComponent::class.java).apply {
-            width = 1f
-            height = 1f
+            width = cfg.width * 0.75f
+            height = cfg.height * 0.2f
             prevX = x
             prevY = y
             interpolatedX = x
             interpolatedY = y
 
-            bodyDef.type = BodyDef.BodyType.DynamicBody
+            bodyDef.type = cfg.type
             bodyDef.position.set(x + width * 0.5f, y + height * 0.5f)
             bodyDef.fixedRotation = true
             body = game.world.createBody(bodyDef)
@@ -65,12 +62,24 @@ class ECSEngine : PooledEngine(), Disposable {
             polygonShape.dispose()
         })
 
-        entity.add(createComponent(CameraComponent::class.java))
-        entity.add(createComponent(PlayerInputComponent::class.java))
-        entity.add(createComponent(RenderFlipComponent::class.java))
-        entity.add(createComponent(RenderComponent::class.java))
-        entity.add(createComponent(MoveComponent::class.java).apply { speed = 5f })
+        if (cfg.flip) {
+            entity.add(createComponent(RenderFlipComponent::class.java))
+        }
+        entity.add(createComponent(RenderComponent::class.java).apply {
+            texturePath.append(cfg.texture)
+            width = cfg.width
+            height = cfg.height
+        })
+        entity.add(createComponent(MoveComponent::class.java).apply { speed = cfg.speed })
 
         addEntity(entity)
+        return entity
+    }
+
+    fun createPlayer(x: Float, y: Float) {
+        createCharacter(x, y, game.characterCfgMap.get("player")).apply {
+            add(createComponent(CameraComponent::class.java))
+            add(createComponent(PlayerInputComponent::class.java))
+        }
     }
 }

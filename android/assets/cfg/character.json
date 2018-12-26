@@ -1,0 +1,16 @@
+{
+  "player": {
+    "type": "dynamic",
+    "texture": "norbert",
+    "width": 1.0,
+    "height": 1.0,
+    "speed": 4.0,
+    "flip": false
+  },
+  "elder": {
+    "type": "static",
+    "texture": "francis",
+    "width": 0.75,
+    "height": 0.75
+  }
+}

@@ -71,8 +71,12 @@ class MainGame : Q2DGame() {
     internal val world by lazy { World(Vector2(0f, 0f), true) }
 
     internal val assetManager by lazy { AssetManager() }
+
     internal val gameEventManager by lazy { GameEventManager() }
+
     internal val mapManager by lazy { MapManager(this) }
+
+    internal val characterCfgMap = ObjectMap<String, CharacterCfg>()
 
     override fun initialize() {
         Gdx.input.inputProcessor = stage

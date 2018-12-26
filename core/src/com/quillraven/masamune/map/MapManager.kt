@@ -21,6 +21,7 @@ class MapManager constructor(game: MainGame) {
     private val ecsEngine = game.ecsEngine
     private val assetManger = game.assetManager
     private val gameEventManager = game.gameEventManager
+    private val characterCfgMap = game.characterCfgMap
     private val world = game.world
     private val rectVertices = FloatArray(8)
 
@@ -115,10 +116,15 @@ class MapManager constructor(game: MainGame) {
             if (charType.isBlank()) {
                 Gdx.app.debug(TAG, "Type is not defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
+            } else if (!characterCfgMap.containsKey(charType)) {
+                Gdx.app.debug(TAG, "There is no character cfg of type  $charType defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
+                continue
             }
 
-            if ("PLAYER" == charType) {
+            if ("player" == charType) {
                 ecsEngine.createPlayer(mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE)
+            } else {
+                ecsEngine.createCharacter(mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE, characterCfgMap.get(charType))
             }
         }
     }

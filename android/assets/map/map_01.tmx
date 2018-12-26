@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="9">
+<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="13">
  <tileset firstgid="1" source="tileset_01.tsx"/>
  <layer id="1" name="ground" width="64" height="64">
   <data encoding="base64" compression="zlib">
@@ -14,9 +14,17 @@
  <objectgroup id="2" name="character">
   <object id="1" gid="148" x="155" y="1852" width="32" height="32">
    <properties>
-    <property name="type" value="PLAYER"/>
+    <property name="type" value="player"/>
    </properties>
   </object>
+  <object id="9" gid="242" x="512" y="1697" width="32" height="32"/>
+  <object id="10" gid="106" x="320" y="1760" width="32" height="32">
+   <properties>
+    <property name="type" value="elder"/>
+   </properties>
+  </object>
+  <object id="11" gid="145" x="64" y="1922" width="32" height="32"/>
+  <object id="12" gid="107" x="637" y="1935" width="32" height="32"/>
  </objectgroup>
  <objectgroup color="#ff0000" id="4" name="collision">
   <object id="2" x="2.5" y="1569" width="189.5" height="30.8333"/>
@@ -26,7 +34,7 @@
   <object id="6" x="672.25" y="1952" width="30.5" height="96"/>
   <object id="7" x="2.25" y="1601.5" width="29.5" height="412"/>
  </objectgroup>
- <objectgroup color="#aaffff" id="5" name="cameraBoundary">
+ <objectgroup color="#aaffff" id="5" name="cameraBoundary" visible="0">
   <object id="8" x="0.333333" y="1571" width="701" height="477"/>
  </objectgroup>
 </map>

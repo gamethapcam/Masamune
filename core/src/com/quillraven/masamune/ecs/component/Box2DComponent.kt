@@ -10,8 +10,10 @@ class Box2DComponent : Pool.Poolable, Component {
     var height = 0f
     var prevX = 0f
     var prevY = 0f
+    var prevAngle = 0f
     var interpolatedX = 0f
     var interpolatedY = 0f
+    var interpolatedAngle = 0f
 
     override fun reset() {
         body?.world?.destroyBody(body)
@@ -20,7 +22,9 @@ class Box2DComponent : Pool.Poolable, Component {
         height = 0f
         prevX = 0f
         prevY = 0f
+        prevAngle = 0f
         interpolatedX = 0f
         interpolatedY = 0f
+        interpolatedAngle = 0f
     }
 }

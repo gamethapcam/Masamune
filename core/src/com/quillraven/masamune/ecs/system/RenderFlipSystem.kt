@@ -12,7 +12,7 @@ class RenderFlipSystem : IteratingSystem(Family.all(RenderComponent::class.java,
     override fun processEntity(entity: Entity?, deltaTime: Float) {
         val flipCmp = CmpMapperFlip.get(entity)
         flipCmp.flipCountdown += deltaTime
-        if (flipCmp.flipCountdown > 0.75f) {
+        if (flipCmp.flipCountdown > 1f) {
             val renderCmp = CmpMapperRender.get(entity)
             renderCmp.flipX = !renderCmp.flipX
             flipCmp.flipCountdown = 0f
