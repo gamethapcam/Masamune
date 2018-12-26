@@ -60,7 +60,7 @@ class ECSEngine : PooledEngine(), Disposable {
             polygonShape.setAsBox(width * 0.5f, height * 0.5f)
             fixtureDef.shape = polygonShape
             fixtureDef.isSensor = false
-            body?.createFixture(fixtureDef)
+            body!!.createFixture(fixtureDef)
             polygonShape.dispose()
         })
 

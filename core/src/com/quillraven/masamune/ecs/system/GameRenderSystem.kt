@@ -67,8 +67,8 @@ class GameRenderSystem constructor(game: MainGame) : EntitySystem(), Listener<Ma
         ScissorStack.popScissors()
     }
 
-    override fun receive(signal: Signal<MapEvent>?, `object`: MapEvent?) {
-        mapRenderer.map = `object`!!.map
+    override fun receive(signal: Signal<MapEvent>?, obj: MapEvent) {
+        mapRenderer.map = obj.map
     }
 
     override fun dispose() {

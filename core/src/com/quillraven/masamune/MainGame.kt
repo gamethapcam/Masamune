@@ -14,6 +14,7 @@ import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.event.GameEventManager
 import com.quillraven.masamune.map.MapManager
 import com.quillraven.masamune.screen.LoadingScreen
+import com.quillraven.masamune.screen.Q2DScreen
 
 private const val TAG = "Main"
 internal const val UNIT_SCALE = 1 / 32f
@@ -60,10 +61,12 @@ class MainGame : Q2DGame() {
     internal val gameEventManager by lazy { GameEventManager() }
     internal val mapManager by lazy { MapManager(this) }
 
-    override fun create() {
+    override fun initialize() {
         assetManager.setLoader(TiledMap::class.java, TmxMapLoader(assetManager.fileHandleResolver))
+    }
 
-        setScreen(LoadingScreen::class.java)
+    override fun getFirstScreenType(): Class<out Q2DScreen> {
+        return LoadingScreen::class.java
     }
 
     override fun dispose() {

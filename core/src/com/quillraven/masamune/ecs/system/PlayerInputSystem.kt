@@ -11,13 +11,13 @@ import com.quillraven.masamune.ecs.component.PlayerInputComponent
 class PlayerInputSystem : IteratingSystem(Family.all(PlayerInputComponent::class.java).get()) {
     override fun processEntity(entity: Entity?, deltaTime: Float) {
         val b2dCmp = CmpMapperB2D.get(entity)
-        val body = b2dCmp.body
+        val body = b2dCmp.body!!
 
         when {
-            Gdx.input.isKeyPressed(Input.Keys.W) -> body?.applyLinearImpulse((0 - body.linearVelocity.x) * body.mass, (5 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
-            Gdx.input.isKeyPressed(Input.Keys.S) -> body?.applyLinearImpulse((0 - body.linearVelocity.x) * body.mass, (-5 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
-            Gdx.input.isKeyPressed(Input.Keys.A) -> body?.applyLinearImpulse((-5 - body.linearVelocity.x) * body.mass, (0 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
-            Gdx.input.isKeyPressed(Input.Keys.D) -> body?.applyLinearImpulse((5 - body.linearVelocity.x) * body.mass, (0 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
+            Gdx.input.isKeyPressed(Input.Keys.W) -> body.applyLinearImpulse((0 - body.linearVelocity.x) * body.mass, (5 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
+            Gdx.input.isKeyPressed(Input.Keys.S) -> body.applyLinearImpulse((0 - body.linearVelocity.x) * body.mass, (-5 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
+            Gdx.input.isKeyPressed(Input.Keys.A) -> body.applyLinearImpulse((-5 - body.linearVelocity.x) * body.mass, (0 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
+            Gdx.input.isKeyPressed(Input.Keys.D) -> body.applyLinearImpulse((5 - body.linearVelocity.x) * body.mass, (0 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
         }
     }
 }

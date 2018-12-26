@@ -47,9 +47,9 @@ class CameraSystem constructor(game: MainGame, private val camera: Camera = game
         }
     }
 
-    override fun receive(signal: Signal<MapEvent>?, `object`: MapEvent?) {
+    override fun receive(signal: Signal<MapEvent>?, obj: MapEvent) {
         currentBoundary.set(0f, 0f, 0f, 0f)
-        mapBoundary.set(0f, 0f, `object`!!.width, `object`.height)
+        mapBoundary.set(0f, 0f, obj.width, obj.height)
         mapManager.getCameraBoundaries(camBoundaries)
     }
 }
