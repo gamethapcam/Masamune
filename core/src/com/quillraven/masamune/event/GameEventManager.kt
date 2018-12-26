@@ -9,15 +9,33 @@ class GameEventManager {
     private val mapSignal = Signal<MapEvent>()
     private val mapEvent = MapEvent
 
+    private val inputSignal = Signal<InputEvent>()
+    private val inputEvent = InputEvent
+
     fun addMapEventListener(listener: Listener<MapEvent>) {
         mapSignal.add(listener)
     }
 
     fun dispatchMapEvent(type: EMapType, map: TiledMap, width: Float, height: Float) {
-        mapEvent.type = type
-        mapEvent.map = map
-        mapEvent.width = width
-        mapEvent.height = height
+        mapEvent.apply {
+            this.type = type
+            this.map = map
+            this.width = width
+            this.height = height
+        }
         mapSignal.dispatch(mapEvent)
+    }
+
+    fun addInputEventListener(listener: Listener<InputEvent>) {
+        inputSignal.add(listener)
+    }
+
+    fun dispatchInputMoveEvent(percX: Float, percY: Float) {
+        inputEvent.apply {
+            type = EInputType.MOVE
+            movePercX = percX
+            movePercY = percY
+        }
+        inputSignal.dispatch(inputEvent)
     }
 }

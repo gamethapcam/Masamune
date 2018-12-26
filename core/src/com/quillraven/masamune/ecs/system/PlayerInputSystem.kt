@@ -2,22 +2,37 @@ package com.quillraven.masamune.ecs.system
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.signals.Listener
+import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
+import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.CmpMapperB2D
+import com.quillraven.masamune.ecs.CmpMapperMove
+import com.quillraven.masamune.ecs.component.MoveComponent
 import com.quillraven.masamune.ecs.component.PlayerInputComponent
+import com.quillraven.masamune.event.EInputType
+import com.quillraven.masamune.event.InputEvent
 
-class PlayerInputSystem : IteratingSystem(Family.all(PlayerInputComponent::class.java).get()) {
+class PlayerInputSystem constructor(game: MainGame) : IteratingSystem(Family.all(PlayerInputComponent::class.java, MoveComponent::class.java).get()), Listener<InputEvent> {
+    private var percX = 0f
+    private var percY = 0f
+
+    init {
+        game.gameEventManager.addInputEventListener(this)
+    }
+
     override fun processEntity(entity: Entity?, deltaTime: Float) {
         val b2dCmp = CmpMapperB2D.get(entity)
+        val moveCmp = CmpMapperMove.get(entity)
         val body = b2dCmp.body!!
 
-        when {
-            Gdx.input.isKeyPressed(Input.Keys.W) -> body.applyLinearImpulse((0 - body.linearVelocity.x) * body.mass, (5 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
-            Gdx.input.isKeyPressed(Input.Keys.S) -> body.applyLinearImpulse((0 - body.linearVelocity.x) * body.mass, (-5 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
-            Gdx.input.isKeyPressed(Input.Keys.A) -> body.applyLinearImpulse((-5 - body.linearVelocity.x) * body.mass, (0 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
-            Gdx.input.isKeyPressed(Input.Keys.D) -> body.applyLinearImpulse((5 - body.linearVelocity.x) * body.mass, (0 - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
+        body.applyLinearImpulse((moveCmp.speed * percX - body.linearVelocity.x) * body.mass, (moveCmp.speed * percY - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
+    }
+
+    override fun receive(signal: Signal<InputEvent>?, obj: InputEvent) {
+        if (obj.type == EInputType.MOVE) {
+            percX = obj.movePercX
+            percY = obj.movePercY
         }
     }
 }

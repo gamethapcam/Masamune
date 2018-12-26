@@ -16,12 +16,13 @@ import com.quillraven.masamune.resetBodyAndFixtureDef
 internal val CmpMapperB2D = ComponentMapper.getFor(Box2DComponent::class.java)
 internal val CmpMapperRender = ComponentMapper.getFor(RenderComponent::class.java)
 internal val CmpMapperFlip = ComponentMapper.getFor(RenderFlipComponent::class.java)
+internal val CmpMapperMove = ComponentMapper.getFor(MoveComponent::class.java)
 
 class ECSEngine : PooledEngine(), Disposable {
     private val game = Gdx.app.applicationListener as MainGame
 
     init {
-        addSystem(PlayerInputSystem())
+        addSystem(PlayerInputSystem(game))
         addSystem(Box2DSystem(game))
         addSystem(CameraSystem(game))
         addSystem(RenderFlipSystem())
@@ -68,6 +69,7 @@ class ECSEngine : PooledEngine(), Disposable {
         entity.add(createComponent(PlayerInputComponent::class.java))
         entity.add(createComponent(RenderFlipComponent::class.java))
         entity.add(createComponent(RenderComponent::class.java))
+        entity.add(createComponent(MoveComponent::class.java).apply { speed = 5f })
 
         addEntity(entity)
     }

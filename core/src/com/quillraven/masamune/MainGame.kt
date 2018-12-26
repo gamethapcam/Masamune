@@ -2,6 +2,7 @@ package com.quillraven.masamune
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.assets.loaders.SkinLoader
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
@@ -9,12 +10,16 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.FixtureDef
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.utils.ObjectMap
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.event.GameEventManager
 import com.quillraven.masamune.map.MapManager
 import com.quillraven.masamune.screen.LoadingScreen
 import com.quillraven.masamune.screen.Q2DScreen
+
 
 private const val TAG = "Main"
 internal const val UNIT_SCALE = 1 / 32f
@@ -53,6 +58,14 @@ internal fun resetBodyAndFixtureDef() {
 class MainGame : Q2DGame() {
     internal val gameViewPort by lazy { FitViewport(16f, 9f) }
     internal val batch by lazy { SpriteBatch() }
+    internal val stage by lazy { Stage(FitViewport(16 * 32f, 9 * 32f), batch) }
+    internal val skin by lazy {
+        val resources = ObjectMap<String, Any>()
+        val skinParameter = SkinLoader.SkinParameter("ui/ui.atlas", resources)
+        assetManager.load("ui/ui.json", Skin::class.java, skinParameter)
+        assetManager.finishLoading()
+        assetManager.get("ui/ui.json", Skin::class.java)
+    }
     internal val ecsEngine by lazy { ECSEngine() }
 
     internal val world by lazy { World(Vector2(0f, 0f), true) }
@@ -62,6 +75,8 @@ class MainGame : Q2DGame() {
     internal val mapManager by lazy { MapManager(this) }
 
     override fun initialize() {
+        Gdx.input.inputProcessor = stage
+
         assetManager.setLoader(TiledMap::class.java, TmxMapLoader(assetManager.fileHandleResolver))
     }
 
@@ -74,6 +89,7 @@ class MainGame : Q2DGame() {
 
         ecsEngine.dispose()
         batch.dispose()
+        stage.dispose()
         world.dispose()
         super.dispose()
     }

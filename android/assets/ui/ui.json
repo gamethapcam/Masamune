@@ -1,0 +1,8 @@
+{
+  "TouchpadStyle": {
+    "default": {
+      "background": "touchpad_bgd",
+      "knob": "touchpad_knob"
+    }
+  }
+}
