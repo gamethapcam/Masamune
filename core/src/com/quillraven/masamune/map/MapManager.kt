@@ -9,9 +9,13 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.utils.Array
-import com.quillraven.masamune.*
+import com.badlogic.gdx.utils.Json
+import com.badlogic.gdx.utils.JsonValue
+import com.quillraven.masamune.MainGame
+import com.quillraven.masamune.UNIT_SCALE
+import com.quillraven.masamune.ecs.component.createBody
 import com.quillraven.masamune.model.CharacterCfgMap
-import com.quillraven.masamune.model.ECharactedType
+import com.quillraven.masamune.model.ECharacterType
 
 private const val TAG = "MapManager"
 
@@ -27,17 +31,19 @@ class MapManager constructor(game: MainGame) {
     private val world = game.world
     private val rectVertices = FloatArray(8)
 
+    internal lateinit var currentMapType: EMapType
+    private lateinit var currentTiledMap: TiledMap
     private val camBoundaryCache = Array<Rectangle>()
     private var numCamBoundaries = 0
 
     fun setMap(type: EMapType) {
-        val tiledMap = assetManger.get(type.filePath, TiledMap::class.java)
+        currentMapType = type
+        currentTiledMap = assetManger.get(currentMapType.filePath, TiledMap::class.java)
 
-        loadCollisionObjects(tiledMap)
-        loadCharacters(tiledMap)
-        getCameraBoundaries(tiledMap)
+        loadCollisionObjects()
+        getCameraBoundaries()
 
-        gameEventManager.dispatchMapEvent(type, tiledMap, tiledMap.properties.get("width", 0f, Float::class.java), tiledMap.properties.get("height", 0f, Float::class.java))
+        gameEventManager.dispatchMapEvent(currentMapType, currentTiledMap, currentTiledMap.properties.get("width", 0f, Float::class.java), currentTiledMap.properties.get("height", 0f, Float::class.java))
     }
 
     fun getCameraBoundaries(fill: Array<Rectangle>) {
@@ -47,8 +53,8 @@ class MapManager constructor(game: MainGame) {
         }
     }
 
-    private fun loadCollisionObjects(tiledMap: TiledMap) {
-        val mapLayer = tiledMap.layers.get(LAYER_COLLISION)
+    private fun loadCollisionObjects() {
+        val mapLayer = currentTiledMap.layers.get(LAYER_COLLISION)
         if (mapLayer == null) {
             Gdx.app.debug(TAG, "There is no $LAYER_COLLISION layer")
             return
@@ -80,12 +86,6 @@ class MapManager constructor(game: MainGame) {
     }
 
     private fun createCollisionObject(x: Float, y: Float, vertices: FloatArray, loop: Boolean = false) {
-        resetBodyAndFixtureDef()
-        bodyDef.type = BodyDef.BodyType.StaticBody
-        bodyDef.position.set(x * UNIT_SCALE, y * UNIT_SCALE)
-        bodyDef.fixedRotation = true
-        val body = world.createBody(bodyDef)
-
         for (i in vertices.indices) {
             vertices[i] *= UNIT_SCALE
         }
@@ -96,18 +96,16 @@ class MapManager constructor(game: MainGame) {
         } else {
             chainShape.createChain(vertices)
         }
-        fixtureDef.shape = chainShape
-        fixtureDef.isSensor = false
-        body.createFixture(fixtureDef)
-        chainShape.dispose()
+
+        createBody(world, BodyDef.BodyType.StaticBody, x * UNIT_SCALE, y * UNIT_SCALE, chainShape)
 
         for (i in vertices.indices) {
             vertices[i] /= UNIT_SCALE
         }
     }
 
-    private fun loadCharacters(tiledMap: TiledMap) {
-        val mapLayer = tiledMap.layers.get(LAYER_CHARACTER)
+    fun loadCharacters() {
+        val mapLayer = currentTiledMap.layers.get(LAYER_CHARACTER)
         if (mapLayer == null) {
             Gdx.app.debug(TAG, "There is no $LAYER_CHARACTER layer")
             return
@@ -121,7 +119,7 @@ class MapManager constructor(game: MainGame) {
             }
 
             try {
-                val charType = characterCfgMap.get(ECharactedType.valueOf(charTypeStr))
+                val charType = characterCfgMap[ECharacterType.valueOf(charTypeStr)]
                 if (charType == null) {
                     Gdx.app.debug(TAG, "There is no character cfg of type  $charTypeStr defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                     continue
@@ -135,10 +133,10 @@ class MapManager constructor(game: MainGame) {
         }
     }
 
-    private fun getCameraBoundaries(tiledMap: TiledMap) {
+    private fun getCameraBoundaries() {
         numCamBoundaries = 0
 
-        val mapLayer = tiledMap.layers.get(LAYER_CAMERA_BOUNDARY)
+        val mapLayer = currentTiledMap.layers.get(LAYER_CAMERA_BOUNDARY)
         if (mapLayer == null) {
             Gdx.app.debug(TAG, "There is no $LAYER_CAMERA_BOUNDARY layer defined")
             return
@@ -161,5 +159,18 @@ class MapManager constructor(game: MainGame) {
                 Gdx.app.error(TAG, "There is a non-rectangle camera boundary area")
             }
         }
+    }
+}
+
+class MapSerializer constructor(private val game: MainGame) : Json.Serializer<MapManager> {
+    override fun write(json: Json, obj: MapManager, knownType: Class<*>?) {
+        json.writeObjectStart()
+        json.writeValue("currentMap", obj.currentMapType.name)
+        json.writeObjectEnd()
+    }
+
+    override fun read(json: Json, jsonData: JsonValue, type: Class<*>?): MapManager {
+        game.mapManager.setMap(EMapType.valueOf(jsonData.getString("currentMap", EMapType.MAP01.name)))
+        return game.mapManager
     }
 }

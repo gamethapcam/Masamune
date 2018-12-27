@@ -1,33 +1,26 @@
 package com.quillraven.masamune.ecs
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.ObjectMap
+import com.badlogic.gdx.utils.Json
+import com.badlogic.gdx.utils.JsonValue
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.bodyDef
 import com.quillraven.masamune.ecs.component.*
 import com.quillraven.masamune.ecs.system.*
-import com.quillraven.masamune.fixtureDef
 import com.quillraven.masamune.model.CharacterCfg
-import com.quillraven.masamune.model.ECharactedType
-import com.quillraven.masamune.resetBodyAndFixtureDef
+import com.quillraven.masamune.model.ECharacterType
 
 internal val CmpMapperB2D = ComponentMapper.getFor(Box2DComponent::class.java)
 internal val CmpMapperRender = ComponentMapper.getFor(RenderComponent::class.java)
 internal val CmpMapperFlip = ComponentMapper.getFor(RenderFlipComponent::class.java)
 internal val CmpMapperMove = ComponentMapper.getFor(MoveComponent::class.java)
 
-private const val TAG = "ECSEngine"
-
 class ECSEngine : PooledEngine(), Disposable {
     private val game = Gdx.app.applicationListener as MainGame
-    private val texAtlas = game.assetManager.get("textures.atlas", TextureAtlas::class.java)
-    private val spriteCache = ObjectMap<String, Sprite>()
 
     init {
         addSystem(PlayerInputSystem(game))
@@ -51,7 +44,6 @@ class ECSEngine : PooledEngine(), Disposable {
     fun createCharacter(x: Float, y: Float, cfg: CharacterCfg) {
         val entity = createEntity()
 
-        resetBodyAndFixtureDef()
         entity.add(createComponent(Box2DComponent::class.java).apply {
             width = cfg.width * 0.75f
             height = cfg.height * 0.2f
@@ -60,31 +52,23 @@ class ECSEngine : PooledEngine(), Disposable {
             interpolatedX = prevX
             interpolatedY = prevY
 
-            bodyDef.type = cfg.bodyType
-            bodyDef.position.set(prevX, prevY)
-            bodyDef.fixedRotation = true
-            body = game.world.createBody(bodyDef).apply {
-                val polygonShape = PolygonShape()
-                polygonShape.setAsBox(width * 0.5f, height * 0.5f)
-                fixtureDef.shape = polygonShape
-                fixtureDef.isSensor = false
-                createFixture(fixtureDef)
-                polygonShape.dispose()
-            }
+            val polygonShape = PolygonShape()
+            polygonShape.setAsBox(width * 0.5f, height * 0.5f)
+            body = createBody(game.world, cfg.bodyType, prevX, prevY, polygonShape)
         })
 
         if (cfg.flip) {
             entity.add(createComponent(RenderFlipComponent::class.java))
         }
         entity.add(createComponent(RenderComponent::class.java).apply {
-            sprite = getSprite(cfg.texture)
-            texturePath.append(cfg.texture)
+            sprite = game.spriteCache.getSprite(cfg.texture)
+            texturePath = cfg.texture
             width = cfg.width
             height = cfg.height
         })
         entity.add(createComponent(MoveComponent::class.java).apply { speed = cfg.speed })
 
-        if (cfg.type == ECharactedType.HERO) {
+        if (cfg.type == ECharacterType.HERO) {
             // player entity -> add player input and camera lock components
             entity.add(createComponent(CameraComponent::class.java))
             entity.add(createComponent(PlayerInputComponent::class.java))
@@ -92,28 +76,44 @@ class ECSEngine : PooledEngine(), Disposable {
 
         addEntity(entity)
     }
+}
 
-    private fun getSprite(texture: String): Sprite {
-        var sprite = spriteCache.get(texture)
-        if (sprite == null) {
-            Gdx.app.debug(TAG, "Creating sprite $texture")
-            sprite = texAtlas.createSprite(texture)
-            if (sprite == null) {
-                Gdx.app.error(TAG, "Could not find texture region $texture. Using default sprite instead")
-                return getDefaultSprite()
+class ECSSerializer constructor(private val game: MainGame) : Json.Serializer<ECSEngine> {
+    override fun write(json: Json, obj: ECSEngine, knownType: Class<*>?) {
+        if (obj.entities.size() > 0) {
+            json.writeArrayStart()
+            for (entity in obj.entities) {
+                json.writeArrayStart()
+                for (cmp in entity.components) {
+                    if (cmp is ISerializableComponent) {
+                        json.writeObjectStart()
+                        json.writeValue("cmpType", cmp.javaClass.name)
+                        cmp.write(json)
+                        json.writeObjectEnd()
+                    }
+                }
+                json.writeArrayEnd()
             }
-            spriteCache.put(texture, sprite)
+            json.writeArrayEnd()
         }
-        return sprite
     }
 
-    private fun getDefaultSprite(): Sprite {
-        var defaultSprite = spriteCache.get("frederick_new")
-        if (defaultSprite == null) {
-            Gdx.app.debug(TAG, "Creating default sprite")
-            defaultSprite = texAtlas.createSprite("frederick_new")
-            spriteCache.put("frederick_new", defaultSprite)
+    override fun read(json: Json, jsonData: JsonValue, type: Class<*>?): ECSEngine {
+        var entityData = jsonData.child
+        while (entityData != null) {
+            val entity = game.ecsEngine.createEntity()
+
+            var cmpData = entityData.child
+            while (cmpData != null) {
+                val cmp = game.ecsEngine.createComponent(Class.forName(cmpData.getString("cmpType")) as Class<Component>)
+                (cmp as ISerializableComponent).read(cmpData, game)
+                entity.add(cmp)
+                cmpData = cmpData.next
+            }
+
+            game.ecsEngine.addEntity(entity)
+            entityData = entityData.next
         }
-        return defaultSprite
+        return game.ecsEngine
     }
 }

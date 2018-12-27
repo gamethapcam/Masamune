@@ -4,11 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.SkinLoader
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.maps.tiled.TiledMap
-import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.BodyDef
-import com.badlogic.gdx.physics.box2d.FixtureDef
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
@@ -17,58 +13,26 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.event.GameEventManager
 import com.quillraven.masamune.map.MapManager
-import com.quillraven.masamune.model.CharacterCfg
 import com.quillraven.masamune.screen.LoadingScreen
 import com.quillraven.masamune.screen.Q2DScreen
 
 
 private const val TAG = "Main"
 internal const val UNIT_SCALE = 1 / 32f
-internal val bodyDef = BodyDef()
-internal val fixtureDef = FixtureDef()
-
-internal fun resetBodyAndFixtureDef() {
-    bodyDef.apply {
-        type = BodyDef.BodyType.StaticBody
-        position.set(Vector2.Zero)
-        angle = 0f
-        linearVelocity.set(Vector2.Zero)
-        angularVelocity = 0f
-        linearDamping = 0f
-        angularDamping = 0f
-        allowSleep = true
-        awake = true
-        fixedRotation = false
-        bullet = false
-        active = true
-        gravityScale = 1f
-    }
-
-    fixtureDef.apply {
-        shape = null
-        friction = 0.2f
-        restitution = 0f
-        density = 0f
-        isSensor = false
-        filter.categoryBits = 0x0001
-        filter.maskBits = -1
-        filter.groupIndex = 0
-    }
-}
 
 class MainGame : Q2DGame() {
     internal val gameViewPort by lazy { FitViewport(16f, 9f) }
     internal val batch by lazy { SpriteBatch() }
     internal val stage by lazy { Stage(FitViewport(16 * 32f, 9 * 32f), batch) }
 
-    private val SKIN_ATLAS_PATH = "ui/neutralizer-ui.atlas"
-    private val SKIN_PATH = "ui/neutralizer-ui.json"
+    private val skinAtlasPath = "ui/neutralizer-ui.atlas"
+    private val skinPath = "ui/neutralizer-ui.json"
     internal val skin by lazy {
         val resources = ObjectMap<String, Any>()
-        val skinParameter = SkinLoader.SkinParameter(SKIN_ATLAS_PATH, resources)
-        assetManager.load(SKIN_PATH, Skin::class.java, skinParameter)
+        val skinParameter = SkinLoader.SkinParameter(skinAtlasPath, resources)
+        assetManager.load(skinPath, Skin::class.java, skinParameter)
         assetManager.finishLoading()
-        assetManager.get(SKIN_PATH, Skin::class.java)
+        assetManager.get(skinPath, Skin::class.java)
     }
 
     internal val ecsEngine by lazy { ECSEngine() }
@@ -80,6 +44,10 @@ class MainGame : Q2DGame() {
     internal val gameEventManager by lazy { GameEventManager() }
 
     internal val mapManager by lazy { MapManager(this) }
+
+    internal val preferences by lazy { Gdx.app.getPreferences("masamune") }
+
+    internal val spriteCache by lazy { SpriteCache(this) }
 
     override fun initialize() {
         Gdx.input.inputProcessor = stage

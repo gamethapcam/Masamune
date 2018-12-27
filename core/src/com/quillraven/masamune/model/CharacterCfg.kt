@@ -11,12 +11,12 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.JsonReader
 import java.util.*
 
-enum class ECharactedType {
+enum class ECharacterType {
     HERO, ELDER
 }
 
 data class CharacterCfg(
-        val type: ECharactedType,
+        val type: ECharacterType,
         val bodyType: BodyDef.BodyType,
         val texture: String,
         val width: Float,
@@ -25,14 +25,12 @@ data class CharacterCfg(
         val flip: Boolean
 )
 
-class CharacterCfgMap : EnumMap<ECharactedType, CharacterCfg>(ECharactedType::class.java)
+class CharacterCfgMap : EnumMap<ECharacterType, CharacterCfg>(ECharacterType::class.java)
 
 class CharacterCfgLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader<CharacterCfgMap, CharacterCfgLoader.CharacterCfgLoaderParameter>(resolver) {
     private val cfgMap = CharacterCfgMap()
 
-    class CharacterCfgLoaderParameter : AssetLoaderParameters<CharacterCfgMap>() {
-
-    }
+    class CharacterCfgLoaderParameter : AssetLoaderParameters<CharacterCfgMap>()
 
     override fun getDependencies(fileName: String?, file: FileHandle?, parameter: CharacterCfgLoaderParameter?): Array<AssetDescriptor<Any>>? {
         return null
@@ -46,15 +44,15 @@ class CharacterCfgLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader
         val jsonValue = JsonReader().parse(file)
         var entry = jsonValue.child
         while (entry != null) {
-            val type = ECharactedType.valueOf(entry.name)
-            cfgMap.put(type, CharacterCfg(
+            val type = ECharacterType.valueOf(entry.name)
+            cfgMap[type] = CharacterCfg(
                     type,
                     BodyDef.BodyType.valueOf(entry.getString("bodyType")),
                     entry.getString("texture"),
                     entry.getFloat("width", 1f),
                     entry.getFloat("height", 1f),
                     entry.getFloat("speed", 0f),
-                    entry.getBoolean("flip", true)))
+                    entry.getBoolean("flip", true))
             entry = entry.next
         }
     }

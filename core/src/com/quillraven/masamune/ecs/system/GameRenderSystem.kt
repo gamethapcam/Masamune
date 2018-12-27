@@ -21,9 +21,6 @@ import com.quillraven.masamune.ecs.component.Box2DComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.event.MapEvent
 
-
-private const val TAG = "GameRenderSystem"
-
 private class YComparator : Comparator<Entity> {
     override fun compare(o1: Entity, o2: Entity): Int {
         return Math.signum(CmpMapperB2D.get(o2).interpolatedY - CmpMapperB2D.get(o1).interpolatedY).toInt()
