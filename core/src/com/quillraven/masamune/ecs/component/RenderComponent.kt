@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.StringBuilder
 
 class RenderComponent : Pool.Poolable, Component {
-    var sprite: Sprite? = null
+    lateinit var sprite: Sprite
     val texturePath = StringBuilder()
     var flipX = false
     var flipY = false
@@ -14,7 +14,6 @@ class RenderComponent : Pool.Poolable, Component {
     var height = 1f
 
     override fun reset() {
-        sprite = null
         texturePath.setLength(0)
         flipX = false
         flipY = false

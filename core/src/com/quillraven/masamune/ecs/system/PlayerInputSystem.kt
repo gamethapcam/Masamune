@@ -24,9 +24,9 @@ class PlayerInputSystem constructor(game: MainGame) : IteratingSystem(Family.all
     override fun processEntity(entity: Entity?, deltaTime: Float) {
         val b2dCmp = CmpMapperB2D.get(entity)
         val moveCmp = CmpMapperMove.get(entity)
-        val body = b2dCmp.body!!
-
-        body.applyLinearImpulse((moveCmp.speed * percX - body.linearVelocity.x) * body.mass, (moveCmp.speed * percY - body.linearVelocity.y) * body.mass, body.worldCenter.x, body.worldCenter.y, true)
+        b2dCmp.body.apply {
+            applyLinearImpulse((moveCmp.speed * percX - linearVelocity.x) * mass, (moveCmp.speed * percY - linearVelocity.y) * mass, worldCenter.x, worldCenter.y, true)
+        }
     }
 
     override fun receive(signal: Signal<InputEvent>?, obj: InputEvent) {

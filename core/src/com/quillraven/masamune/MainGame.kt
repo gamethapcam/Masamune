@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.event.GameEventManager
 import com.quillraven.masamune.map.MapManager
+import com.quillraven.masamune.model.CharacterCfg
 import com.quillraven.masamune.screen.LoadingScreen
 import com.quillraven.masamune.screen.Q2DScreen
 
@@ -59,13 +60,17 @@ class MainGame : Q2DGame() {
     internal val gameViewPort by lazy { FitViewport(16f, 9f) }
     internal val batch by lazy { SpriteBatch() }
     internal val stage by lazy { Stage(FitViewport(16 * 32f, 9 * 32f), batch) }
+
+    private val SKIN_ATLAS_PATH = "ui/neutralizer-ui.atlas"
+    private val SKIN_PATH = "ui/neutralizer-ui.json"
     internal val skin by lazy {
         val resources = ObjectMap<String, Any>()
-        val skinParameter = SkinLoader.SkinParameter("ui/ui.atlas", resources)
-        assetManager.load("ui/ui.json", Skin::class.java, skinParameter)
+        val skinParameter = SkinLoader.SkinParameter(SKIN_ATLAS_PATH, resources)
+        assetManager.load(SKIN_PATH, Skin::class.java, skinParameter)
         assetManager.finishLoading()
-        assetManager.get("ui/ui.json", Skin::class.java)
+        assetManager.get(SKIN_PATH, Skin::class.java)
     }
+
     internal val ecsEngine by lazy { ECSEngine() }
 
     internal val world by lazy { World(Vector2(0f, 0f), true) }
@@ -76,12 +81,8 @@ class MainGame : Q2DGame() {
 
     internal val mapManager by lazy { MapManager(this) }
 
-    internal val characterCfgMap = ObjectMap<String, CharacterCfg>()
-
     override fun initialize() {
         Gdx.input.inputProcessor = stage
-
-        assetManager.setLoader(TiledMap::class.java, TmxMapLoader(assetManager.fileHandleResolver))
     }
 
     override fun getFirstScreenType(): Class<out Q2DScreen> {

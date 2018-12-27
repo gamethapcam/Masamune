@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.utils.Pool
 
 class Box2DComponent : Pool.Poolable, Component {
-    var body: Body? = null
+    lateinit var body: Body
     var width = 0f
     var height = 0f
     var prevX = 0f
@@ -16,8 +16,7 @@ class Box2DComponent : Pool.Poolable, Component {
     var interpolatedAngle = 0f
 
     override fun reset() {
-        body?.world?.destroyBody(body)
-        body = null
+        body.world.destroyBody(body)
         width = 0f
         height = 0f
         prevX = 0f

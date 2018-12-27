@@ -10,6 +10,8 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.*
+import com.quillraven.masamune.model.CharacterCfgMap
+import com.quillraven.masamune.model.ECharactedType
 
 private const val TAG = "MapManager"
 
@@ -21,7 +23,7 @@ class MapManager constructor(game: MainGame) {
     private val ecsEngine = game.ecsEngine
     private val assetManger = game.assetManager
     private val gameEventManager = game.gameEventManager
-    private val characterCfgMap = game.characterCfgMap
+    private val characterCfgMap = assetManger.get("cfg/character.json", CharacterCfgMap::class.java)
     private val world = game.world
     private val rectVertices = FloatArray(8)
 
@@ -112,19 +114,23 @@ class MapManager constructor(game: MainGame) {
         }
 
         for (mapObj in mapLayer.objects) {
-            val charType = mapObj.properties.get("type", "", String::class.java)
-            if (charType.isBlank()) {
+            val charTypeStr = mapObj.properties.get("type", "", String::class.java)
+            if (charTypeStr.isBlank()) {
                 Gdx.app.debug(TAG, "Type is not defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
-                continue
-            } else if (!characterCfgMap.containsKey(charType)) {
-                Gdx.app.debug(TAG, "There is no character cfg of type  $charType defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
             }
 
-            if ("player" == charType) {
-                ecsEngine.createPlayer(mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE)
-            } else {
-                ecsEngine.createCharacter(mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE, characterCfgMap.get(charType))
+            try {
+                val charType = characterCfgMap.get(ECharactedType.valueOf(charTypeStr))
+                if (charType == null) {
+                    Gdx.app.debug(TAG, "There is no character cfg of type  $charTypeStr defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
+                    continue
+                }
+
+                ecsEngine.createCharacter(mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE, charType)
+            } catch (e: IllegalArgumentException) {
+                Gdx.app.error(TAG, "Invalid Type $charTypeStr for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
+                continue
             }
         }
     }

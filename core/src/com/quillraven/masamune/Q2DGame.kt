@@ -27,16 +27,16 @@ abstract class Q2DGame : ApplicationListener {
     abstract fun getFirstScreenType(): Class<out Q2DScreen>
 
     fun setScreen(type: Class<out Q2DScreen>, dispose: Boolean = false) {
-        Gdx.app.debug(TAG, "Setting new screen to ${type.simpleName}")
-
         screen.hide()
         if (dispose) {
+            Gdx.app.debug(TAG, "Disposing screen ${screen.javaClass.simpleName}")
             screen.dispose()
             screenCache.remove(screen.javaClass)
         }
 
+        Gdx.app.debug(TAG, "Setting new screen to ${type.simpleName}")
         if (!screenCache.containsKey(type)) {
-            Gdx.app.debug(TAG, "Creating new screen instance")
+            Gdx.app.debug(TAG, "Creating new screen instance of type ${type.simpleName}")
             screen = type.newInstance()
             screenCache.put(type, screen)
         } else {
@@ -66,6 +66,7 @@ abstract class Q2DGame : ApplicationListener {
         Gdx.app.debug(TAG, "Disposing ${screenCache.size} screen(s)")
 
         for (item in screenCache.values()) {
+            Gdx.app.debug(TAG, "Disposing screen ${item.javaClass.simpleName}")
             item.hide()
             item.dispose()
         }

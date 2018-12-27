@@ -25,10 +25,9 @@ class Box2DSystem constructor(game: MainGame) : EntitySystem() {
         while (accumulator >= FIXED_STEP) {
             for (entity in b2dEntities) {
                 val b2dCmp = CmpMapperB2D.get(entity)
-                val body = b2dCmp.body!!
-                b2dCmp.prevX = body.position.x
-                b2dCmp.prevY = body.position.y
-                b2dCmp.prevAngle = body.angle
+                b2dCmp.prevX = b2dCmp.body.position.x
+                b2dCmp.prevY = b2dCmp.body.position.y
+                b2dCmp.prevAngle = b2dCmp.body.angle
             }
             accumulator -= FIXED_STEP
             world.step(FIXED_STEP, 6, 2)
@@ -37,10 +36,9 @@ class Box2DSystem constructor(game: MainGame) : EntitySystem() {
         val alpha = accumulator / FIXED_STEP
         for (entity in b2dEntities) {
             val b2dCmp = CmpMapperB2D.get(entity)
-            val body = b2dCmp.body!!
-            b2dCmp.interpolatedX = MathUtils.lerp(b2dCmp.prevX, body.position.x, alpha)
-            b2dCmp.interpolatedY = MathUtils.lerp(b2dCmp.prevY, body.position.y, alpha)
-            b2dCmp.interpolatedAngle = MathUtils.lerpAngle(b2dCmp.prevAngle, body.angle, alpha)
+            b2dCmp.interpolatedX = MathUtils.lerp(b2dCmp.prevX, b2dCmp.body.position.x, alpha)
+            b2dCmp.interpolatedY = MathUtils.lerp(b2dCmp.prevY, b2dCmp.body.position.y, alpha)
+            b2dCmp.interpolatedAngle = MathUtils.lerpAngle(b2dCmp.prevAngle, b2dCmp.body.angle, alpha)
         }
     }
 }
