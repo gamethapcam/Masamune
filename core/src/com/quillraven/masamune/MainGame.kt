@@ -24,7 +24,7 @@ internal const val UNIT_SCALE = 1 / 32f
 class MainGame : Q2DGame() {
     internal val gameViewPort by lazy { FitViewport(16f, 9f) }
     internal val batch by lazy { SpriteBatch() }
-    internal val stage by lazy { Stage(FitViewport(16 * 32f, 9 * 32f), batch) }
+    internal val stage by lazy { Stage(FitViewport(16f / UNIT_SCALE, 9f / UNIT_SCALE), batch) }
 
     private val skinAtlasPath = "ui/neutralizer-ui.atlas"
     private val skinPath = "ui/neutralizer-ui.json"
