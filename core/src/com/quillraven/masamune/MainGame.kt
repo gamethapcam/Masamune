@@ -26,8 +26,8 @@ class MainGame : Q2DGame() {
     internal val batch by lazy { SpriteBatch() }
     internal val stage by lazy { Stage(FitViewport(16f / UNIT_SCALE, 9f / UNIT_SCALE), batch) }
 
-    private val skinAtlasPath = "ui/neutralizer-ui.atlas"
-    private val skinPath = "ui/neutralizer-ui.json"
+    private val skinAtlasPath = "ui/ui.atlas"
+    private val skinPath = "ui/ui.json"
     internal val skin by lazy {
         val resources = ObjectMap<String, Any>()
         val skinParameter = SkinLoader.SkinParameter(skinAtlasPath, resources)
