@@ -21,14 +21,14 @@ import com.quillraven.masamune.event.MapEvent
 
 class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(Box2DComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), Listener<MapEvent>, Disposable {
     private class YComparator constructor(game: MainGame) : Comparator<Entity> {
-        private val b2dCmpMapper = game.cmpMapper.box2D
+        private val transformCmpMapper = game.cmpMapper.transform
 
         override fun compare(o1: Entity, o2: Entity): Int {
-            return Math.signum(b2dCmpMapper.get(o2).interpolatedY - b2dCmpMapper.get(o1).interpolatedY).toInt()
+            return Math.signum(transformCmpMapper.get(o2).interpolatedY - transformCmpMapper.get(o1).interpolatedY).toInt()
         }
     }
 
-    private val b2dCmpMapper = game.cmpMapper.box2D
+    private val transformCmpMapper = game.cmpMapper.transform
     private val renderCmpMapper = game.cmpMapper.render
 
     private val viewport = game.gameViewPort
@@ -67,14 +67,14 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        val b2dCmp = b2dCmpMapper.get(entity)
+        val transformCmp = transformCmpMapper.get(entity)
         val renderCmp = renderCmpMapper.get(entity)
 
         renderCmp.sprite.apply {
             flip((renderCmp.flipX && !isFlipX) || (!renderCmp.flipX && isFlipX), (renderCmp.flipY && !isFlipY) || (!renderCmp.flipY && isFlipY))
-            setBounds(b2dCmp.interpolatedX - renderCmp.width * 0.5f, b2dCmp.interpolatedY - b2dCmp.height * 0.5f, renderCmp.width, renderCmp.height)
+            setBounds(transformCmp.interpolatedX - renderCmp.width * 0.5f, transformCmp.interpolatedY - transformCmp.height * 0.5f, renderCmp.width, renderCmp.height)
             setOriginCenter()
-            rotation = b2dCmp.interpolatedAngle * MathUtils.radDeg
+            rotation = transformCmp.interpolatedAngle * MathUtils.radDeg
             draw(batch)
         }
     }

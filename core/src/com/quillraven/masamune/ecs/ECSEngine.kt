@@ -16,12 +16,12 @@ class ECSEngine : PooledEngine(), Disposable {
     init {
         addSystem(PlayerInputSystem(game))
         addSystem(Box2DSystem(game))
-        addSystem(CameraSystem(game))
+        addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
         addSystem(RenderFlipSystem(game))
         addSystem(GameRenderSystem(game))
 
         // debug stuff
-        // addSystem(Box2DDebugRenderSystem(game))
+        addSystem(Box2DDebugRenderSystem(game))
     }
 
     override fun dispose() {
@@ -32,31 +32,39 @@ class ECSEngine : PooledEngine(), Disposable {
         }
     }
 
-    fun createCharacter(x: Float, y: Float, cfg: CharacterCfg) {
+    fun createCharacter(posX: Float, posY: Float, cfg: CharacterCfg) {
         val entity = createEntity()
 
-        entity.add(createComponent(Box2DComponent::class.java).apply {
-            width = cfg.width * 0.75f
-            height = cfg.height * 0.2f
-            prevX = x + width * 0.5f
-            prevY = y + height * 0.5f
+        val w = cfg.width * 0.75f
+        val h = cfg.height * 0.2f
+        entity.add(createComponent(TransformComponent::class.java).apply {
+            width = w
+            height = h
+            x = posX
+            y = posY
+            prevX = x
+            prevY = y
             interpolatedX = prevX
             interpolatedY = prevY
+        })
 
+        entity.add(createComponent(Box2DComponent::class.java).apply {
             val polygonShape = PolygonShape()
-            polygonShape.setAsBox(width * 0.5f, height * 0.5f)
-            body = game.b2dUtils.createBody(cfg.bodyType, prevX, prevY, polygonShape)
+            polygonShape.setAsBox(w * 0.5f, h * 0.5f)
+            body = game.b2dUtils.createBody(cfg.bodyType, posX + w * 0.5f, posY + h * 0.5f, polygonShape)
         })
 
         if (cfg.flip) {
             entity.add(createComponent(RenderFlipComponent::class.java))
         }
+
         entity.add(createComponent(RenderComponent::class.java).apply {
             sprite = game.spriteCache.getSprite(cfg.texture)
             texturePath = cfg.texture
             width = cfg.width
             height = cfg.height
         })
+
         entity.add(createComponent(MoveComponent::class.java).apply { speed = cfg.speed })
 
         if (cfg.type == ECharacterType.HERO) {

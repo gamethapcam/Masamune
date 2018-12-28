@@ -10,11 +10,12 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.component.CameraComponent
+import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.event.MapEvent
 
-class CameraSystem constructor(game: MainGame) : IteratingSystem(Family.all(CameraComponent::class.java).get()), Listener<MapEvent> {
+class CameraSystem constructor(game: MainGame) : IteratingSystem(Family.all(CameraComponent::class.java, TransformComponent::class.java).get()), Listener<MapEvent> {
     private val camera = game.gameViewPort.camera
-    private val b2dCmpMapper = game.cmpMapper.box2D
+    private val transformCmpMapper = game.cmpMapper.transform
 
     private val camBoundaries = Array<Rectangle>()
     private val mapBoundary = Rectangle(0f, 0f, 0f, 0f)
@@ -26,14 +27,14 @@ class CameraSystem constructor(game: MainGame) : IteratingSystem(Family.all(Came
     }
 
     override fun processEntity(entity: Entity?, deltaTime: Float) {
-        val b2dCmp = b2dCmpMapper.get(entity)
+        val transformCmp = transformCmpMapper.get(entity)
 
-        if (!currentBoundary.contains(b2dCmp.interpolatedX, b2dCmp.interpolatedY)) {
+        if (!currentBoundary.contains(transformCmp.interpolatedX, transformCmp.interpolatedY)) {
             // find new boundary
             // default is map boundary
             currentBoundary.set(mapBoundary)
             for (rect in camBoundaries) {
-                if (rect.contains(b2dCmp.interpolatedX, b2dCmp.interpolatedY)) {
+                if (rect.contains(transformCmp.interpolatedX, transformCmp.interpolatedY)) {
                     currentBoundary.set(rect)
                     break
                 }
@@ -43,8 +44,8 @@ class CameraSystem constructor(game: MainGame) : IteratingSystem(Family.all(Came
         val camW = camera.viewportWidth * 0.5f
         val camH = camera.viewportHeight * 0.5f
         camera.position.apply {
-            x = MathUtils.clamp(b2dCmp.interpolatedX, currentBoundary.x + camW, currentBoundary.x + currentBoundary.width - camW)
-            y = MathUtils.clamp(b2dCmp.interpolatedY, currentBoundary.y + camH, currentBoundary.y + currentBoundary.height - camH)
+            x = MathUtils.clamp(transformCmp.interpolatedX, currentBoundary.x + camW, currentBoundary.x + currentBoundary.width - camW)
+            y = MathUtils.clamp(transformCmp.interpolatedY, currentBoundary.y + camH, currentBoundary.y + currentBoundary.height - camH)
         }
     }
 
