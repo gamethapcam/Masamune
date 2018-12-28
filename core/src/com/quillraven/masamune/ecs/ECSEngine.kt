@@ -1,23 +1,14 @@
 package com.quillraven.masamune.ecs
 
-import com.badlogic.ashley.core.Component
-import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.JsonValue
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.component.*
 import com.quillraven.masamune.ecs.system.*
 import com.quillraven.masamune.model.CharacterCfg
 import com.quillraven.masamune.model.ECharacterType
-
-internal val CmpMapperB2D = ComponentMapper.getFor(Box2DComponent::class.java)
-internal val CmpMapperRender = ComponentMapper.getFor(RenderComponent::class.java)
-internal val CmpMapperFlip = ComponentMapper.getFor(RenderFlipComponent::class.java)
-internal val CmpMapperMove = ComponentMapper.getFor(MoveComponent::class.java)
 
 class ECSEngine : PooledEngine(), Disposable {
     private val game = Gdx.app.applicationListener as MainGame
@@ -26,7 +17,7 @@ class ECSEngine : PooledEngine(), Disposable {
         addSystem(PlayerInputSystem(game))
         addSystem(Box2DSystem(game))
         addSystem(CameraSystem(game))
-        addSystem(RenderFlipSystem())
+        addSystem(RenderFlipSystem(game))
         addSystem(GameRenderSystem(game))
 
         // debug stuff
@@ -54,7 +45,7 @@ class ECSEngine : PooledEngine(), Disposable {
 
             val polygonShape = PolygonShape()
             polygonShape.setAsBox(width * 0.5f, height * 0.5f)
-            body = createBody(game.world, cfg.bodyType, prevX, prevY, polygonShape)
+            body = game.b2dUtils.createBody(cfg.bodyType, prevX, prevY, polygonShape)
         })
 
         if (cfg.flip) {
@@ -75,45 +66,5 @@ class ECSEngine : PooledEngine(), Disposable {
         }
 
         addEntity(entity)
-    }
-}
-
-class ECSSerializer constructor(private val game: MainGame) : Json.Serializer<ECSEngine> {
-    override fun write(json: Json, obj: ECSEngine, knownType: Class<*>?) {
-        if (obj.entities.size() > 0) {
-            json.writeArrayStart()
-            for (entity in obj.entities) {
-                json.writeArrayStart()
-                for (cmp in entity.components) {
-                    if (cmp is ISerializableComponent) {
-                        json.writeObjectStart()
-                        json.writeValue("cmpType", cmp.javaClass.name)
-                        cmp.write(json)
-                        json.writeObjectEnd()
-                    }
-                }
-                json.writeArrayEnd()
-            }
-            json.writeArrayEnd()
-        }
-    }
-
-    override fun read(json: Json, jsonData: JsonValue, type: Class<*>?): ECSEngine {
-        var entityData = jsonData.child
-        while (entityData != null) {
-            val entity = game.ecsEngine.createEntity()
-
-            var cmpData = entityData.child
-            while (cmpData != null) {
-                val cmp = game.ecsEngine.createComponent(Class.forName(cmpData.getString("cmpType")) as Class<Component>)
-                (cmp as ISerializableComponent).read(cmpData, game)
-                entity.add(cmp)
-                cmpData = cmpData.next
-            }
-
-            game.ecsEngine.addEntity(entity)
-            entityData = entityData.next
-        }
-        return game.ecsEngine
     }
 }

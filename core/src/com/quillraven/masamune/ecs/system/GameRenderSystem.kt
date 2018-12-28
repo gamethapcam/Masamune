@@ -15,19 +15,22 @@ import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack
 import com.badlogic.gdx.utils.Disposable
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
-import com.quillraven.masamune.ecs.CmpMapperB2D
-import com.quillraven.masamune.ecs.CmpMapperRender
 import com.quillraven.masamune.ecs.component.Box2DComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.event.MapEvent
 
-private class YComparator : Comparator<Entity> {
-    override fun compare(o1: Entity, o2: Entity): Int {
-        return Math.signum(CmpMapperB2D.get(o2).interpolatedY - CmpMapperB2D.get(o1).interpolatedY).toInt()
-    }
-}
+class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(Box2DComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), Listener<MapEvent>, Disposable {
+    private class YComparator constructor(game: MainGame) : Comparator<Entity> {
+        private val b2dCmpMapper = game.cmpMapper.box2D
 
-class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(Box2DComponent::class.java, RenderComponent::class.java).get(), YComparator()), Listener<MapEvent>, Disposable {
+        override fun compare(o1: Entity, o2: Entity): Int {
+            return Math.signum(b2dCmpMapper.get(o2).interpolatedY - b2dCmpMapper.get(o1).interpolatedY).toInt()
+        }
+    }
+
+    private val b2dCmpMapper = game.cmpMapper.box2D
+    private val renderCmpMapper = game.cmpMapper.render
+
     private val viewport = game.gameViewPort
     private val camera = viewport.camera as OrthographicCamera
     private val batch = game.batch
@@ -64,8 +67,8 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        val b2dCmp = CmpMapperB2D.get(entity)
-        val renderCmp = CmpMapperRender.get(entity)
+        val b2dCmp = b2dCmpMapper.get(entity)
+        val renderCmp = renderCmpMapper.get(entity)
 
         renderCmp.sprite.apply {
             flip((renderCmp.flipX && !isFlipX) || (!renderCmp.flipX && isFlipX), (renderCmp.flipY && !isFlipY) || (!renderCmp.flipY && isFlipY))

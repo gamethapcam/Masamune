@@ -6,14 +6,15 @@ import com.badlogic.ashley.signals.Listener
 import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.IteratingSystem
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.CmpMapperB2D
-import com.quillraven.masamune.ecs.CmpMapperMove
 import com.quillraven.masamune.ecs.component.MoveComponent
 import com.quillraven.masamune.ecs.component.PlayerInputComponent
 import com.quillraven.masamune.event.EInputType
 import com.quillraven.masamune.event.InputEvent
 
 class PlayerInputSystem constructor(game: MainGame) : IteratingSystem(Family.all(PlayerInputComponent::class.java, MoveComponent::class.java).get()), Listener<InputEvent> {
+    private val b2dCmpMapper = game.cmpMapper.box2D
+    private val moveCmpMapper = game.cmpMapper.move
+
     private var percX = 0f
     private var percY = 0f
 
@@ -22,8 +23,8 @@ class PlayerInputSystem constructor(game: MainGame) : IteratingSystem(Family.all
     }
 
     override fun processEntity(entity: Entity?, deltaTime: Float) {
-        val b2dCmp = CmpMapperB2D.get(entity)
-        val moveCmp = CmpMapperMove.get(entity)
+        val b2dCmp = b2dCmpMapper.get(entity)
+        val moveCmp = moveCmpMapper.get(entity)
         b2dCmp.body.apply {
             applyLinearImpulse((moveCmp.speed * percX - linearVelocity.x) * mass, (moveCmp.speed * percY - linearVelocity.y) * mass, worldCenter.x, worldCenter.y, true)
         }

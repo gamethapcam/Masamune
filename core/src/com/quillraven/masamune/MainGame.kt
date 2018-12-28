@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.ObjectMap
 import com.badlogic.gdx.utils.viewport.FitViewport
+import com.quillraven.masamune.ecs.ComponentMapper
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.event.GameEventManager
 import com.quillraven.masamune.map.MapManager
@@ -36,8 +37,10 @@ class MainGame : Q2DGame() {
     }
 
     internal val ecsEngine by lazy { ECSEngine() }
+    internal val cmpMapper by lazy { ComponentMapper() }
 
     internal val world by lazy { World(Vector2(0f, 0f), true) }
+    internal val b2dUtils by lazy { B2DUtils(world) }
 
     internal val assetManager by lazy { AssetManager() }
 

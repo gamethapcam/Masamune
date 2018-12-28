@@ -9,11 +9,8 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.JsonValue
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
-import com.quillraven.masamune.ecs.component.createBody
 import com.quillraven.masamune.model.CharacterCfgMap
 import com.quillraven.masamune.model.ECharacterType
 
@@ -28,7 +25,7 @@ class MapManager constructor(game: MainGame) {
     private val assetManger = game.assetManager
     private val gameEventManager = game.gameEventManager
     private val characterCfgMap = assetManger.get("cfg/character.json", CharacterCfgMap::class.java)
-    private val world = game.world
+    private val b2dUtils = game.b2dUtils
     private val rectVertices = FloatArray(8)
 
     internal lateinit var currentMapType: EMapType
@@ -97,7 +94,7 @@ class MapManager constructor(game: MainGame) {
             chainShape.createChain(vertices)
         }
 
-        createBody(world, BodyDef.BodyType.StaticBody, x * UNIT_SCALE, y * UNIT_SCALE, chainShape)
+        b2dUtils.createBody(BodyDef.BodyType.StaticBody, x * UNIT_SCALE, y * UNIT_SCALE, chainShape)
 
         for (i in vertices.indices) {
             vertices[i] /= UNIT_SCALE
@@ -159,18 +156,5 @@ class MapManager constructor(game: MainGame) {
                 Gdx.app.error(TAG, "There is a non-rectangle camera boundary area")
             }
         }
-    }
-}
-
-class MapSerializer constructor(private val game: MainGame) : Json.Serializer<MapManager> {
-    override fun write(json: Json, obj: MapManager, knownType: Class<*>?) {
-        json.writeObjectStart()
-        json.writeValue("currentMap", obj.currentMapType.name)
-        json.writeObjectEnd()
-    }
-
-    override fun read(json: Json, jsonData: JsonValue, type: Class<*>?): MapManager {
-        game.mapManager.setMap(EMapType.valueOf(jsonData.getString("currentMap", EMapType.MAP01.name)))
-        return game.mapManager
     }
 }
