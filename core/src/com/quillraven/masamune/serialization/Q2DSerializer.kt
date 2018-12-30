@@ -22,7 +22,7 @@ class Q2DSerializer constructor(game: MainGame) {
 
     fun saveGameState() {
         gameStatePreference.putString(currentMapKey, mapManager.currentMapType.name)
-        gameStatePreference.putString("${mapManager.currentMapType.name}$mapDataKey", json.prettyPrint(ecsEngine))
+        gameStatePreference.putString("${mapManager.currentMapType.name}$mapDataKey", json.toJson(ecsEngine))
         gameStatePreference.flush()
     }
 
