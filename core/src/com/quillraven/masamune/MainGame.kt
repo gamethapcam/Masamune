@@ -16,6 +16,7 @@ import com.quillraven.masamune.event.GameEventManager
 import com.quillraven.masamune.map.MapManager
 import com.quillraven.masamune.screen.LoadingScreen
 import com.quillraven.masamune.screen.Q2DScreen
+import com.quillraven.masamune.serialization.Q2DSerializer
 
 
 private const val TAG = "Main"
@@ -48,7 +49,7 @@ class MainGame : Q2DGame() {
 
     internal val mapManager by lazy { MapManager(this) }
 
-    internal val preferences by lazy { Gdx.app.getPreferences("masamune") }
+    internal val serializer by lazy { Q2DSerializer(this) }
 
     internal val spriteCache by lazy { SpriteCache(this) }
 

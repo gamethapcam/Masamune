@@ -13,11 +13,11 @@ class RenderFlipSystem constructor(game: MainGame) : IteratingSystem(Family.all(
 
     override fun processEntity(entity: Entity?, deltaTime: Float) {
         val flipCmp = flipCmpMapper.get(entity)
-        flipCmp.flipCountdown += deltaTime
-        if (flipCmp.flipCountdown > 1f) {
+        flipCmp.counter += deltaTime
+        if (flipCmp.counter > 1f) {
             val renderCmp = renderCmpMapper.get(entity)
             renderCmp.flipX = !renderCmp.flipX
-            flipCmp.flipCountdown = 0f
+            flipCmp.counter = 0f
         }
     }
 }

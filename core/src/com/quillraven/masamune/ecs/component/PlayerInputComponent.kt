@@ -1,18 +1,9 @@
 package com.quillraven.masamune.ecs.component
 
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.JsonValue
-import com.quillraven.masamune.MainGame
+import com.badlogic.ashley.core.Component
+import com.badlogic.gdx.utils.Pool
 
-class PlayerInputComponent : ISerializableComponent {
+class PlayerInputComponent : Component, Pool.Poolable {
     override fun reset() {
-    }
-
-    override fun write(json: Json) {
-
-    }
-
-    override fun read(jsonData: JsonValue, game: MainGame) {
-
     }
 }

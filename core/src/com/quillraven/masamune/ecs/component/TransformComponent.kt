@@ -1,39 +1,28 @@
 package com.quillraven.masamune.ecs.component
 
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.JsonValue
-import com.quillraven.masamune.MainGame
+import com.badlogic.ashley.core.Component
+import com.badlogic.gdx.utils.Pool
 
-class TransformComponent : ISerializableComponent {
+class TransformComponent : Component, Pool.Poolable {
     var width = 0f
     var height = 0f
 
     var x = 0f
     var y = 0f
+    @Transient
     var prevX = 0f
+    @Transient
     var prevY = 0f
+    @Transient
     var interpolatedX = 0f
+    @Transient
     var interpolatedY = 0f
 
     var angle = 0f
+    @Transient
     var prevAngle = 0f
+    @Transient
     var interpolatedAngle = 0f
-
-    override fun write(json: Json) {
-        json.writeValue("width", width)
-        json.writeValue("height", height)
-        json.writeValue("x", x)
-        json.writeValue("y", y)
-        json.writeValue("angle", angle)
-    }
-
-    override fun read(jsonData: JsonValue, game: MainGame) {
-        width = jsonData.getFloat("width", 1f)
-        height = jsonData.getFloat("height", 1f)
-        x = jsonData.getFloat("x", 0f)
-        y = jsonData.getFloat("y", 0f)
-        angle = jsonData.getFloat("angle", 0f)
-    }
 
     override fun reset() {
         width = 0f

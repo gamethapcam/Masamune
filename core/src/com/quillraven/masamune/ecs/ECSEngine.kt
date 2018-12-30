@@ -52,6 +52,7 @@ class ECSEngine : PooledEngine(), Disposable {
             val polygonShape = PolygonShape()
             polygonShape.setAsBox(w * 0.5f, h * 0.5f)
             body = game.b2dUtils.createBody(cfg.bodyType, posX + w * 0.5f, posY + h * 0.5f, polygonShape)
+            type = body.type.ordinal
         })
 
         if (cfg.flip) {
@@ -60,12 +61,14 @@ class ECSEngine : PooledEngine(), Disposable {
 
         entity.add(createComponent(RenderComponent::class.java).apply {
             sprite = game.spriteCache.getSprite(cfg.texture)
-            texturePath = cfg.texture
+            texture = cfg.texture
             width = cfg.width
             height = cfg.height
         })
 
-        entity.add(createComponent(MoveComponent::class.java).apply { speed = cfg.speed })
+        if (cfg.speed > 0) {
+            entity.add(createComponent(MoveComponent::class.java).apply { speed = cfg.speed })
+        }
 
         if (cfg.type == ECharacterType.HERO) {
             // player entity -> add player input and camera lock components
