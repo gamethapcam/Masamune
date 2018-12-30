@@ -36,6 +36,7 @@ class Q2DSerializer constructor(game: MainGame) {
             json.fromJson(ECSEngine::class.java, gameStatePreference.getString(mapDataKey))
         } else {
             mapManager.loadCharacters()
+            mapManager.loadObjects()
         }
     }
 }
