@@ -2,10 +2,12 @@ package com.quillraven.masamune
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
+import com.badlogic.gdx.utils.Array
 
 class B2DUtils constructor(private val world: World) {
     private val bodyDef = BodyDef()
     private val fixtureDef = FixtureDef()
+    private val tmpBodies = Array<Body>()
 
     private fun resetBodyAndFixtureDef() {
         bodyDef.apply {
@@ -36,7 +38,16 @@ class B2DUtils constructor(private val world: World) {
         }
     }
 
-    fun createBody(type: BodyDef.BodyType, x: Float, y: Float, shape: Shape): Body {
+    fun destroyBodies(filter: Any) {
+        world.getBodies(tmpBodies)
+        for (body in tmpBodies) {
+            if (body.userData.equals(filter)) {
+                world.destroyBody(body)
+            }
+        }
+    }
+
+    fun createBody(type: BodyDef.BodyType, x: Float, y: Float, shape: Shape, data: Any): Body {
         resetBodyAndFixtureDef()
         bodyDef.type = type
         bodyDef.position.set(x, y)
@@ -45,6 +56,7 @@ class B2DUtils constructor(private val world: World) {
             fixtureDef.shape = shape
             fixtureDef.isSensor = false
             createFixture(fixtureDef)
+            userData = data
             shape.dispose()
         }
     }

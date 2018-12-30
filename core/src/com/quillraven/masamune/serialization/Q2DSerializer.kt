@@ -11,8 +11,8 @@ class Q2DSerializer constructor(game: MainGame) {
 
     private val json = game.json
     private val gameStatePreference = Gdx.app.getPreferences("masamune")
-    private val ecsEngine = game.ecsEngine
-    private val mapManager = game.mapManager
+    private val ecsEngine by lazy { game.ecsEngine }
+    private val mapManager by lazy { game.mapManager }
 
     init {
         json.setSerializer(ECSEngine::class.java, ECSSerializer(game))
@@ -27,7 +27,10 @@ class Q2DSerializer constructor(game: MainGame) {
     fun loadGameState() {
         val currentMapType = EMapType.valueOf(gameStatePreference.getString(currentMapKey, EMapType.MAP01.name))
         mapManager.setMap(currentMapType)
-        val mapDataKey = "${mapManager.currentMapType.name}$mapDataKey"
+    }
+
+    fun loadMapEntities(mapType: EMapType) {
+        val mapDataKey = "${mapType.name}$mapDataKey"
         if (gameStatePreference.contains(mapDataKey)) {
             json.fromJson(ECSEngine::class.java, gameStatePreference.getString(mapDataKey))
         } else {

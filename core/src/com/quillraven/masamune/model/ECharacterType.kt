@@ -1,5 +1,5 @@
 package com.quillraven.masamune.model
 
 enum class ECharacterType {
-    HERO, ELDER
+    UNDEFINED, HERO, ELDER
 }

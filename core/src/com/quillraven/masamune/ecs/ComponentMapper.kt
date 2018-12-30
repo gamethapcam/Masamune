@@ -9,4 +9,5 @@ class ComponentMapper {
     internal val renderFlip = ComponentMapper.getFor(RenderFlipComponent::class.java)
     internal val move = ComponentMapper.getFor(MoveComponent::class.java)
     internal val transform = ComponentMapper.getFor(TransformComponent::class.java)
+    internal val character = ComponentMapper.getFor(CharacterComponent::class.java)
 }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.JsonValue
 import com.quillraven.masamune.MainGame
+import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.ecs.system.*
 import com.quillraven.masamune.serialization.CLASS_KEY
@@ -21,6 +22,7 @@ class ECSEngine : PooledEngine(), Disposable {
         addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
         addSystem(RenderFlipSystem(game))
         addSystem(GameRenderSystem(game))
+        addSystem(RemoveSystem())
 
         // debug stuff
         // addSystem(Box2DDebugRenderSystem(game))
@@ -63,7 +65,8 @@ class ECSEngine : PooledEngine(), Disposable {
                     BodyDef.BodyType.values()[b2dCmp.type],
                     transformCmp.x + transformCmp.width * 0.5f,
                     transformCmp.y + transformCmp.height * 0.5f,
-                    polygonShape
+                    polygonShape,
+                    entity
             )
         }
 
@@ -74,5 +77,13 @@ class ECSEngine : PooledEngine(), Disposable {
         }
 
         addEntity(entity)
+    }
+
+    fun destroyCharacterEntities() {
+        for (entity in entities) {
+            if (game.cmpMapper.character.get(entity) != null) {
+                entity.add(createComponent(RemoveComponent::class.java))
+            }
+        }
     }
 }

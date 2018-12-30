@@ -22,6 +22,9 @@ class LoadingScreen : Q2DScreen() {
 
         assetManager.setLoader(TiledMap::class.java, TmxMapLoader(assetManager.fileHandleResolver))
         for (mapType in EMapType.values()) {
+            if (mapType.filePath.isBlank()) {
+                continue
+            }
             assetManager.load(mapType.filePath, TiledMap::class.java)
         }
     }

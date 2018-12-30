@@ -19,26 +19,40 @@ private const val TAG = "MapManager"
 private const val LAYER_COLLISION = "collision"
 private const val LAYER_CHARACTER = "character"
 private const val LAYER_CAMERA_BOUNDARY = "cameraBoundary"
+private const val GROUND_USER_DATA = "ground"
 
 class MapManager constructor(game: MainGame) {
     private val ecsEngine = game.ecsEngine
     private val assetManger = game.assetManager
     private val gameEventManager = game.gameEventManager
+    private val gameSerializer = game.serializer
     private val characterCfgMap = assetManger.get("cfg/character.json", CharacterCfgMap::class.java)
     private val b2dUtils = game.b2dUtils
     private val rectVertices = FloatArray(8)
 
-    internal lateinit var currentMapType: EMapType
+    internal var currentMapType = EMapType.UNDEFINED
     private lateinit var currentTiledMap: TiledMap
     private val camBoundaryCache = Array<Rectangle>()
     private var numCamBoundaries = 0
 
     fun setMap(type: EMapType) {
+        if (currentMapType == type) {
+            Gdx.app.error(TAG, "Trying to set the same map twice: $currentMapType")
+            return
+        } else if (currentMapType != EMapType.UNDEFINED) {
+            // save current map state
+            gameSerializer.saveGameState()
+            // unload current map
+            destroyCollisionObjects()
+            destroyCharacters()
+        }
+
         currentMapType = type
         currentTiledMap = assetManger.get(currentMapType.filePath, TiledMap::class.java)
 
         loadCollisionObjects()
         getCameraBoundaries()
+        gameSerializer.loadMapEntities(currentMapType)
 
         gameEventManager.dispatchMapEvent(currentMapType, currentTiledMap, currentTiledMap.properties.get("width", 0f, Float::class.java), currentTiledMap.properties.get("height", 0f, Float::class.java))
     }
@@ -48,6 +62,10 @@ class MapManager constructor(game: MainGame) {
         for (i in 0 until numCamBoundaries) {
             fill.add(camBoundaryCache.get(i))
         }
+    }
+
+    private fun destroyCollisionObjects() {
+        b2dUtils.destroyBodies(GROUND_USER_DATA)
     }
 
     private fun loadCollisionObjects() {
@@ -94,11 +112,15 @@ class MapManager constructor(game: MainGame) {
             chainShape.createChain(vertices)
         }
 
-        b2dUtils.createBody(BodyDef.BodyType.StaticBody, x * UNIT_SCALE, y * UNIT_SCALE, chainShape)
+        b2dUtils.createBody(BodyDef.BodyType.StaticBody, x * UNIT_SCALE, y * UNIT_SCALE, chainShape, GROUND_USER_DATA)
 
         for (i in vertices.indices) {
             vertices[i] /= UNIT_SCALE
         }
+    }
+
+    private fun destroyCharacters() {
+        ecsEngine.destroyCharacterEntities()
     }
 
     fun loadCharacters() {

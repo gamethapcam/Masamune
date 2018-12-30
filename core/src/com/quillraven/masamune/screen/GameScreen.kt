@@ -1,5 +1,8 @@
 package com.quillraven.masamune.screen
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
+import com.quillraven.masamune.map.EMapType
 import com.quillraven.masamune.ui.GameUI
 
 class GameScreen : Q2DScreen() {
@@ -15,6 +18,12 @@ class GameScreen : Q2DScreen() {
     }
 
     override fun render(delta: Float) {
+        if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
+            game.mapManager.setMap(EMapType.MAP01)
+        } else if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
+            game.mapManager.setMap(EMapType.MAP02)
+        }
+
         game.ecsEngine.update(delta)
         stage.viewport.apply(true)
         stage.act()
