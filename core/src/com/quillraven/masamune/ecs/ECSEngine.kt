@@ -16,19 +16,18 @@ import com.quillraven.masamune.serialization.CLASS_KEY
 
 private const val TAG = "ECSEngine"
 
-class ECSEngine : PooledEngine(), Disposable {
-    private val game = Gdx.app.applicationListener as MainGame
+class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Disposable {
 
     init {
         addSystem(PlayerInputSystem(game))
-        addSystem(Box2DSystem(game))
+        addSystem(Box2DSystem(game, this))
         addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
         addSystem(RenderFlipSystem(game))
         addSystem(GameRenderSystem(game))
         addSystem(RemoveSystem())
 
         // debug stuff
-        addSystem(Box2DDebugRenderSystem(game))
+        // addSystem(Box2DDebugRenderSystem(game))
     }
 
     override fun dispose() {

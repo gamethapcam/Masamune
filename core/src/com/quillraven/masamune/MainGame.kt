@@ -23,23 +23,23 @@ import com.quillraven.masamune.serialization.Q2DSerializer
 
 private const val TAG = "Main"
 internal const val UNIT_SCALE = 1 / 32f
+private const val SKIN_ATLAS_PATH = "ui/ui.atlas"
+private const val SKIN_PATH = "ui/ui.json"
 
 class MainGame : Q2DGame() {
     internal val gameViewPort by lazy { FitViewport(16f, 9f) }
     internal val batch by lazy { SpriteBatch() }
     internal val stage by lazy { Stage(FitViewport(16f / UNIT_SCALE, 9f / UNIT_SCALE), batch) }
 
-    private val skinAtlasPath = "ui/ui.atlas"
-    private val skinPath = "ui/ui.json"
     internal val skin by lazy {
         val resources = ObjectMap<String, Any>()
-        val skinParameter = SkinLoader.SkinParameter(skinAtlasPath, resources)
-        assetManager.load(skinPath, Skin::class.java, skinParameter)
+        val skinParameter = SkinLoader.SkinParameter(SKIN_ATLAS_PATH, resources)
+        assetManager.load(SKIN_PATH, Skin::class.java, skinParameter)
         assetManager.finishLoading()
-        assetManager.get(skinPath, Skin::class.java)
+        assetManager.get(SKIN_PATH, Skin::class.java)
     }
 
-    internal val ecsEngine by lazy { ECSEngine() }
+    internal val ecsEngine by lazy { ECSEngine(this) }
     internal val cmpMapper by lazy { ComponentMapper() }
 
     internal val world by lazy { World(Vector2(0f, 0f), true) }
