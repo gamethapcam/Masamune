@@ -17,14 +17,26 @@
     <property name="type" value="HERO"/>
    </properties>
   </object>
-  <object id="9" gid="242" x="512" y="1697" width="32" height="32"/>
+  <object id="9" gid="242" x="512" y="1697" width="32" height="32">
+   <properties>
+    <property name="type" value="MERCHANT"/>
+   </properties>
+  </object>
   <object id="10" gid="106" x="320" y="1760" width="32" height="32">
    <properties>
     <property name="type" value="ELDER"/>
    </properties>
   </object>
-  <object id="11" gid="145" x="64" y="1922" width="32" height="32"/>
-  <object id="12" gid="107" x="637" y="1935" width="32" height="32"/>
+  <object id="11" gid="145" x="64" y="1922" width="32" height="32">
+   <properties>
+    <property name="type" value="LADY"/>
+   </properties>
+  </object>
+  <object id="12" gid="107" x="637" y="1935" width="32" height="32">
+   <properties>
+    <property name="type" value="SMITH"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup color="#ff0000" id="4" name="collision">
   <object id="2" x="2.5" y="1569" width="189.5" height="30.8333"/>

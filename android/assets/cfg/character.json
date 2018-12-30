@@ -5,9 +5,7 @@
       "type": "HERO"
     },
     {
-      "class": "TransformComponent",
-      "width": 0.75,
-      "height": 0.2
+      "class": "TransformComponent"
     },
     {
       "class": "Box2DComponent",
@@ -34,9 +32,7 @@
       "type": "ELDER"
     },
     {
-      "class": "TransformComponent",
-      "width": 0.5625,
-      "height": 0.15
+      "class": "TransformComponent"
     },
     {
       "class": "Box2DComponent"
@@ -49,6 +45,69 @@
       "texture": "francis",
       "width": 0.75,
       "height": 0.75
+    }
+  ],
+  "LADY": [
+    {
+      "class": "CharacterComponent",
+      "type": "LADY"
+    },
+    {
+      "class": "TransformComponent"
+    },
+    {
+      "class": "Box2DComponent"
+    },
+    {
+      "class": "RenderFlipComponent"
+    },
+    {
+      "class": "RenderComponent",
+      "texture": "margery_old",
+      "width": 0.85,
+      "height": 0.85
+    }
+  ],
+  "MERCHANT": [
+    {
+      "class": "CharacterComponent",
+      "type": "MERCHANT"
+    },
+    {
+      "class": "TransformComponent"
+    },
+    {
+      "class": "Box2DComponent"
+    },
+    {
+      "class": "RenderFlipComponent"
+    },
+    {
+      "class": "RenderComponent",
+      "texture": "wiglaf_new",
+      "width": 0.8,
+      "height": 0.8
+    }
+  ],
+  "SMITH": [
+    {
+      "class": "CharacterComponent",
+      "type": "SMITH"
+    },
+    {
+      "class": "TransformComponent"
+    },
+    {
+      "class": "Box2DComponent"
+    },
+    {
+      "class": "RenderFlipComponent"
+    },
+    {
+      "class": "RenderComponent",
+      "texture": "frederick_new",
+      "width": 0.9,
+      "height": 0.9
     }
   ]
 }

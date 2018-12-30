@@ -41,7 +41,7 @@ class B2DUtils constructor(private val world: World) {
     fun destroyBodies(filter: Any) {
         world.getBodies(tmpBodies)
         for (body in tmpBodies) {
-            if (body.userData.equals(filter)) {
+            if (body.userData == filter) {
                 world.destroyBody(body)
             }
         }

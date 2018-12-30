@@ -7,11 +7,14 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.JsonValue
+import com.badlogic.gdx.utils.SerializationException
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.ecs.system.*
 import com.quillraven.masamune.serialization.CLASS_KEY
+
+private const val TAG = "ECSEngine"
 
 class ECSEngine : PooledEngine(), Disposable {
     private val game = Gdx.app.applicationListener as MainGame
@@ -25,7 +28,7 @@ class ECSEngine : PooledEngine(), Disposable {
         addSystem(RemoveSystem())
 
         // debug stuff
-        // addSystem(Box2DDebugRenderSystem(game))
+        addSystem(Box2DDebugRenderSystem(game))
     }
 
     override fun dispose() {
@@ -43,21 +46,53 @@ class ECSEngine : PooledEngine(), Disposable {
 
         var iterator: JsonValue? = cmpData
         while (iterator != null) {
-            @Suppress("UNCHECKED_CAST")
-            val cmp = createComponent(Class.forName("$componentPackage${iterator.getString(CLASS_KEY)}") as Class<Component>)
-            game.json.readFields(cmp, iterator)
+            val cmpClass = try {
+                Class.forName("$componentPackage${iterator.getString(CLASS_KEY)}")
+            } catch (e: Exception) {
+                Gdx.app.error(TAG, "There is no component class of type $componentPackage${iterator.getString(CLASS_KEY)}", e)
+                iterator = iterator.next
+                continue
+            }
+            val cmp = try {
+                @Suppress("UNCHECKED_CAST")
+                createComponent(cmpClass as Class<Component>)
+            } catch (e: ClassCastException) {
+                Gdx.app.error(TAG, "Cannot cast class to component class", e)
+                iterator = iterator.next
+                continue
+            }
+            try {
+                game.json.readFields(cmp, iterator)
+            } catch (e: SerializationException) {
+                Gdx.app.error(TAG, "Cannot set fields of component $cmp", e)
+                iterator = iterator.next
+                continue
+            }
             entity.add(cmp)
             iterator = iterator.next
         }
 
-        // create box2d body if needed
-        val b2dCmp = game.cmpMapper.box2D.get(entity)
+        // set special location for entity if specified
         val transformCmp = game.cmpMapper.transform.get(entity)
         if (transformCmp != null && (posX != 0f || posY != 0f)) {
-            // set special location for entity if specified
             transformCmp.x = posX
             transformCmp.y = posY
         }
+
+        // set sprite if needed
+        val renderCmp = game.cmpMapper.render.get(entity)
+        if (renderCmp != null && !renderCmp.texture.isBlank()) {
+            renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
+        }
+
+        // initialize width and height of transform component with default values if needed
+        if (renderCmp != null && transformCmp != null && transformCmp.width == 0f && transformCmp.height == 0f) {
+            transformCmp.width = renderCmp.width * 0.75f
+            transformCmp.height = renderCmp.height * 0.2f
+        }
+
+        // create box2d body if needed
+        val b2dCmp = game.cmpMapper.box2D.get(entity)
         if (b2dCmp != null && transformCmp != null) {
             val polygonShape = PolygonShape()
             polygonShape.setAsBox(transformCmp.width * 0.5f, transformCmp.height * 0.5f)
@@ -68,12 +103,6 @@ class ECSEngine : PooledEngine(), Disposable {
                     polygonShape,
                     entity
             )
-        }
-
-        // set sprite if needed
-        val renderCmp = game.cmpMapper.render.get(entity)
-        if (renderCmp != null && !renderCmp.texture.isBlank()) {
-            renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
         }
 
         addEntity(entity)
