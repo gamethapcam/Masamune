@@ -1,14 +1,16 @@
 package com.quillraven.masamune.ecs
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.JsonValue
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.component.*
+import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.ecs.system.*
-import com.quillraven.masamune.model.CharacterCfg
-import com.quillraven.masamune.model.ECharacterType
+import com.quillraven.masamune.serialization.CLASS_KEY
 
 class ECSEngine : PooledEngine(), Disposable {
     private val game = Gdx.app.applicationListener as MainGame
@@ -32,48 +34,43 @@ class ECSEngine : PooledEngine(), Disposable {
         }
     }
 
-    fun createCharacter(posX: Float, posY: Float, cfg: CharacterCfg) {
+    // cmpData is a json array of serialized component data
+    fun createEntityFromConfig(cmpData: JsonValue, posX: Float = 0f, posY: Float = 0f) {
+        val componentPackage = "${RenderComponent::class.java.`package`.name}."
         val entity = createEntity()
 
-        val w = cfg.width * 0.75f
-        val h = cfg.height * 0.2f
-        entity.add(createComponent(TransformComponent::class.java).apply {
-            width = w
-            height = h
-            x = posX
-            y = posY
-            prevX = x
-            prevY = y
-            interpolatedX = prevX
-            interpolatedY = prevY
-        })
+        var iterator: JsonValue? = cmpData
+        while (iterator != null) {
+            @Suppress("UNCHECKED_CAST")
+            val cmp = createComponent(Class.forName("$componentPackage${iterator.getString(CLASS_KEY)}") as Class<Component>)
+            game.json.readFields(cmp, iterator)
+            entity.add(cmp)
+            iterator = iterator.next
+        }
 
-        entity.add(createComponent(Box2DComponent::class.java).apply {
+        // create box2d body if needed
+        val b2dCmp = game.cmpMapper.box2D.get(entity)
+        val transformCmp = game.cmpMapper.transform.get(entity)
+        if (transformCmp != null && (posX != 0f || posY != 0f)) {
+            // set special location for entity if specified
+            transformCmp.x = posX
+            transformCmp.y = posY
+        }
+        if (b2dCmp != null && transformCmp != null) {
             val polygonShape = PolygonShape()
-            polygonShape.setAsBox(w * 0.5f, h * 0.5f)
-            body = game.b2dUtils.createBody(cfg.bodyType, posX + w * 0.5f, posY + h * 0.5f, polygonShape)
-            type = body.type.ordinal
-        })
-
-        if (cfg.flip) {
-            entity.add(createComponent(RenderFlipComponent::class.java))
+            polygonShape.setAsBox(transformCmp.width * 0.5f, transformCmp.height * 0.5f)
+            b2dCmp.body = game.b2dUtils.createBody(
+                    BodyDef.BodyType.values()[b2dCmp.type],
+                    transformCmp.x + transformCmp.width * 0.5f,
+                    transformCmp.y + transformCmp.height * 0.5f,
+                    polygonShape
+            )
         }
 
-        entity.add(createComponent(RenderComponent::class.java).apply {
-            sprite = game.spriteCache.getSprite(cfg.texture)
-            texture = cfg.texture
-            width = cfg.width
-            height = cfg.height
-        })
-
-        if (cfg.speed > 0) {
-            entity.add(createComponent(MoveComponent::class.java).apply { speed = cfg.speed })
-        }
-
-        if (cfg.type == ECharacterType.HERO) {
-            // player entity -> add player input and camera lock components
-            entity.add(createComponent(CameraComponent::class.java))
-            entity.add(createComponent(PlayerInputComponent::class.java))
+        // set sprite if needed
+        val renderCmp = game.cmpMapper.render.get(entity)
+        if (renderCmp != null && !renderCmp.texture.isBlank()) {
+            renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
         }
 
         addEntity(entity)

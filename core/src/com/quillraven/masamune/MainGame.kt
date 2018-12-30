@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.utils.Json
+import com.badlogic.gdx.utils.JsonWriter
 import com.badlogic.gdx.utils.ObjectMap
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.quillraven.masamune.ecs.ComponentMapper
@@ -49,6 +51,7 @@ class MainGame : Q2DGame() {
 
     internal val mapManager by lazy { MapManager(this) }
 
+    internal val json by lazy { Json(JsonWriter.OutputType.minimal) }
     internal val serializer by lazy { Q2DSerializer(this) }
 
     internal val spriteCache by lazy { SpriteCache(this) }

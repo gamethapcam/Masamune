@@ -116,13 +116,13 @@ class MapManager constructor(game: MainGame) {
             }
 
             try {
-                val charType = characterCfgMap[ECharacterType.valueOf(charTypeStr)]
-                if (charType == null) {
+                val charCfg = characterCfgMap[ECharacterType.valueOf(charTypeStr)]
+                if (charCfg == null) {
                     Gdx.app.debug(TAG, "There is no character cfg of type  $charTypeStr defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                     continue
                 }
 
-                ecsEngine.createCharacter(mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE, charType)
+                ecsEngine.createEntityFromConfig(charCfg, mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE)
             } catch (e: IllegalArgumentException) {
                 Gdx.app.error(TAG, "Invalid Type $charTypeStr for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue

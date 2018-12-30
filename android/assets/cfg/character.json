@@ -1,16 +1,46 @@
 {
-  "HERO": {
-    "bodyType": "DynamicBody",
-    "texture": "norbert",
-    "width": 1.0,
-    "height": 1.0,
-    "speed": 4.0,
-    "flip": false
-  },
-  "ELDER": {
-    "bodyType": "StaticBody",
-    "texture": "francis",
-    "width": 0.75,
-    "height": 0.75
-  }
+  "HERO": [
+    {
+      "class": "TransformComponent",
+      "width": 0.75,
+      "height": 0.2
+    },
+    {
+      "class": "Box2DComponent",
+      "type": 2
+    },
+    {
+      "class": "RenderComponent",
+      "texture": "norbert"
+    },
+    {
+      "class": "MoveComponent",
+      "speed": 4
+    },
+    {
+      "class": "CameraComponent"
+    },
+    {
+      "class": "PlayerInputComponent"
+    }
+  ],
+  "ELDER": [
+    {
+      "class": "TransformComponent",
+      "width": 0.5625,
+      "height": 0.15
+    },
+    {
+      "class": "Box2DComponent"
+    },
+    {
+      "class": "RenderFlipComponent"
+    },
+    {
+      "class": "RenderComponent",
+      "texture": "francis",
+      "width": 0.75,
+      "height": 0.75
+    }
+  ]
 }

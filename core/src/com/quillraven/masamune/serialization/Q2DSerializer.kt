@@ -1,8 +1,6 @@
 package com.quillraven.masamune.serialization
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.utils.Json
-import com.badlogic.gdx.utils.JsonWriter
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.map.EMapType
@@ -11,7 +9,7 @@ class Q2DSerializer constructor(game: MainGame) {
     private val currentMapKey = "currentMap"
     private val mapDataKey = "-data"
 
-    private val json = Json(JsonWriter.OutputType.minimal)
+    private val json = game.json
     private val gameStatePreference = Gdx.app.getPreferences("masamune")
     private val ecsEngine = game.ecsEngine
     private val mapManager = game.mapManager

@@ -6,7 +6,6 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
-import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.JsonReader
 
@@ -28,14 +27,7 @@ class CharacterCfgLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader
         var entry = jsonValue.child
         while (entry != null) {
             val type = ECharacterType.valueOf(entry.name)
-            cfgMap[type] = CharacterCfg(
-                    type,
-                    BodyDef.BodyType.valueOf(entry.getString("bodyType")),
-                    entry.getString("texture"),
-                    entry.getFloat("width", 1f),
-                    entry.getFloat("height", 1f),
-                    entry.getFloat("speed", 0f),
-                    entry.getBoolean("flip", true))
+            cfgMap[type] = entry.child
             entry = entry.next
         }
     }
