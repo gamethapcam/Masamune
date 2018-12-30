@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="13">
+<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="15">
  <tileset firstgid="1" source="tileset_01.tsx"/>
  <layer id="1" name="ground" width="64" height="64">
   <data encoding="base64" compression="zlib">
@@ -12,7 +12,7 @@
   </data>
  </layer>
  <objectgroup id="2" name="character">
-  <object id="1" gid="148" x="155" y="1852" width="32" height="32">
+  <object id="1" gid="148" x="576" y="1915" width="32" height="32">
    <properties>
     <property name="type" value="HERO"/>
    </properties>
@@ -35,6 +35,18 @@
   <object id="12" gid="107" x="637" y="1935" width="32" height="32">
    <properties>
     <property name="type" value="SMITH"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="6" name="object">
+  <object id="13" gid="24" x="672" y="1920" width="32" height="32">
+   <properties>
+    <property name="type" value="ROCK"/>
+   </properties>
+  </object>
+  <object id="14" gid="24" x="672" y="1952" width="32" height="32">
+   <properties>
+    <property name="type" value="ROCK"/>
    </properties>
   </object>
  </objectgroup>

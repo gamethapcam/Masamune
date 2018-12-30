@@ -6,6 +6,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.quillraven.masamune.map.EMapType
 import com.quillraven.masamune.model.CharacterCfgLoader
 import com.quillraven.masamune.model.CharacterCfgMap
+import com.quillraven.masamune.model.ObjectCfgLoader
+import com.quillraven.masamune.model.ObjectCfgMap
 
 class LoadingScreen : Q2DScreen() {
     private val assetManager = game.assetManager
@@ -19,6 +21,9 @@ class LoadingScreen : Q2DScreen() {
 
         assetManager.setLoader(CharacterCfgMap::class.java, CharacterCfgLoader(assetManager.fileHandleResolver))
         assetManager.load("cfg/character.json", CharacterCfgMap::class.java)
+
+        assetManager.setLoader(ObjectCfgMap::class.java, ObjectCfgLoader(assetManager.fileHandleResolver))
+        assetManager.load("cfg/object.json", ObjectCfgMap::class.java)
 
         assetManager.setLoader(TiledMap::class.java, TmxMapLoader(assetManager.fileHandleResolver))
         for (mapType in EMapType.values()) {

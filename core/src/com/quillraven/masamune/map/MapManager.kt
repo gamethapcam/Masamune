@@ -13,12 +13,15 @@ import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
 import com.quillraven.masamune.model.CharacterCfgMap
 import com.quillraven.masamune.model.ECharacterType
+import com.quillraven.masamune.model.EObjectType
+import com.quillraven.masamune.model.ObjectCfgMap
 
 private const val TAG = "MapManager"
 
 private const val LAYER_COLLISION = "collision"
 private const val LAYER_CHARACTER = "character"
 private const val LAYER_CAMERA_BOUNDARY = "cameraBoundary"
+private const val LAYER_OBJECT = "object"
 private const val GROUND_USER_DATA = "ground"
 
 class MapManager constructor(game: MainGame) {
@@ -27,8 +30,8 @@ class MapManager constructor(game: MainGame) {
     private val gameEventManager = game.gameEventManager
     private val gameSerializer = game.serializer
     private val characterCfgMap = assetManger.get("cfg/character.json", CharacterCfgMap::class.java)
+    private val objectCfgMap = assetManger.get("cfg/object.json", ObjectCfgMap::class.java)
     private val b2dUtils = game.b2dUtils
-    private val rectVertices = FloatArray(8)
 
     internal var currentMapType = EMapType.UNDEFINED
     private lateinit var currentTiledMap: TiledMap
@@ -45,6 +48,7 @@ class MapManager constructor(game: MainGame) {
             // unload current map
             destroyCollisionObjects()
             destroyCharacters()
+            destroyObjects()
         }
 
         currentMapType = type
@@ -77,25 +81,10 @@ class MapManager constructor(game: MainGame) {
 
         for (mapObj in mapLayer.objects) {
             when (mapObj) {
-                is RectangleMapObject -> {
-                    val rect = mapObj.rectangle
-                    // bot-left
-                    rectVertices[0] = 0f
-                    rectVertices[1] = 0f
-                    // top-left
-                    rectVertices[2] = 0f
-                    rectVertices[3] = rect.height
-                    // top-right
-                    rectVertices[4] = rect.width
-                    rectVertices[5] = rect.height
-                    // bot-right
-                    rectVertices[6] = rect.width
-                    rectVertices[7] = 0f
-                    createCollisionObject(rect.x, rect.y, rectVertices, true)
-                }
+                is RectangleMapObject -> createCollisionObject(mapObj.rectangle.x, mapObj.rectangle.y, b2dUtils.getRectVertices(mapObj.rectangle.width, mapObj.rectangle.height), true)
                 is PolylineMapObject -> createCollisionObject(mapObj.polyline.x, mapObj.polyline.y, mapObj.polyline.vertices)
                 is PolygonMapObject -> createCollisionObject(mapObj.polygon.x, mapObj.polygon.y, mapObj.polygon.vertices, true)
-                else -> Gdx.app.debug(TAG, "Unsupported $LAYER_COLLISION map object of type ${mapObj.javaClass}")
+                else -> Gdx.app.error(TAG, "Unsupported $LAYER_COLLISION map object of type ${mapObj.javaClass}")
             }
         }
     }
@@ -133,18 +122,20 @@ class MapManager constructor(game: MainGame) {
         for (mapObj in mapLayer.objects) {
             val charTypeStr = mapObj.properties.get("type", "", String::class.java)
             if (charTypeStr.isBlank()) {
-                Gdx.app.debug(TAG, "Type is not defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
+                Gdx.app.error(TAG, "Type is not defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
             }
 
             try {
                 val charCfg = characterCfgMap[ECharacterType.valueOf(charTypeStr)]
                 if (charCfg == null) {
-                    Gdx.app.debug(TAG, "There is no character cfg of type  $charTypeStr defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
+                    Gdx.app.error(TAG, "There is no character cfg of type  $charTypeStr defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                     continue
                 }
 
-                ecsEngine.createEntityFromConfig(charCfg, mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE)
+                val posX = mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE
+                val posY = mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE
+                ecsEngine.createEntityFromConfig(charCfg, posX, posY, widthScale = 0.75f, heightScale = 0.2f)
             } catch (e: IllegalArgumentException) {
                 Gdx.app.error(TAG, "Invalid Type $charTypeStr for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
@@ -176,6 +167,39 @@ class MapManager constructor(game: MainGame) {
                 ++numCamBoundaries
             } else {
                 Gdx.app.error(TAG, "There is a non-rectangle camera boundary area")
+            }
+        }
+    }
+
+    private fun destroyObjects() {
+        ecsEngine.destroyObjectEntities()
+    }
+
+    fun loadObjects() {
+        val mapLayer = currentTiledMap.layers.get(LAYER_OBJECT)
+        if (mapLayer == null) {
+            Gdx.app.debug(TAG, "There is no $LAYER_OBJECT layer")
+            return
+        }
+
+        for (mapObj in mapLayer.objects) {
+            val objTypeStr = mapObj.properties.get("type", "", String::class.java)
+            if (objTypeStr.isBlank()) {
+                Gdx.app.error(TAG, "Type is not defined for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
+                continue
+            }
+
+            try {
+                val objCfg = objectCfgMap[EObjectType.valueOf(objTypeStr)]
+                if (objCfg == null) {
+                    Gdx.app.error(TAG, "There is no object cfg of type  $objTypeStr defined for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
+                    continue
+                }
+
+                ecsEngine.createEntityFromConfig(objCfg, mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE)
+            } catch (e: IllegalArgumentException) {
+                Gdx.app.error(TAG, "Invalid Type $objTypeStr for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
+                continue
             }
         }
     }

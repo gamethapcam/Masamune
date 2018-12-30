@@ -1,0 +1,23 @@
+{
+  "ROCK": [
+    {
+      "class": "ObjectComponent",
+      "type": "ROCK"
+    },
+    {
+      "class": "TransformComponent"
+    },
+    {
+      "class": "Box2DComponent",
+      "type": 1
+    },
+    {
+      "class": "RenderComponent",
+      "texture": "boulder"
+    },
+    {
+      "class": "MoveComponent",
+      "speed": 1.5
+    }
+  ]
+}

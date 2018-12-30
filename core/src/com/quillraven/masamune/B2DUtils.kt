@@ -8,6 +8,23 @@ class B2DUtils constructor(private val world: World) {
     private val bodyDef = BodyDef()
     private val fixtureDef = FixtureDef()
     private val tmpBodies = Array<Body>()
+    private val rectVertices = FloatArray(8)
+
+    fun getRectVertices(width: Float, height: Float): FloatArray {
+        // bot-left
+        rectVertices[0] = 0f
+        rectVertices[1] = 0f
+        // top-left
+        rectVertices[2] = 0f
+        rectVertices[3] = height
+        // top-right
+        rectVertices[4] = width
+        rectVertices[5] = height
+        // bot-right
+        rectVertices[6] = width
+        rectVertices[7] = 0f
+        return rectVertices
+    }
 
     private fun resetBodyAndFixtureDef() {
         bodyDef.apply {

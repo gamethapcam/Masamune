@@ -27,7 +27,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         addSystem(RemoveSystem())
 
         // debug stuff
-        // addSystem(Box2DDebugRenderSystem(game))
+        addSystem(Box2DDebugRenderSystem(game))
     }
 
     override fun dispose() {
@@ -39,7 +39,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
     }
 
     // cmpData is a json array of serialized component data
-    fun createEntityFromConfig(cmpData: JsonValue, posX: Float = 0f, posY: Float = 0f) {
+    fun createEntityFromConfig(cmpData: JsonValue, posX: Float = 0f, posY: Float = 0f, widthScale: Float = 1f, heightScale: Float = 1f) {
         val componentPackage = "${RenderComponent::class.java.`package`.name}."
         val entity = createEntity()
 
@@ -86,8 +86,8 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
 
         // initialize width and height of transform component with default values if needed
         if (renderCmp != null && transformCmp != null && transformCmp.width == 0f && transformCmp.height == 0f) {
-            transformCmp.width = renderCmp.width * 0.75f
-            transformCmp.height = renderCmp.height * 0.2f
+            transformCmp.width = renderCmp.width * widthScale
+            transformCmp.height = renderCmp.height * heightScale
         }
 
         // create box2d body if needed
@@ -110,6 +110,14 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
     fun destroyCharacterEntities() {
         for (entity in entities) {
             if (game.cmpMapper.character.get(entity) != null) {
+                entity.add(createComponent(RemoveComponent::class.java))
+            }
+        }
+    }
+
+    fun destroyObjectEntities() {
+        for (entity in entities) {
+            if (game.cmpMapper.obj.get(entity) != null) {
                 entity.add(createComponent(RemoveComponent::class.java))
             }
         }
