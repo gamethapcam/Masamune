@@ -19,6 +19,7 @@ import com.quillraven.masamune.ecs.component.Box2DComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.event.MapEvent
 
+
 class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(Box2DComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), Listener<MapEvent>, Disposable {
     private class YComparator constructor(game: MainGame) : Comparator<Entity> {
         private val transformCmpMapper = game.cmpMapper.transform
@@ -55,8 +56,17 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
         ScissorStack.pushScissors(scissors)
 
         if (mapRenderer.map != null) {
+            //TODO optimize map rendering by only render tile layers
             mapRenderer.render()
         }
+
+        //shader teststuff
+//        batch.shader.begin()
+//        batch.shader.setUniformf("u_viewportInverse", Vector2(1f / camera.viewportWidth, 1f / camera.viewportHeight))
+//        batch.shader.setUniformf("u_offset", 1f)
+//        batch.shader.setUniformf("u_step", Math.min(1f, camera.viewportWidth / 70f))
+//        batch.shader.setUniformf("u_color", Vector3(1f, 0f, 0f))
+//        batch.shader.end()
         batch.begin()
         forceSort()
         super.update(deltaTime)

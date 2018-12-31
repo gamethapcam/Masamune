@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.SkinLoader
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -28,7 +29,9 @@ private const val SKIN_PATH = "ui/ui.json"
 
 class MainGame : Q2DGame() {
     internal val gameViewPort by lazy { FitViewport(16f, 9f) }
-    internal val batch by lazy { SpriteBatch() }
+
+    internal val shader by lazy { ShaderProgram(assetManager.fileHandleResolver.resolve("shader/vertex.glsl"), assetManager.fileHandleResolver.resolve("shader/fragment.glsl")) }
+    internal val batch by lazy { SpriteBatch(1000, shader) }
     internal val stage by lazy { Stage(FitViewport(16f / UNIT_SCALE, 9f / UNIT_SCALE), batch) }
 
     internal val skin by lazy {
@@ -42,7 +45,10 @@ class MainGame : Q2DGame() {
     internal val ecsEngine by lazy { ECSEngine(this) }
     internal val cmpMapper by lazy { ComponentMapper() }
 
-    internal val world by lazy { World(Vector2(0f, 0f), true) }
+    internal val world by lazy {
+        val contactListener = Q2DContactListener(this)
+        World(Vector2(0f, 0f), true).apply { setContactListener(contactListener) }
+    }
     internal val b2dUtils by lazy { B2DUtils(world) }
 
     internal val assetManager by lazy { AssetManager() }
@@ -69,6 +75,7 @@ class MainGame : Q2DGame() {
 
         ecsEngine.dispose()
         batch.dispose()
+        shader.dispose()
         stage.dispose()
         world.dispose()
         super.dispose()

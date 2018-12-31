@@ -1,5 +1,6 @@
 package com.quillraven.masamune.event
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.signals.Listener
 import com.badlogic.ashley.signals.Signal
 import com.badlogic.gdx.maps.tiled.TiledMap
@@ -11,6 +12,9 @@ class GameEventManager {
 
     private val inputSignal = Signal<InputEvent>()
     private val inputEvent = InputEvent
+
+    private val contactSignal = Signal<ContactEvent>()
+    private val contactEvent = ContactEvent
 
     fun addMapEventListener(listener: Listener<MapEvent>) {
         mapSignal.add(listener)
@@ -38,5 +42,17 @@ class GameEventManager {
             movePercY = percY
         }
         inputSignal.dispatch(inputEvent)
+    }
+
+    fun addContactEventListener(listener: Listener<ContactEvent>) {
+        contactSignal.add(listener)
+    }
+
+    fun dispatchContactPlayerCharacterEvent(player: Entity, character: Entity) {
+        contactEvent.apply {
+            this.player = player
+            this.character = character
+        }
+        contactSignal.dispatch(contactEvent)
     }
 }
