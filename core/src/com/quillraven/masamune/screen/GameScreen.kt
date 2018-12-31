@@ -3,6 +3,7 @@ package com.quillraven.masamune.screen
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.quillraven.masamune.map.EMapType
+import com.quillraven.masamune.model.ECharacterType
 import com.quillraven.masamune.ui.GameUI
 
 class GameScreen : Q2DScreen() {
@@ -18,10 +19,20 @@ class GameScreen : Q2DScreen() {
     }
 
     override fun render(delta: Float) {
-        if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-            game.mapManager.setMap(EMapType.MAP01)
-        } else if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-            game.mapManager.setMap(EMapType.MAP02)
+        // teststuff
+        when {
+            Gdx.input.isKeyPressed(Input.Keys.NUM_1) -> game.mapManager.setMap(EMapType.MAP01)
+            Gdx.input.isKeyPressed(Input.Keys.NUM_2) -> game.mapManager.setMap(EMapType.MAP02)
+            Gdx.input.isKeyPressed(Input.Keys.NUM_3) -> {
+                val renderCmp = game.cmpMapper.render.get(game.ecsEngine.getCharacterEntityByCharacterType(ECharacterType.HERO))
+                renderCmp.texture = "boris_new"
+                renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
+            }
+            Gdx.input.isKeyPressed(Input.Keys.NUM_4) -> {
+                val renderCmp = game.cmpMapper.render.get(game.ecsEngine.getCharacterEntityByCharacterType(ECharacterType.HERO))
+                renderCmp.texture = "norbert"
+                renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
+            }
         }
 
         game.ecsEngine.update(delta)

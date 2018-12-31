@@ -15,7 +15,7 @@ class ECSSerializer constructor(private val game: MainGame) : Json.Serializer<EC
                 json.writeArrayStart()
                 for (cmp in entity.components) {
                     json.writeObjectStart()
-                    json.writeValue(CLASS_KEY, cmp.javaClass.simpleName)
+                    json.writeValue(CLASS_KEY, cmp.javaClass.name)
                     json.writeFields(cmp)
                     json.writeObjectEnd()
                 }

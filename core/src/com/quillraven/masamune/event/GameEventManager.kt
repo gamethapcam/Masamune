@@ -16,9 +16,10 @@ class GameEventManager {
         mapSignal.add(listener)
     }
 
-    fun dispatchMapEvent(type: EMapType, map: TiledMap, width: Float, height: Float) {
+    fun dispatchMapEvent(oldType: EMapType, newType: EMapType, map: TiledMap, width: Float, height: Float) {
         mapEvent.apply {
-            this.type = type
+            this.oldType = oldType
+            this.newType = newType
             this.map = map
             this.width = width
             this.height = height

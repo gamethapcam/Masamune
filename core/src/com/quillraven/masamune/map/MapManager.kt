@@ -51,14 +51,14 @@ class MapManager constructor(game: MainGame) {
             destroyObjects()
         }
 
+        val previousMapType = currentMapType
         currentMapType = type
         currentTiledMap = assetManger.get(currentMapType.filePath, TiledMap::class.java)
 
         loadCollisionObjects()
         getCameraBoundaries()
-        gameSerializer.loadMapEntities(currentMapType)
 
-        gameEventManager.dispatchMapEvent(currentMapType, currentTiledMap, currentTiledMap.properties.get("width", 0f, Float::class.java), currentTiledMap.properties.get("height", 0f, Float::class.java))
+        gameEventManager.dispatchMapEvent(previousMapType, currentMapType, currentTiledMap, currentTiledMap.properties.get("width", 0f, Float::class.java), currentTiledMap.properties.get("height", 0f, Float::class.java))
     }
 
     fun getCameraBoundaries(fill: Array<Rectangle>) {

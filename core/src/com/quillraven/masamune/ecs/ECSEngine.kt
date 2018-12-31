@@ -1,6 +1,8 @@
 package com.quillraven.masamune.ecs
 
 import com.badlogic.ashley.core.Component
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -9,14 +11,16 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.JsonValue
 import com.badlogic.gdx.utils.SerializationException
 import com.quillraven.masamune.MainGame
+import com.quillraven.masamune.ecs.component.CharacterComponent
 import com.quillraven.masamune.ecs.component.RemoveComponent
-import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.ecs.system.*
+import com.quillraven.masamune.model.ECharacterType
 import com.quillraven.masamune.serialization.CLASS_KEY
 
 private const val TAG = "ECSEngine"
 
 class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Disposable {
+    private val characterEntities = getEntitiesFor(Family.all(CharacterComponent::class.java).exclude(RemoveComponent::class.java).get())
 
     init {
         addSystem(PlayerInputSystem(game))
@@ -38,37 +42,46 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         }
     }
 
+    private fun getComponentClassByName(cmpName: String): Class<Component>? {
+        val cmpClass = try {
+            Class.forName(cmpName)
+        } catch (e: Exception) {
+            Gdx.app.error(TAG, "There is no component class of type $cmpName", e)
+            return null
+        }
+        try {
+            @Suppress("UNCHECKED_CAST")
+            return cmpClass as Class<Component>
+        } catch (e: ClassCastException) {
+            Gdx.app.error(TAG, "Cannot cast class to component class", e)
+            return null
+        }
+    }
+
+    private fun setEntitySprite(entity: Entity) {
+        val renderCmp = game.cmpMapper.render.get(entity)
+        if (renderCmp != null && !renderCmp.texture.isBlank()) {
+            renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
+        }
+    }
+
     // cmpData is a json array of serialized component data
     fun createEntityFromConfig(cmpData: JsonValue, posX: Float = 0f, posY: Float = 0f, widthScale: Float = 1f, heightScale: Float = 1f) {
-        val componentPackage = "${RenderComponent::class.java.`package`.name}."
         val entity = createEntity()
 
         var iterator: JsonValue? = cmpData
         while (iterator != null) {
-            val cmpClass = try {
-                Class.forName("$componentPackage${iterator.getString(CLASS_KEY)}")
-            } catch (e: Exception) {
-                Gdx.app.error(TAG, "There is no component class of type $componentPackage${iterator.getString(CLASS_KEY)}", e)
-                iterator = iterator.next
-                continue
-            }
-            val cmp = try {
-                @Suppress("UNCHECKED_CAST")
-                createComponent(cmpClass as Class<Component>)
-            } catch (e: ClassCastException) {
-                Gdx.app.error(TAG, "Cannot cast class to component class", e)
-                iterator = iterator.next
-                continue
-            }
+            val value = iterator
+            iterator = iterator.next
+
+            val cmpClass = getComponentClassByName(value.getString(CLASS_KEY)) ?: continue
+            val cmp = createComponent(cmpClass)
+            entity.add(cmp)
             try {
-                game.json.readFields(cmp, iterator)
+                game.json.readFields(cmp, value)
             } catch (e: SerializationException) {
                 Gdx.app.error(TAG, "Cannot set fields of component $cmp", e)
-                iterator = iterator.next
-                continue
             }
-            entity.add(cmp)
-            iterator = iterator.next
         }
 
         // set special location for entity if specified
@@ -80,9 +93,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
 
         // set sprite if needed
         val renderCmp = game.cmpMapper.render.get(entity)
-        if (renderCmp != null && !renderCmp.texture.isBlank()) {
-            renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
-        }
+        setEntitySprite(entity)
 
         // initialize width and height of transform component with default values if needed
         if (renderCmp != null && transformCmp != null && transformCmp.width == 0f && transformCmp.height == 0f) {
@@ -105,6 +116,48 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         }
 
         addEntity(entity)
+    }
+
+    fun getCharacterEntityByCharacterType(charType: ECharacterType): Entity? {
+        for (e in characterEntities) {
+            val charCmp = game.cmpMapper.character.get(e)
+            if (charCmp.type == charType) {
+                return e
+            }
+        }
+        return null
+    }
+
+    // helper method to set the component values of an entity to the given cmpData
+    // this is used f.e. when changing from one map to another to take over the player entity configuration
+    // from the old map to the new map
+    // cmpData is a json array of serialized component data
+    fun initCharacterEntityFromConfig(charType: ECharacterType, cmpData: JsonValue) {
+        val entity = getCharacterEntityByCharacterType(charType)
+        if (entity == null) {
+            Gdx.app.debug(TAG, "There is no entity of type $charType that needs to be initialized")
+            return
+        }
+
+        var iterator: JsonValue? = cmpData
+        while (iterator != null) {
+            val value = iterator
+            iterator = iterator.next
+
+            val cmpClass = getComponentClassByName(value.getString(CLASS_KEY)) ?: continue
+            var cmp = entity.getComponent(cmpClass)
+            if (cmp == null) {
+                cmp = createComponent(cmpClass)
+                entity.add(cmp)
+            }
+            try {
+                game.json.readFields(cmp, value)
+            } catch (e: SerializationException) {
+                Gdx.app.error(TAG, "Cannot set fields of component $cmp", e)
+            }
+        }
+
+        setEntitySprite(entity)
     }
 
     fun destroyCharacterEntities() {

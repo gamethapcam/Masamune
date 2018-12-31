@@ -1,22 +1,22 @@
 {
   "ROCK": [
     {
-      "class": "ObjectComponent",
+      "class": "com.quillraven.masamune.ecs.component.ObjectComponent",
       "type": "ROCK"
     },
     {
-      "class": "TransformComponent"
+      "class": "com.quillraven.masamune.ecs.component.TransformComponent"
     },
     {
-      "class": "Box2DComponent",
+      "class": "com.quillraven.masamune.ecs.component.Box2DComponent",
       "type": 1
     },
     {
-      "class": "RenderComponent",
+      "class": "com.quillraven.masamune.ecs.component.RenderComponent",
       "texture": "boulder"
     },
     {
-      "class": "MoveComponent",
+      "class": "com.quillraven.masamune.ecs.component.MoveComponent",
       "speed": 1.5
     }
   ]
