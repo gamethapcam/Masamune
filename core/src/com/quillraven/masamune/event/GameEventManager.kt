@@ -48,6 +48,11 @@ class GameEventManager {
         inputSignal.dispatch(inputEvent)
     }
 
+    fun dispatchInputActionEvent() {
+        inputEvent.type = EInputType.ACTION
+        inputSignal.dispatch(inputEvent)
+    }
+
     fun addContactEventListener(listener: Listener<ContactEvent>) {
         contactSignal.add(listener)
     }

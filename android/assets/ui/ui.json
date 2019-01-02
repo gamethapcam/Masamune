@@ -4,5 +4,11 @@
       "background": "touchpad_bgd",
       "knob": "touchpad_knob"
     }
+  },
+  "ImageButtonStyle": {
+    "action": {
+      "imageUp": "action_btn",
+      "imageDown": "action_btn"
+    }
   }
 }
