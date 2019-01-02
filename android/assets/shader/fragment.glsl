@@ -21,7 +21,8 @@ const int MODE_OUTLINE = 1;
 void main()
 {
     if(mode==MODE_OUTLINE) {
-        float alpha = 4 * texture2D( u_texture, v_texCoords ).a;
+
+        float alpha = 4.0f * texture2D( u_texture, v_texCoords ).a;
         alpha -= texture2D( u_texture, v_texCoords + vec2( stepX, 0.0f ) ).a;
         alpha -= texture2D( u_texture, v_texCoords + vec2( -stepX, 0.0f ) ).a;
         alpha -= texture2D( u_texture, v_texCoords + vec2( 0.0f, stepY ) ).a;
