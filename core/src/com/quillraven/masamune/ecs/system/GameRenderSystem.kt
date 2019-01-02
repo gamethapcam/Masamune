@@ -24,6 +24,9 @@ import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.event.MapEvent
 
+// refer to fragment.glsl for constant values
+private const val SHADER_MODE_DEFAULT = 0
+private const val SHADER_MODE_OUTLINE = 1
 
 class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(TransformComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), Listener<MapEvent>, Disposable {
     private class YComparator constructor(game: MainGame) : Comparator<Entity> {
@@ -47,8 +50,9 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
     private lateinit var fgdLayers: Array<TiledMapTileLayer>
 
     private val actionableEntities by lazy { engine.getEntitiesFor(Family.all(TransformComponent::class.java, RenderComponent::class.java, ActionableComponent::class.java).get()) }
-    private val shaderPixelSizeX = 1f / game.spriteCache.texWidth
-    private val shaderPixelSizeY = 1f / game.spriteCache.texHeight
+    // 1f / ... means the outline is exactly one pixel thick. higher values create a thicker outline
+    private val shaderOutlineStepX = 1.5f / game.spriteCache.texWidth
+    private val shaderOutlineStepY = 1.5f / game.spriteCache.texHeight
 
     private val clipBounds = Rectangle()
     private val scissors = Rectangle()
@@ -70,7 +74,7 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
 
         AnimatedTiledMapTile.updateAnimationBaseTime()
         batch.begin()
-        shader.setUniformf("outline", 0f)
+        shader.setUniformi("mode", SHADER_MODE_DEFAULT)
         for (layer in bgdLayers) {
             mapRenderer.renderTileLayer(layer)
         }
@@ -83,17 +87,17 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
 
         if (actionableEntities.size() > 0) {
             batch.begin()
-            shader.setUniformf("outline", 1f)
-            shader.setUniformf("stepX", shaderPixelSizeX)
-            shader.setUniformf("stepY", shaderPixelSizeY)
-            shader.setUniformf("outlineColor", Color.FIREBRICK)
+            shader.setUniformi("mode", SHADER_MODE_OUTLINE)
+            shader.setUniformf("stepX", shaderOutlineStepX)
+            shader.setUniformf("stepY", shaderOutlineStepY)
+            shader.setUniformf("outlineColor", Color.GREEN)
             for (entity in actionableEntities) {
                 processEntity(entity, deltaTime)
             }
             batch.end()
 
             shader.begin()
-            shader.setUniformf("outline", 0f)
+            shader.setUniformi("mode", SHADER_MODE_DEFAULT)
             shader.end()
         }
 

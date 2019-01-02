@@ -213,10 +213,15 @@ class MapManager constructor(game: MainGame) {
     }
 
     private fun getRenderLayers() {
-        //TODO parse fgd/bgd layers
+        bgdLayers.clear()
+        fgdLayers.clear()
         for (layer in currentTiledMap.layers) {
             if (layer is TiledMapTileLayer) {
-                bgdLayers.add(layer)
+                if (layer.name.startsWith("fore")) {
+                    fgdLayers.add(layer)
+                } else {
+                    bgdLayers.add(layer)
+                }
             }
         }
     }
