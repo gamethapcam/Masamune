@@ -9,7 +9,8 @@
     },
     {
       "class": "com.quillraven.masamune.ecs.component.Box2DComponent",
-      "type": 2
+      "type": 2,
+      "detectionRadius": 1.5
     },
     {
       "class": "com.quillraven.masamune.ecs.component.RenderComponent",

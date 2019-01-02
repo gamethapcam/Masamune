@@ -10,6 +10,8 @@ private const val TAG = "SpriteCache"
 class SpriteCache constructor(game: MainGame) {
     private val cache = ObjectMap<String, Sprite>()
     private val texAtlas = game.assetManager.get("textures.atlas", TextureAtlas::class.java)
+    internal val texWidth = getDefaultSprite().texture.width
+    internal val texHeight = getDefaultSprite().texture.height
 
     fun getSprite(texture: String): Sprite {
         var sprite = cache.get(texture)

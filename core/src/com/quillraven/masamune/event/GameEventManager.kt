@@ -4,6 +4,8 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.signals.Listener
 import com.badlogic.ashley.signals.Signal
 import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
+import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.map.EMapType
 
 class GameEventManager {
@@ -20,13 +22,15 @@ class GameEventManager {
         mapSignal.add(listener)
     }
 
-    fun dispatchMapEvent(oldType: EMapType, newType: EMapType, map: TiledMap, width: Float, height: Float) {
+    fun dispatchMapEvent(oldType: EMapType, newType: EMapType, map: TiledMap, width: Float, height: Float, bgdLayers: Array<TiledMapTileLayer>, fgdLayers: Array<TiledMapTileLayer>) {
         mapEvent.apply {
             this.oldType = oldType
             this.newType = newType
             this.map = map
             this.width = width
             this.height = height
+            this.bgdLayers = bgdLayers
+            this.fgdLayers = fgdLayers
         }
         mapSignal.dispatch(mapEvent)
     }
@@ -48,10 +52,11 @@ class GameEventManager {
         contactSignal.add(listener)
     }
 
-    fun dispatchContactPlayerCharacterEvent(player: Entity, character: Entity) {
+    fun dispatchContactPlayerCharacterEvent(player: Entity, character: Entity, endContact: Boolean) {
         contactEvent.apply {
             this.player = player
             this.character = character
+            this.endContact = endContact
         }
         contactSignal.dispatch(contactEvent)
     }

@@ -1,4 +1,4 @@
-package com.quillraven.masamune
+package com.quillraven.masamune.physic
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
@@ -64,7 +64,7 @@ class B2DUtils constructor(private val world: World) {
         }
     }
 
-    fun createBody(type: BodyDef.BodyType, x: Float, y: Float, shape: Shape, data: Any): Body {
+    fun createBody(type: BodyDef.BodyType, x: Float, y: Float, shape: Shape, data: Any, detectionRadius: Float = 0f): Body {
         resetBodyAndFixtureDef()
         bodyDef.type = type
         bodyDef.position.set(x, y)
@@ -75,6 +75,15 @@ class B2DUtils constructor(private val world: World) {
             createFixture(fixtureDef)
             userData = data
             shape.dispose()
+
+            if (detectionRadius > 0) {
+                val detBox = PolygonShape()
+                detBox.setAsBox(detectionRadius * 0.5f, detectionRadius * 0.5f)
+                fixtureDef.shape = detBox
+                fixtureDef.isSensor = true
+                createFixture(fixtureDef)
+                detBox.dispose()
+            }
         }
     }
 }

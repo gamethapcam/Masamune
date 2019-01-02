@@ -17,6 +17,8 @@ import com.quillraven.masamune.ecs.ComponentMapper
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.event.GameEventManager
 import com.quillraven.masamune.map.MapManager
+import com.quillraven.masamune.physic.B2DUtils
+import com.quillraven.masamune.physic.Q2DContactListener
 import com.quillraven.masamune.screen.LoadingScreen
 import com.quillraven.masamune.screen.Q2DScreen
 import com.quillraven.masamune.serialization.Q2DSerializer

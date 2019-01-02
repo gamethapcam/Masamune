@@ -6,21 +6,26 @@ import com.badlogic.ashley.signals.Listener
 import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
+import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
-import com.quillraven.masamune.ecs.component.Box2DComponent
+import com.quillraven.masamune.ecs.component.ActionableComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
+import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.event.MapEvent
 
 
-class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(Box2DComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), Listener<MapEvent>, Disposable {
+class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(TransformComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), Listener<MapEvent>, Disposable {
     private class YComparator constructor(game: MainGame) : Comparator<Entity> {
         private val transformCmpMapper = game.cmpMapper.transform
 
@@ -34,8 +39,16 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
 
     private val viewport = game.gameViewPort
     private val camera = viewport.camera as OrthographicCamera
+    private val shader = game.shader
     private val batch = game.batch
+
     private val mapRenderer = OrthogonalTiledMapRenderer(null, UNIT_SCALE, batch)
+    private lateinit var bgdLayers: Array<TiledMapTileLayer>
+    private lateinit var fgdLayers: Array<TiledMapTileLayer>
+
+    private val actionableEntities by lazy { engine.getEntitiesFor(Family.all(TransformComponent::class.java, RenderComponent::class.java, ActionableComponent::class.java).get()) }
+    private val shaderPixelSizeX = 1f / game.spriteCache.texWidth
+    private val shaderPixelSizeY = 1f / game.spriteCache.texHeight
 
     private val clipBounds = Rectangle()
     private val scissors = Rectangle()
@@ -55,23 +68,34 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
         ScissorStack.calculateScissors(camera, viewport.screenX.toFloat(), viewport.screenY.toFloat(), viewport.screenWidth.toFloat(), viewport.screenHeight.toFloat(), batch.transformMatrix, clipBounds, scissors)
         ScissorStack.pushScissors(scissors)
 
-        if (mapRenderer.map != null) {
-            //TODO optimize map rendering by only render tile layers
-            mapRenderer.render()
-        }
-
-        //shader teststuff
-//        batch.shader.begin()
-//        batch.shader.setUniformf("u_viewportInverse", Vector2(1f / camera.viewportWidth, 1f / camera.viewportHeight))
-//        batch.shader.setUniformf("u_offset", 1f)
-//        batch.shader.setUniformf("u_step", Math.min(1f, camera.viewportWidth / 70f))
-//        batch.shader.setUniformf("u_color", Vector3(1f, 0f, 0f))
-//        batch.shader.end()
+        AnimatedTiledMapTile.updateAnimationBaseTime()
         batch.begin()
+        shader.setUniformf("outline", 0f)
+        for (layer in bgdLayers) {
+            mapRenderer.renderTileLayer(layer)
+        }
         forceSort()
         super.update(deltaTime)
+        for (layer in fgdLayers) {
+            mapRenderer.renderTileLayer(layer)
+        }
         batch.end()
-        batch.flush()
+
+        if (actionableEntities.size() > 0) {
+            batch.begin()
+            shader.setUniformf("outline", 1f)
+            shader.setUniformf("stepX", shaderPixelSizeX)
+            shader.setUniformf("stepY", shaderPixelSizeY)
+            shader.setUniformf("outlineColor", Color.FIREBRICK)
+            for (entity in actionableEntities) {
+                processEntity(entity, deltaTime)
+            }
+            batch.end()
+
+            shader.begin()
+            shader.setUniformf("outline", 0f)
+            shader.end()
+        }
 
         ScissorStack.popScissors()
     }
@@ -91,6 +115,8 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
 
     override fun receive(signal: Signal<MapEvent>?, obj: MapEvent) {
         mapRenderer.map = obj.map
+        bgdLayers = obj.bgdLayers
+        fgdLayers = obj.fgdLayers
     }
 
     override fun dispose() {

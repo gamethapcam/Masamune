@@ -11,4 +11,5 @@ class ComponentMapper {
     internal val transform = ComponentMapper.getFor(TransformComponent::class.java)
     internal val character = ComponentMapper.getFor(CharacterComponent::class.java)
     internal val obj = ComponentMapper.getFor(ObjectComponent::class.java)
+    internal val actionable = ComponentMapper.getFor(ActionableComponent::class.java)
 }

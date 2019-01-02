@@ -5,6 +5,7 @@ import com.badlogic.gdx.maps.objects.PolygonMapObject
 import com.badlogic.gdx.maps.objects.PolylineMapObject
 import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.ChainShape
@@ -33,6 +34,9 @@ class MapManager constructor(game: MainGame) {
     private val objectCfgMap = assetManger.get("cfg/object.json", ObjectCfgMap::class.java)
     private val b2dUtils = game.b2dUtils
 
+    private val bgdLayers = Array<TiledMapTileLayer>()
+    private val fgdLayers = Array<TiledMapTileLayer>()
+
     internal var currentMapType = EMapType.UNDEFINED
     private lateinit var currentTiledMap: TiledMap
     private val camBoundaryCache = Array<Rectangle>()
@@ -57,8 +61,12 @@ class MapManager constructor(game: MainGame) {
 
         loadCollisionObjects()
         getCameraBoundaries()
+        getRenderLayers()
 
-        gameEventManager.dispatchMapEvent(previousMapType, currentMapType, currentTiledMap, currentTiledMap.properties.get("width", 0f, Float::class.java), currentTiledMap.properties.get("height", 0f, Float::class.java))
+        gameEventManager.dispatchMapEvent(previousMapType, currentMapType, currentTiledMap,
+                currentTiledMap.properties.get("width", 0f, Float::class.java),
+                currentTiledMap.properties.get("height", 0f, Float::class.java),
+                bgdLayers, fgdLayers)
     }
 
     fun getCameraBoundaries(fill: Array<Rectangle>) {
@@ -200,6 +208,15 @@ class MapManager constructor(game: MainGame) {
             } catch (e: IllegalArgumentException) {
                 Gdx.app.error(TAG, "Invalid Type $objTypeStr for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
+            }
+        }
+    }
+
+    private fun getRenderLayers() {
+        //TODO parse fgd/bgd layers
+        for (layer in currentTiledMap.layers) {
+            if (layer is TiledMapTileLayer) {
+                bgdLayers.add(layer)
             }
         }
     }

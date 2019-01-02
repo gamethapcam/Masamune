@@ -26,12 +26,13 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         addSystem(PlayerInputSystem(game))
         addSystem(Box2DSystem(game, this))
         addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
+        addSystem(ActionableSystem(game, this))
         addSystem(RenderFlipSystem(game))
         addSystem(GameRenderSystem(game))
         addSystem(RemoveSystem())
 
         // debug stuff
-        addSystem(Box2DDebugRenderSystem(game))
+        // addSystem(Box2DDebugRenderSystem(game))
     }
 
     override fun dispose() {
@@ -111,7 +112,8 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
                     transformCmp.x + transformCmp.width * 0.5f,
                     transformCmp.y + transformCmp.height * 0.5f,
                     polygonShape,
-                    entity
+                    entity,
+                    b2dCmp.detectionRadius
             )
         }
 

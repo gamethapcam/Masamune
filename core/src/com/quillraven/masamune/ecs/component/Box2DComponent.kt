@@ -8,9 +8,11 @@ class Box2DComponent : Component, Pool.Poolable {
     @Transient
     lateinit var body: Body
     var type = 0
+    var detectionRadius = 0f
 
     override fun reset() {
         body.world.destroyBody(body)
         type = 0
+        detectionRadius = 0f
     }
 }
