@@ -25,6 +25,13 @@ bar_green
   orig: 329, 40
   offset: 0, 0
   index: -1
+bar_knob
+  rotate: false
+  xy: 1292, 635
+  size: 1, 40
+  orig: 1, 40
+  offset: 0, 0
+  index: -1
 bar_orange
   rotate: false
   xy: 827, 603

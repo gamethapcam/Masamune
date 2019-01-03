@@ -32,6 +32,6 @@ class GameUI constructor(skin: Skin, private val eventMgr: GameEventManager) : T
         })
         add(btn).bottom().expandX().right().pad(0f, 0f, 10f, 10f)
 
-        bottom().left()
+        bottom()
     }
 }

@@ -10,6 +10,9 @@
       "up": "btn_round_transparent",
       "down": "btn_round",
       "font": "font_26"
+    },
+    "label": {
+      "font": "font_22"
     }
   }
 }

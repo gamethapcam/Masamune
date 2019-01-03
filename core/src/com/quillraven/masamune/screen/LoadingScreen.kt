@@ -1,19 +1,25 @@
 package com.quillraven.masamune.screen
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.quillraven.masamune.map.EMapType
 import com.quillraven.masamune.model.CharacterCfgLoader
 import com.quillraven.masamune.model.CharacterCfgMap
 import com.quillraven.masamune.model.ObjectCfgLoader
 import com.quillraven.masamune.model.ObjectCfgMap
+import com.quillraven.masamune.ui.LoadingUI
 
 class LoadingScreen : Q2DScreen() {
+    private val loadingUI = LoadingUI(game.skin)
     private val assetManager = game.assetManager
 
     override fun hide() {
-
+        stage.clear()
     }
 
     override fun show() {
@@ -32,12 +38,29 @@ class LoadingScreen : Q2DScreen() {
             }
             assetManager.load(mapType.filePath, TiledMap::class.java)
         }
+
+        stage.addActor(loadingUI)
+
+        stage.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                if (assetManager.progress >= 1f) {
+                    stage.removeListener(this)
+                    game.setScreen(GameScreen::class.java, true)
+                }
+                return true
+            }
+        })
     }
 
     override fun render(delta: Float) {
-        if (assetManager.update()) {
-            game.setScreen(GameScreen::class.java, true)
-        }
+        assetManager.update()
+        loadingUI.setProgress(assetManager.progress)
+
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+        stage.viewport.apply(true)
+        stage.act()
+        stage.draw()
     }
 
     override fun pause() {
@@ -49,7 +72,7 @@ class LoadingScreen : Q2DScreen() {
     }
 
     override fun resize(width: Int, height: Int) {
-
+        stage.viewport.update(width, height, true)
     }
 
     override fun dispose() {
