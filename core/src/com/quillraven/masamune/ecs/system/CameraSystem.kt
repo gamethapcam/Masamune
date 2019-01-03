@@ -2,8 +2,6 @@ package com.quillraven.masamune.ecs.system
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.signals.Listener
-import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
@@ -12,8 +10,9 @@ import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.component.CameraComponent
 import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.event.MapEvent
+import com.quillraven.masamune.event.MapListener
 
-class CameraSystem constructor(game: MainGame) : IteratingSystem(Family.all(CameraComponent::class.java, TransformComponent::class.java).get()), Listener<MapEvent> {
+class CameraSystem constructor(game: MainGame) : IteratingSystem(Family.all(CameraComponent::class.java, TransformComponent::class.java).get()), MapListener {
     private val camera = game.gameViewPort.camera
     private val transformCmpMapper = game.cmpMapper.transform
 
@@ -23,7 +22,7 @@ class CameraSystem constructor(game: MainGame) : IteratingSystem(Family.all(Came
     private val mapManager by lazy { game.mapManager }
 
     init {
-        game.gameEventManager.addMapEventListener(this)
+        game.gameEventManager.addMapListener(this)
     }
 
     override fun processEntity(entity: Entity?, deltaTime: Float) {
@@ -49,9 +48,9 @@ class CameraSystem constructor(game: MainGame) : IteratingSystem(Family.all(Came
         }
     }
 
-    override fun receive(signal: Signal<MapEvent>?, obj: MapEvent) {
+    override fun mapChanged(event: MapEvent) {
         currentBoundary.set(0f, 0f, 0f, 0f)
-        mapBoundary.set(0f, 0f, obj.width, obj.height)
+        mapBoundary.set(0f, 0f, event.width, event.height)
         mapManager.getCameraBoundaries(camBoundaries)
     }
 }

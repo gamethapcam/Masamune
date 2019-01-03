@@ -4,12 +4,9 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.ashley.signals.Listener
-import com.badlogic.ashley.signals.Signal
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
-import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.JsonValue
 import com.badlogic.gdx.utils.SerializationException
@@ -17,19 +14,15 @@ import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.component.CharacterComponent
 import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.ecs.system.*
-import com.quillraven.masamune.event.InputEvent
 import com.quillraven.masamune.model.ECharacterType
 import com.quillraven.masamune.serialization.CLASS_KEY
 
 private const val TAG = "ECSEngine"
 
-class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Listener<InputEvent>, Disposable {
+class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Disposable {
     private val characterEntities = getEntitiesFor(Family.all(CharacterComponent::class.java).exclude(RemoveComponent::class.java).get())
-    private val inputSystems = Array<IInputSystem>()
 
     init {
-        game.gameEventManager.addInputEventListener(this)
-
         addSystem(PlayerInputSystem(game))
         addSystem(Box2DSystem(game, this))
         addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
@@ -40,12 +33,6 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Listen
 
         // debug stuff
         // addSystem(Box2DDebugRenderSystem(game))
-
-        for (system in systems) {
-            if (system is IInputSystem) {
-                inputSystems.add(system)
-            }
-        }
     }
 
     override fun dispose() {
@@ -188,12 +175,6 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Listen
             if (game.cmpMapper.obj.get(entity) != null) {
                 entity.add(createComponent(RemoveComponent::class.java))
             }
-        }
-    }
-
-    override fun receive(signal: Signal<InputEvent>, obj: InputEvent) {
-        for (system in inputSystems) {
-            system.handleInputEvent(obj)
         }
     }
 }

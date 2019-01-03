@@ -1,7 +1,5 @@
 package com.quillraven.masamune.serialization
 
-import com.badlogic.ashley.signals.Listener
-import com.badlogic.ashley.signals.Signal
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.JsonReader
 import com.badlogic.gdx.utils.JsonValue
@@ -10,13 +8,14 @@ import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.CharacterComponent
 import com.quillraven.masamune.event.MapEvent
+import com.quillraven.masamune.event.MapListener
 import com.quillraven.masamune.map.EMapType
 import com.quillraven.masamune.model.ECharacterType
 
 private const val KEY_CURRENT_MAP = "currentMap"
 private const val KEY_MAP_DATA = "-data"
 
-class Q2DSerializer constructor(game: MainGame) : Listener<MapEvent> {
+class Q2DSerializer constructor(game: MainGame) : MapListener {
     private val json = game.json
     private val jsonReader = JsonReader()
     private val keyBuffer = StringBuilder()
@@ -27,7 +26,7 @@ class Q2DSerializer constructor(game: MainGame) : Listener<MapEvent> {
 
     init {
         json.setSerializer(ECSEngine::class.java, ECSSerializer(game))
-        game.gameEventManager.addMapEventListener(this)
+        game.gameEventManager.addMapListener(this)
     }
 
     fun saveGameState() {
@@ -73,12 +72,12 @@ class Q2DSerializer constructor(game: MainGame) : Listener<MapEvent> {
         return ECharacterType.UNDEFINED
     }
 
-    override fun receive(signal: Signal<MapEvent>, obj: MapEvent) {
-        loadMapEntities(obj.newType)
+    override fun mapChanged(event: MapEvent) {
+        loadMapEntities(event.newType)
 
-        if (obj.oldType != EMapType.UNDEFINED) {
+        if (event.oldType != EMapType.UNDEFINED) {
             keyBuffer.setLength(0)
-            keyBuffer.append(obj.oldType.name).append(KEY_MAP_DATA)
+            keyBuffer.append(event.oldType.name).append(KEY_MAP_DATA)
             val oldMapDataKey = keyBuffer.toString()
             if (gameStatePreference.contains(oldMapDataKey)) {
                 var entityDataIterator = readMapData(oldMapDataKey).child

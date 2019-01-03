@@ -63,7 +63,7 @@ class MapManager constructor(game: MainGame) {
         getCameraBoundaries()
         getRenderLayers()
 
-        gameEventManager.dispatchMapEvent(previousMapType, currentMapType, currentTiledMap,
+        gameEventManager.dispatchMapChanged(previousMapType, currentMapType, currentTiledMap,
                 currentTiledMap.properties.get("width", 0f, Float::class.java),
                 currentTiledMap.properties.get("height", 0f, Float::class.java),
                 bgdLayers, fgdLayers)

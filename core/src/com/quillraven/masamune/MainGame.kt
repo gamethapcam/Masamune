@@ -33,12 +33,13 @@ private const val SKIN_PATH = "ui/ui.json"
 class MainGame : Q2DGame() {
     internal val gameViewPort by lazy { FitViewport(16f, 9f) }
 
-    internal val shader by lazy {
-        val prog = ShaderProgram(assetManager.fileHandleResolver.resolve("shader/vertex.glsl"), assetManager.fileHandleResolver.resolve("shader/fragment.glsl"))
-        if (!prog.isCompiled) throw GdxRuntimeException("Could not compile shader ${prog.log}")
+    internal val shaderOutline by lazy {
+        val prog = ShaderProgram(assetManager.fileHandleResolver.resolve("shader/outline/vertex.glsl"), assetManager.fileHandleResolver.resolve("shader/outline/fragment.glsl"))
+        if (!prog.isCompiled) throw GdxRuntimeException("Could not compile shaderOutline ${prog.log}")
         prog
     }
-    internal val batch by lazy { SpriteBatch(1000, shader) }
+
+    internal val batch by lazy { SpriteBatch(1000) }
     internal val stage by lazy { Stage(FitViewport(16f / UNIT_SCALE, 9f / UNIT_SCALE), batch) }
 
     internal val skin by lazy {
@@ -82,7 +83,7 @@ class MainGame : Q2DGame() {
 
         ecsEngine.dispose()
         batch.dispose()
-        shader.dispose()
+        shaderOutline.dispose()
         stage.dispose()
         world.dispose()
         super.dispose()

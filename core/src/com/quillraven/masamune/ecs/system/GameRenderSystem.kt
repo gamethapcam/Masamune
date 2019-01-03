@@ -2,8 +2,6 @@ package com.quillraven.masamune.ecs.system
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.signals.Listener
-import com.badlogic.ashley.signals.Signal
 import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -23,12 +21,9 @@ import com.quillraven.masamune.ecs.component.ActionableComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.event.MapEvent
+import com.quillraven.masamune.event.MapListener
 
-// refer to fragment.glsl for constant values
-private const val SHADER_MODE_DEFAULT = 0
-private const val SHADER_MODE_OUTLINE = 1
-
-class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(TransformComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), Listener<MapEvent>, Disposable {
+class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(TransformComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), MapListener, Disposable {
     private class YComparator constructor(game: MainGame) : Comparator<Entity> {
         private val transformCmpMapper = game.cmpMapper.transform
 
@@ -42,7 +37,7 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
 
     private val viewport = game.gameViewPort
     private val camera = viewport.camera as OrthographicCamera
-    private val shader = game.shader
+    private val shader = game.shaderOutline
     private val batch = game.batch
 
     private val mapRenderer = OrthogonalTiledMapRenderer(null, UNIT_SCALE, batch)
@@ -58,7 +53,7 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
     private val scissors = Rectangle()
 
     init {
-        game.gameEventManager.addMapEventListener(this)
+        game.gameEventManager.addMapListener(this)
     }
 
     override fun update(deltaTime: Float) {
@@ -74,7 +69,6 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
 
         AnimatedTiledMapTile.updateAnimationBaseTime()
         batch.begin()
-        shader.setUniformi("mode", SHADER_MODE_DEFAULT)
         for (layer in bgdLayers) {
             mapRenderer.renderTileLayer(layer)
         }
@@ -86,8 +80,8 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
         batch.end()
 
         if (actionableEntities.size() > 0) {
+            batch.shader = shader
             batch.begin()
-            shader.setUniformi("mode", SHADER_MODE_OUTLINE)
             shader.setUniformf("stepX", shaderOutlineStepX)
             shader.setUniformf("stepY", shaderOutlineStepY)
             shader.setUniformf("outlineColor", Color.GREEN)
@@ -95,10 +89,7 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
                 processEntity(entity, deltaTime)
             }
             batch.end()
-
-            shader.begin()
-            shader.setUniformi("mode", SHADER_MODE_DEFAULT)
-            shader.end()
+            batch.shader = null
         }
 
         ScissorStack.popScissors()
@@ -117,10 +108,10 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
         }
     }
 
-    override fun receive(signal: Signal<MapEvent>?, obj: MapEvent) {
-        mapRenderer.map = obj.map
-        bgdLayers = obj.bgdLayers
-        fgdLayers = obj.fgdLayers
+    override fun mapChanged(event: MapEvent) {
+        mapRenderer.map = event.map
+        bgdLayers = event.bgdLayers
+        fgdLayers = event.fgdLayers
     }
 
     override fun dispose() {

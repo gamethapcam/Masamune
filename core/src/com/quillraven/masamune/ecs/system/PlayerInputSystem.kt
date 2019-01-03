@@ -6,15 +6,18 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.component.MoveComponent
 import com.quillraven.masamune.ecs.component.PlayerInputComponent
-import com.quillraven.masamune.event.EInputType
-import com.quillraven.masamune.event.InputEvent
+import com.quillraven.masamune.event.InputListener
 
-class PlayerInputSystem constructor(game: MainGame) : IteratingSystem(Family.all(PlayerInputComponent::class.java, MoveComponent::class.java).get()), IInputSystem {
+class PlayerInputSystem constructor(game: MainGame) : IteratingSystem(Family.all(PlayerInputComponent::class.java, MoveComponent::class.java).get()), InputListener {
     private val b2dCmpMapper = game.cmpMapper.box2D
     private val moveCmpMapper = game.cmpMapper.move
 
     private var percX = 0f
     private var percY = 0f
+
+    init {
+        game.gameEventManager.addInputListener(this)
+    }
 
     override fun processEntity(entity: Entity?, deltaTime: Float) {
         val b2dCmp = b2dCmpMapper.get(entity)
@@ -24,10 +27,12 @@ class PlayerInputSystem constructor(game: MainGame) : IteratingSystem(Family.all
         }
     }
 
-    override fun handleInputEvent(event: InputEvent) {
-        if (event.type == EInputType.MOVE) {
-            percX = event.movePercX
-            percY = event.movePercY
-        }
+    override fun inputMove(percentX: Float, percentY: Float) {
+        percX = percentX
+        percY = percentY
+    }
+
+    override fun inputAction() {
+        // not needed for this system
     }
 }

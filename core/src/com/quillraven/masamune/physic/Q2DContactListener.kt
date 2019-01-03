@@ -55,7 +55,7 @@ class Q2DContactListener constructor(game: MainGame) : ContactListener {
         val tmpChar = character
         if (tmpChar != null) {
             // player <-> character collision
-            gameEventManager.dispatchContactPlayerCharacterEvent(tmpPlayer, tmpChar, false)
+            gameEventManager.dispatchContactBeginCharacter(tmpPlayer, tmpChar)
         }
     }
 
@@ -66,7 +66,7 @@ class Q2DContactListener constructor(game: MainGame) : ContactListener {
         val tmpChar = character
         if (tmpChar != null) {
             // player <-> character collision
-            gameEventManager.dispatchContactPlayerCharacterEvent(tmpPlayer, tmpChar, true)
+            gameEventManager.dispatchContactEndCharacter(tmpPlayer, tmpChar)
         }
     }
 

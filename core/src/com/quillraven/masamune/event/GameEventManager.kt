@@ -1,28 +1,24 @@
 package com.quillraven.masamune.event
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.signals.Listener
-import com.badlogic.ashley.signals.Signal
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.map.EMapType
 
 class GameEventManager {
-    private val mapSignal = Signal<MapEvent>()
     private val mapEvent = MapEvent
+    private val mapListeners = Array<MapListener>()
 
-    private val inputSignal = Signal<InputEvent>()
-    private val inputEvent = InputEvent
+    private val inputListeners = Array<InputListener>()
 
-    private val contactSignal = Signal<ContactEvent>()
-    private val contactEvent = ContactEvent
+    private val contactListeners = Array<ContactListener>()
 
-    fun addMapEventListener(listener: Listener<MapEvent>) {
-        mapSignal.add(listener)
+    fun addMapListener(listener: MapListener) {
+        mapListeners.add(listener)
     }
 
-    fun dispatchMapEvent(oldType: EMapType, newType: EMapType, map: TiledMap, width: Float, height: Float, bgdLayers: Array<TiledMapTileLayer>, fgdLayers: Array<TiledMapTileLayer>) {
+    fun dispatchMapChanged(oldType: EMapType, newType: EMapType, map: TiledMap, width: Float, height: Float, bgdLayers: Array<TiledMapTileLayer>, fgdLayers: Array<TiledMapTileLayer>) {
         mapEvent.apply {
             this.oldType = oldType
             this.newType = newType
@@ -32,37 +28,40 @@ class GameEventManager {
             this.bgdLayers = bgdLayers
             this.fgdLayers = fgdLayers
         }
-        mapSignal.dispatch(mapEvent)
-    }
-
-    fun addInputEventListener(listener: Listener<InputEvent>) {
-        inputSignal.add(listener)
-    }
-
-    fun dispatchInputMoveEvent(percX: Float, percY: Float) {
-        inputEvent.apply {
-            type = EInputType.MOVE
-            movePercX = percX
-            movePercY = percY
+        for (listener in mapListeners) {
+            listener.mapChanged(mapEvent)
         }
-        inputSignal.dispatch(inputEvent)
+    }
+
+    fun addInputListener(listener: InputListener) {
+        inputListeners.add(listener)
+    }
+
+    fun dispatchInputMoveEvent(percentX: Float, percentY: Float) {
+        for (listener in inputListeners) {
+            listener.inputMove(percentX, percentY)
+        }
     }
 
     fun dispatchInputActionEvent() {
-        inputEvent.type = EInputType.ACTION
-        inputSignal.dispatch(inputEvent)
-    }
-
-    fun addContactEventListener(listener: Listener<ContactEvent>) {
-        contactSignal.add(listener)
-    }
-
-    fun dispatchContactPlayerCharacterEvent(player: Entity, character: Entity, endContact: Boolean) {
-        contactEvent.apply {
-            this.player = player
-            this.character = character
-            this.endContact = endContact
+        for (listener in inputListeners) {
+            listener.inputAction()
         }
-        contactSignal.dispatch(contactEvent)
+    }
+
+    fun addContactListener(listener: ContactListener) {
+        contactListeners.add(listener)
+    }
+
+    fun dispatchContactBeginCharacter(player: Entity, character: Entity) {
+        for (listener in contactListeners) {
+            listener.beginCharacterContact(player, character)
+        }
+    }
+
+    fun dispatchContactEndCharacter(player: Entity, character: Entity) {
+        for (listener in contactListeners) {
+            listener.endCharacterContact(player, character)
+        }
     }
 }
