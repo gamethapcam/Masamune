@@ -10,10 +10,13 @@ class Bar(skin: Skin, barGraphic: String) : Widget() {
     private val fgd = skin.getDrawable(barGraphic)
     internal var progress = 0f
 
+    // don't forget to call fill and expand to have a width and height value otherwise those values are zero and the rendering is wrong
     override fun draw(batch: Batch?, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
 
-        bgd.draw(batch, x, y, 462f * scaleX, 83f * scaleY)
-        fgd.draw(batch, x + 15f * scaleX, y + 22f * scaleY, MathUtils.clamp(progress * 462f, 0f, 462f - 2 * 15f) * scaleX, (83f - 2 * 21f) * scaleY)
+        bgd.draw(batch, x, y, width * scaleX, height * scaleY)
+        fgd.draw(batch, x + 15f * scaleX, y + 33f * scaleY,
+                MathUtils.clamp(progress * width, 0f, width - 2 * 15f) * scaleX,
+                Math.max(0f, (height - 2 * 32f) * scaleY))
     }
 }

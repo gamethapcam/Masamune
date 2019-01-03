@@ -13,8 +13,8 @@ class LoadingUI constructor(skin: Skin) : Table(skin) {
 
         bar.scaleY = 0.5f
 
-        add(TextButton("Loading...", skin, "label")).fill().expand().bottom().padTop(160f).row()
-        add(bar).expandX().fillX().pad(0f, 25f, 10f, 25f).bottom()
+        add(TextButton("Loading...", skin, "label")).fill().expand().bottom().row()
+        add(bar).expand().fill().pad(0f, 25f, 10f, 25f).bottom()
     }
 
     fun setProgress(value: Float) {
