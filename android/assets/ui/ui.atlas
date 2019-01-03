@@ -1,49 +1,75 @@
 
 ui.png
-size: 1024,512
+size: 2048,1024
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-bar_bgd
+bar
   rotate: false
-  xy: 292, 291
-  size: 200, 30
-  split: 22, 16, 10, 12
-  orig: 200, 30
+  xy: 827, 735
+  size: 569, 83
+  orig: 569, 83
   offset: 0, 0
   index: -1
 bar_blue
   rotate: false
-  xy: 2, 2
-  size: 115, 14
-  orig: 115, 14
+  xy: 827, 691
+  size: 329, 40
+  orig: 329, 40
   offset: 0, 0
   index: -1
 bar_green
   rotate: false
-  xy: 878, 488
-  size: 115, 14
-  orig: 115, 14
+  xy: 827, 647
+  size: 329, 40
+  orig: 329, 40
+  offset: 0, 0
+  index: -1
+bar_orange
+  rotate: false
+  xy: 827, 603
+  size: 329, 40
+  orig: 329, 40
   offset: 0, 0
   index: -1
 bar_red
   rotate: false
-  xy: 583, 327
-  size: 115, 14
-  orig: 115, 14
+  xy: 827, 559
+  size: 329, 40
+  orig: 329, 40
   offset: 0, 0
   index: -1
-btn_bgd
+btn_chk
   rotate: false
-  xy: 198, 124
-  size: 88, 88
-  split: 13, 15, 16, 12
-  orig: 88, 88
+  xy: 1400, 753
+  size: 60, 65
+  orig: 60, 65
+  offset: 0, 0
+  index: -1
+btn_rect
+  rotate: false
+  xy: 1292, 679
+  size: 54, 52
+  orig: 54, 52
+  offset: 0, 0
+  index: -1
+btn_round
+  rotate: false
+  xy: 1942, 958
+  size: 60, 60
+  orig: 60, 60
+  offset: 0, 0
+  index: -1
+btn_round_transparent
+  rotate: false
+  xy: 827, 495
+  size: 60, 60
+  orig: 60, 60
   offset: 0, 0
   index: -1
 cursor
   rotate: false
-  xy: 878, 452
+  xy: 1942, 922
   size: 32, 32
   split: 8, 7, 8, 8
   orig: 32, 32
@@ -51,7 +77,7 @@ cursor
   index: -1
 cursor_green
   rotate: false
-  xy: 292, 219
+  xy: 1160, 567
   size: 32, 32
   split: 1, 1, 1, 1
   orig: 32, 32
@@ -59,38 +85,50 @@ cursor_green
   index: -1
 cursor_red
   rotate: false
-  xy: 328, 255
+  xy: 2006, 986
   size: 32, 32
   split: 8, 8, 8, 8
   orig: 32, 32
   offset: 0, 0
   index: -1
-dialog_bgd
+dialog_dark
   rotate: false
-  xy: 2, 216
-  size: 286, 286
-  split: 24, 24, 24, 24
-  orig: 286, 286
+  xy: 2, 512
+  size: 821, 506
+  orig: 821, 506
+  offset: 0, 0
+  index: -1
+dialog_light
+  rotate: false
+  xy: 2, 2
+  size: 821, 506
+  orig: 821, 506
   offset: 0, 0
   index: -1
 dialog_title
   rotate: false
-  xy: 583, 345
-  size: 291, 66
-  split: 121, 85, 24, 32
-  orig: 291, 66
+  xy: 827, 822
+  size: 835, 196
+  orig: 835, 196
   offset: 0, 0
   index: -1
 knob
   rotate: false
-  xy: 496, 295
+  xy: 891, 529
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: -1
+skull
+  rotate: false
+  xy: 1666, 917
+  size: 272, 101
+  orig: 272, 101
+  offset: 0, 0
+  index: -1
 slot_cursed
   rotate: false
-  xy: 198, 52
+  xy: 827, 459
   size: 32, 32
   split: 4, 4, 4, 4
   orig: 32, 32
@@ -98,40 +136,31 @@ slot_cursed
   index: -1
 suppressed
   rotate: false
-  xy: 198, 88
+  xy: 1464, 786
   size: 32, 32
   split: 4, 4, 4, 4
   orig: 32, 32
   offset: 0, 0
   index: -1
-touchpad_bgd
+touchpad
   rotate: false
-  xy: 2, 20
-  size: 192, 192
-  orig: 192, 192
+  xy: 1160, 603
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+triangle
+  rotate: false
+  xy: 1666, 828
+  size: 66, 85
+  orig: 66, 85
   offset: 0, 0
   index: -1
 tutorial_cursor
   rotate: false
-  xy: 292, 255
+  xy: 1736, 881
   size: 32, 32
   split: 2, 2, 2, 2
   orig: 32, 32
-  offset: 0, 0
-  index: -1
-window_bgd
-  rotate: false
-  xy: 292, 325
-  size: 287, 177
-  split: 61, 55, 45, 44
-  orig: 287, 177
-  offset: 0, 0
-  index: -1
-window_title
-  rotate: false
-  xy: 583, 415
-  size: 291, 87
-  split: 93, 97, 43, 33
-  orig: 291, 87
   offset: 0, 0
   index: -1

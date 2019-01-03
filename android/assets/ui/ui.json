@@ -1,14 +1,14 @@
 {
   "TouchpadStyle": {
     "default": {
-      "background": "touchpad_bgd",
+      "background": "touchpad",
       "knob": "knob"
     }
   },
   "TextButtonStyle": {
     "action": {
-      "up": "btn_bgd",
-      "down": "btn_bgd",
+      "up": "btn_round_transparent",
+      "down": "btn_round",
       "font": "font_26"
     }
   }

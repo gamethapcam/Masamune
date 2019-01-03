@@ -21,7 +21,7 @@ class GameUI constructor(skin: Skin, private val eventMgr: GameEventManager) : T
                 eventMgr.dispatchInputMoveEvent(touchpad.knobPercentX, touchpad.knobPercentY)
             }
         })
-        add(touchpad).bottom().left().maxSize(100f, 100f).pad(0f, 10f, 10f, 0f)
+        add(touchpad).bottom().left().pad(0f, 10f, 10f, 0f)
 
         val btn = TextButton("A", skin, "action")
         btn.addListener(object : InputListener() {
@@ -30,7 +30,7 @@ class GameUI constructor(skin: Skin, private val eventMgr: GameEventManager) : T
                 return true
             }
         })
-        add(btn).bottom().expandX().right().maxSize(50f, 50f).pad(0f, 0f, 10f, 10f)
+        add(btn).bottom().expandX().right().pad(0f, 0f, 10f, 10f)
 
         bottom().left()
     }
