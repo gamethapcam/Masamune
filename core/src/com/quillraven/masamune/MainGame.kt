@@ -3,7 +3,9 @@ package com.quillraven.masamune
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.SkinLoader
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
@@ -29,6 +31,7 @@ private const val TAG = "Main"
 internal const val UNIT_SCALE = 1 / 32f
 private const val SKIN_ATLAS_PATH = "ui/ui.atlas"
 private const val SKIN_PATH = "ui/ui.json"
+private const val FONT_PATH = "ui/manaspc.ttf"
 
 class MainGame : Q2DGame() {
     internal val gameViewPort by lazy { FitViewport(16f, 9f) }
@@ -44,6 +47,16 @@ class MainGame : Q2DGame() {
 
     internal val skin by lazy {
         val resources = ObjectMap<String, Any>()
+        val fontGenerator = FreeTypeFontGenerator(assetManager.fileHandleResolver.resolve(FONT_PATH))
+        val fontParam = FreeTypeFontGenerator.FreeTypeFontParameter()
+        fontParam.minFilter = Texture.TextureFilter.Linear
+        fontParam.magFilter = Texture.TextureFilter.Linear
+        for (size in 18..30 step 4) {
+            fontParam.size = size
+            resources.put("font_$size", fontGenerator.generateFont(fontParam))
+        }
+        fontGenerator.dispose()
+
         val skinParameter = SkinLoader.SkinParameter(SKIN_ATLAS_PATH, resources)
         assetManager.load(SKIN_PATH, Skin::class.java, skinParameter)
         assetManager.finishLoading()

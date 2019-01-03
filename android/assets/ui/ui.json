@@ -2,13 +2,14 @@
   "TouchpadStyle": {
     "default": {
       "background": "touchpad_bgd",
-      "knob": "touchpad_knob"
+      "knob": "knob"
     }
   },
-  "ImageButtonStyle": {
+  "TextButtonStyle": {
     "action": {
-      "imageUp": "action_btn",
-      "imageDown": "action_btn"
+      "up": "btn_bgd",
+      "down": "btn_bgd",
+      "font": "font_26"
     }
   }
 }
