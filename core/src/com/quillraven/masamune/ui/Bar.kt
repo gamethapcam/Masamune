@@ -1,22 +1,41 @@
 package com.quillraven.masamune.ui
 
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.Widget
 
-class Bar(skin: Skin, barGraphic: String) : Widget() {
-    private val bgd = skin.getDrawable("bar")
-    private val fgd = skin.getDrawable(barGraphic)
-    internal var progress = 0f
+class Bar constructor(min: Float, max: Float, stepSize: Float, skin: Skin, styleName: String) : ProgressBar(min, max, stepSize, false, skin, styleName) {
+    private var knobPos = 0f
 
-    // don't forget to call fill and expand to have a width and height value otherwise those values are zero and the rendering is wrong
-    override fun draw(batch: Batch?, parentAlpha: Float) {
-        super.draw(batch, parentAlpha)
+    override fun getKnobPosition(): Float {
+        return knobPos
+    }
 
-        bgd.draw(batch, x, y, width * scaleX, height * scaleY)
-        fgd.draw(batch, x + 15f * scaleX, y + 33f * scaleY,
-                MathUtils.clamp(progress * width, 0f, width - 2 * 15f) * scaleX,
-                Math.max(0f, (height - 2 * 32f) * scaleY))
+    // fixed draw method of progressbar to use correct width and height of the cell
+    override fun draw(batch: Batch, parentAlpha: Float) {
+        val style = this.style
+        val disabled = this.isDisabled
+        val bg = if (disabled && style.disabledBackground != null) style.disabledBackground else style.background
+        val knobBefore = if (disabled && style.disabledKnobBefore != null) style.disabledKnobBefore else style.knobBefore
+
+        batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
+
+        var positionWidth = width
+
+        var bgLeftWidth = 0f
+        var bgBottomHeight = 0f
+        var bgTopHeight = 0f
+        if (bg != null) {
+            bg.draw(batch, x, y, width, height)
+            bgLeftWidth = bg.leftWidth
+            positionWidth -= bgLeftWidth + bg.rightWidth
+            bgBottomHeight = bg.bottomHeight
+            bgTopHeight = bg.topHeight
+        }
+
+        knobPos = positionWidth * visualPercent
+        knobPos = Math.min(positionWidth, knobPos)
+        knobPos = Math.max(0f, knobPos)
+        knobBefore?.draw(batch, x + bgLeftWidth, y + bgBottomHeight, knobPos, Math.max(0f, height - bgTopHeight - bgBottomHeight))
     }
 }

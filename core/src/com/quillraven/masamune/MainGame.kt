@@ -43,7 +43,7 @@ class MainGame : Q2DGame() {
     }
 
     internal val batch by lazy { SpriteBatch(1000) }
-    internal val stage by lazy { Stage(FitViewport(16f / UNIT_SCALE, 9f / UNIT_SCALE), batch) }
+    internal val stage by lazy { Stage(FitViewport(1280f, 720f), batch) }
 
     internal val skin by lazy {
         val resources = ObjectMap<String, Any>()
@@ -51,7 +51,7 @@ class MainGame : Q2DGame() {
         val fontParam = FreeTypeFontGenerator.FreeTypeFontParameter()
         fontParam.minFilter = Texture.TextureFilter.Linear
         fontParam.magFilter = Texture.TextureFilter.Linear
-        for (size in 18..30 step 4) {
+        for (size in 32..50 step 6) {
             fontParam.size = size
             resources.put("font_$size", fontGenerator.generateFont(fontParam))
         }

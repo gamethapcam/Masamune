@@ -2,12 +2,13 @@
 ui.png
 size: 2048,1024
 format: RGBA8888
-filter: Nearest,Nearest
+filter: Linear,Linear
 repeat: none
 bar
   rotate: false
   xy: 827, 735
   size: 569, 83
+  split: 24, 23, 24, 27
   orig: 569, 83
   offset: 0, 0
   index: -1
@@ -23,13 +24,6 @@ bar_green
   xy: 827, 647
   size: 329, 40
   orig: 329, 40
-  offset: 0, 0
-  index: -1
-bar_knob
-  rotate: false
-  xy: 1292, 635
-  size: 1, 40
-  orig: 1, 40
   offset: 0, 0
   index: -1
 bar_orange
@@ -55,7 +49,7 @@ btn_chk
   index: -1
 btn_rect
   rotate: false
-  xy: 1292, 679
+  xy: 1736, 861
   size: 54, 52
   orig: 54, 52
   offset: 0, 0
@@ -76,7 +70,7 @@ btn_round_transparent
   index: -1
 cursor
   rotate: false
-  xy: 1942, 922
+  xy: 2006, 986
   size: 32, 32
   split: 8, 7, 8, 8
   orig: 32, 32
@@ -92,7 +86,7 @@ cursor_green
   index: -1
 cursor_red
   rotate: false
-  xy: 2006, 986
+  xy: 827, 459
   size: 32, 32
   split: 8, 8, 8, 8
   orig: 32, 32
@@ -121,9 +115,9 @@ dialog_title
   index: -1
 knob
   rotate: false
-  xy: 891, 529
-  size: 26, 26
-  orig: 26, 26
+  xy: 1292, 675
+  size: 51, 56
+  orig: 51, 56
   offset: 0, 0
   index: -1
 skull
@@ -135,7 +129,7 @@ skull
   index: -1
 slot_cursed
   rotate: false
-  xy: 827, 459
+  xy: 891, 523
   size: 32, 32
   split: 4, 4, 4, 4
   orig: 32, 32
@@ -143,7 +137,7 @@ slot_cursed
   index: -1
 suppressed
   rotate: false
-  xy: 1464, 786
+  xy: 1942, 922
   size: 32, 32
   split: 4, 4, 4, 4
   orig: 32, 32
@@ -165,7 +159,7 @@ triangle
   index: -1
 tutorial_cursor
   rotate: false
-  xy: 1736, 881
+  xy: 1464, 786
   size: 32, 32
   split: 2, 2, 2, 2
   orig: 32, 32

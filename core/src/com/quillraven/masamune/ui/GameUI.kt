@@ -3,10 +3,7 @@ package com.quillraven.masamune.ui
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.quillraven.masamune.event.GameEventManager
 
@@ -21,7 +18,7 @@ class GameUI constructor(skin: Skin, private val eventMgr: GameEventManager) : T
                 eventMgr.dispatchInputMoveEvent(touchpad.knobPercentX, touchpad.knobPercentY)
             }
         })
-        add(touchpad).bottom().left().pad(0f, 10f, 10f, 0f)
+        add(touchpad).bottom().left().pad(0f, 30f, 30f, 0f).size(Value.percentWidth(0.15f,this))
 
         val btn = TextButton("A", skin, "action")
         btn.addListener(object : InputListener() {
@@ -30,7 +27,7 @@ class GameUI constructor(skin: Skin, private val eventMgr: GameEventManager) : T
                 return true
             }
         })
-        add(btn).bottom().expandX().right().pad(0f, 0f, 10f, 10f)
+        add(btn).bottom().expandX().right().pad(0f, 0f, 30f, 30f).size(Value.percentWidth(0.1f,this))
 
         bottom()
     }
