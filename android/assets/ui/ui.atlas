@@ -47,9 +47,16 @@ btn_chk
   orig: 60, 65
   offset: 0, 0
   index: -1
+btn_close
+  rotate: false
+  xy: 827, 420
+  size: 93, 135
+  orig: 93, 135
+  offset: 0, 0
+  index: -1
 btn_rect
   rotate: false
-  xy: 1736, 861
+  xy: 924, 503
   size: 54, 52
   orig: 54, 52
   offset: 0, 0
@@ -63,14 +70,14 @@ btn_round
   index: -1
 btn_round_transparent
   rotate: false
-  xy: 827, 495
+  xy: 1292, 671
   size: 60, 60
   orig: 60, 60
   offset: 0, 0
   index: -1
 cursor
   rotate: false
-  xy: 2006, 986
+  xy: 1942, 922
   size: 32, 32
   split: 8, 7, 8, 8
   orig: 32, 32
@@ -86,7 +93,7 @@ cursor_green
   index: -1
 cursor_red
   rotate: false
-  xy: 827, 459
+  xy: 2006, 986
   size: 32, 32
   split: 8, 8, 8, 8
   orig: 32, 32
@@ -115,7 +122,7 @@ dialog_title
   index: -1
 knob
   rotate: false
-  xy: 1292, 675
+  xy: 827, 360
   size: 51, 56
   orig: 51, 56
   offset: 0, 0
@@ -129,7 +136,7 @@ skull
   index: -1
 slot_cursed
   rotate: false
-  xy: 891, 523
+  xy: 1292, 635
   size: 32, 32
   split: 4, 4, 4, 4
   orig: 32, 32
@@ -137,7 +144,7 @@ slot_cursed
   index: -1
 suppressed
   rotate: false
-  xy: 1942, 922
+  xy: 1464, 786
   size: 32, 32
   split: 4, 4, 4, 4
   orig: 32, 32
@@ -159,7 +166,7 @@ triangle
   index: -1
 tutorial_cursor
   rotate: false
-  xy: 1464, 786
+  xy: 1736, 881
   size: 32, 32
   split: 2, 2, 2, 2
   orig: 32, 32
