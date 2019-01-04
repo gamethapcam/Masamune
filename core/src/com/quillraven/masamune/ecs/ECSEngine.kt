@@ -32,7 +32,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         addSystem(RemoveSystem())
 
         // debug stuff
-        // addSystem(Box2DDebugRenderSystem(game))
+        addSystem(Box2DDebugRenderSystem(game))
     }
 
     override fun dispose() {
@@ -62,7 +62,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
     private fun setEntitySprite(entity: Entity) {
         val renderCmp = game.cmpMapper.render.get(entity)
         if (renderCmp != null && !renderCmp.texture.isBlank()) {
-            renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
+            renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture, renderCmp.texIndex)
         }
     }
 

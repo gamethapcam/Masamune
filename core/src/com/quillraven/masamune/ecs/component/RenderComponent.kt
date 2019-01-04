@@ -8,6 +8,7 @@ class RenderComponent : Component, Pool.Poolable {
     @Transient
     lateinit var sprite: Sprite
     var texture = ""
+    var texIndex = -1
     var flipX = false
     var flipY = false
     var width = 1f
@@ -15,6 +16,7 @@ class RenderComponent : Component, Pool.Poolable {
 
     override fun reset() {
         texture = ""
+        texIndex = -1
         flipX = false
         flipY = false
         width = 1f

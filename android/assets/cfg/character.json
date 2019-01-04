@@ -25,6 +25,15 @@
     },
     {
       "class": "com.quillraven.masamune.ecs.component.PlayerInputComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.AttributeComponent",
+      "strength": 10,
+      "intelligence": 10
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.InventoryComponent",
+      "maxSize": 20
     }
   ],
   "ELDER": [

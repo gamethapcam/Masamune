@@ -12,10 +12,7 @@ import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
-import com.quillraven.masamune.model.CharacterCfgMap
-import com.quillraven.masamune.model.ECharacterType
-import com.quillraven.masamune.model.EObjectType
-import com.quillraven.masamune.model.ObjectCfgMap
+import com.quillraven.masamune.model.*
 
 private const val TAG = "MapManager"
 
@@ -23,6 +20,7 @@ private const val LAYER_COLLISION = "collision"
 private const val LAYER_CHARACTER = "character"
 private const val LAYER_CAMERA_BOUNDARY = "cameraBoundary"
 private const val LAYER_OBJECT = "object"
+private const val LAYER_ITEM = "item"
 private const val GROUND_USER_DATA = "ground"
 
 class MapManager constructor(game: MainGame) {
@@ -32,6 +30,7 @@ class MapManager constructor(game: MainGame) {
     private val gameSerializer = game.serializer
     private val characterCfgMap = assetManger.get("cfg/character.json", CharacterCfgMap::class.java)
     private val objectCfgMap = assetManger.get("cfg/object.json", ObjectCfgMap::class.java)
+    private val itemCfgMap = assetManger.get("cfg/item.json", ItemCfgMap::class.java)
     private val b2dUtils = game.b2dUtils
 
     private val bgdLayers = Array<TiledMapTileLayer>()
@@ -207,6 +206,41 @@ class MapManager constructor(game: MainGame) {
                 ecsEngine.createEntityFromConfig(objCfg, mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE)
             } catch (e: IllegalArgumentException) {
                 Gdx.app.error(TAG, "Invalid Type $objTypeStr for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
+                continue
+            }
+        }
+    }
+
+    private fun destroyItems() {
+        //TODO
+    }
+
+    fun loadItems() {
+        val mapLayer = currentTiledMap.layers.get(LAYER_ITEM)
+        if (mapLayer == null) {
+            Gdx.app.debug(TAG, "There is no $LAYER_ITEM layer")
+            return
+        }
+
+        for (mapObj in mapLayer.objects) {
+            val itemTypeStr = mapObj.properties.get("type", "", String::class.java)
+            if (itemTypeStr.isBlank()) {
+                Gdx.app.error(TAG, "Type is not defined for $LAYER_ITEM tile ${mapObj.properties.get("id", Int::class.java)}")
+                continue
+            }
+
+            try {
+                val itemCfg = itemCfgMap[EItemType.valueOf(itemTypeStr)]
+                if (itemCfg == null) {
+                    Gdx.app.error(TAG, "There is no item cfg of type  $itemTypeStr defined for $LAYER_ITEM tile ${mapObj.properties.get("id", Int::class.java)}")
+                    continue
+                }
+
+                val posX = mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE
+                val posY = mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE
+                ecsEngine.createEntityFromConfig(itemCfg, posX, posY, widthScale = 0.75f, heightScale = 0.2f)
+            } catch (e: IllegalArgumentException) {
+                Gdx.app.error(TAG, "Invalid Type $itemTypeStr for $LAYER_ITEM tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
             }
         }

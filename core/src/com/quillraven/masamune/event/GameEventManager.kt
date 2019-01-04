@@ -64,4 +64,16 @@ class GameEventManager {
             listener.endCharacterContact(player, character)
         }
     }
+
+    fun dispatchContactBeginItem(player: Entity, item: Entity) {
+        for (listener in contactListeners) {
+            listener.beginCharacterContact(player, item)
+        }
+    }
+
+    fun dispatchContactEndItem(player: Entity, item: Entity) {
+        for (listener in contactListeners) {
+            listener.endCharacterContact(player, item)
+        }
+    }
 }

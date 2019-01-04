@@ -13,13 +13,13 @@ class SpriteCache constructor(game: MainGame) {
     internal val texWidth = getDefaultSprite().texture.width
     internal val texHeight = getDefaultSprite().texture.height
 
-    fun getSprite(texture: String): Sprite {
+    fun getSprite(texture: String, index: Int): Sprite {
         var sprite = cache.get(texture)
         if (sprite == null) {
             Gdx.app.debug(TAG, "Creating sprite $texture")
-            sprite = texAtlas.createSprite(texture)
+            sprite = texAtlas.createSprite(texture, index)
             if (sprite == null) {
-                Gdx.app.error(TAG, "Could not find texture region $texture. Using default sprite instead")
+                Gdx.app.error(TAG, "Could not find texture region $texture with index $index. Using default sprite instead")
                 return getDefaultSprite()
             }
             cache.put(texture, sprite)

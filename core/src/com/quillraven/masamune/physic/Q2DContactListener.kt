@@ -7,13 +7,16 @@ import com.quillraven.masamune.model.ECharacterType
 
 class Q2DContactListener constructor(game: MainGame) : ContactListener {
     private val charCmpMapper = game.cmpMapper.character
+    private val itemCmpMapper = game.cmpMapper.item
     private var player: Entity? = null
     private var character: Entity? = null
+    private var item: Entity? = null
     private val gameEventManager = game.gameEventManager
 
     private fun setCollisionEntities(fixA: Fixture, fixB: Fixture) {
         player = null
         character = null
+        item = null
         var playerSensor = false
 
         val dataA = fixA.body.userData
@@ -25,6 +28,11 @@ class Q2DContactListener constructor(game: MainGame) : ContactListener {
                     playerSensor = fixA.isSensor
                 } else {
                     character = dataA
+                }
+            } else {
+                val itemCmp = itemCmpMapper.get(dataA)
+                if (itemCmp != null) {
+                    item = dataA
                 }
             }
         }
@@ -38,6 +46,11 @@ class Q2DContactListener constructor(game: MainGame) : ContactListener {
                     playerSensor = fixB.isSensor
                 } else {
                     character = dataB
+                }
+            } else {
+                val itemCmp = itemCmpMapper.get(dataB)
+                if (itemCmp != null) {
+                    item = dataB
                 }
             }
         }
@@ -53,9 +66,12 @@ class Q2DContactListener constructor(game: MainGame) : ContactListener {
 
         val tmpPlayer = player ?: return // no collision with player
         val tmpChar = character
+        val tmpItem = item
         if (tmpChar != null) {
             // player <-> character collision
             gameEventManager.dispatchContactBeginCharacter(tmpPlayer, tmpChar)
+        } else if (tmpItem != null) {
+            gameEventManager.dispatchContactBeginItem(tmpPlayer, tmpItem)
         }
     }
 
@@ -64,9 +80,12 @@ class Q2DContactListener constructor(game: MainGame) : ContactListener {
 
         val tmpPlayer = player ?: return // no collision with player
         val tmpChar = character
+        val tmpItem = item
         if (tmpChar != null) {
             // player <-> character collision
             gameEventManager.dispatchContactEndCharacter(tmpPlayer, tmpChar)
+        } else if (tmpItem != null) {
+            gameEventManager.dispatchContactEndItem(tmpPlayer, tmpItem)
         }
     }
 

@@ -56,6 +56,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         } else {
             mapManager.loadCharacters()
             mapManager.loadObjects()
+            mapManager.loadItems()
         }
     }
 

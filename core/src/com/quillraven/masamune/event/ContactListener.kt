@@ -6,4 +6,8 @@ interface ContactListener {
     fun beginCharacterContact(player: Entity, character: Entity)
 
     fun endCharacterContact(player: Entity, character: Entity)
+
+    fun beginItemContact(player: Entity, item: Entity)
+
+    fun endItemContact(player: Entity, item: Entity)
 }

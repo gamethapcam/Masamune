@@ -1,0 +1,48 @@
+{
+  "SWORD": [
+    {
+      "class": "com.quillraven.masamune.ecs.component.ItemComponent",
+      "type": "SWORD",
+      "price": 150
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.AttributeComponent",
+      "strength": 3
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.TransformComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.Box2DComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.RenderComponent",
+      "texture": "claymore",
+      "width": 0.75,
+      "height": 0.75
+    }
+  ],
+  "MANA_POTION": [
+    {
+      "class": "com.quillraven.masamune.ecs.component.ItemComponent",
+      "type": "MANA_POTION",
+      "price": 10
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.HealComponent",
+      "mana": 50
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.TransformComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.Box2DComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.RenderComponent",
+      "texture": "brilliant_blue_new",
+      "width": 0.75,
+      "height": 0.75
+    }
+  ]
+}

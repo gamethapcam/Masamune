@@ -26,12 +26,12 @@ class GameScreen : Q2DScreen() {
             Gdx.input.isKeyPressed(Input.Keys.NUM_3) -> {
                 val renderCmp = game.cmpMapper.render.get(game.ecsEngine.getCharacterEntityByCharacterType(ECharacterType.HERO))
                 renderCmp.texture = "boris_new"
-                renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
+                renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture, -1)
             }
             Gdx.input.isKeyPressed(Input.Keys.NUM_4) -> {
                 val renderCmp = game.cmpMapper.render.get(game.ecsEngine.getCharacterEntityByCharacterType(ECharacterType.HERO))
                 renderCmp.texture = "norbert"
-                renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture)
+                renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture, -1)
             }
         }
 
