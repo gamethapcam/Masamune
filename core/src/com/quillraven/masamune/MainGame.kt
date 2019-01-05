@@ -51,7 +51,7 @@ class MainGame : Q2DGame() {
         val fontParam = FreeTypeFontGenerator.FreeTypeFontParameter()
         fontParam.minFilter = Texture.TextureFilter.Linear
         fontParam.magFilter = Texture.TextureFilter.Linear
-        for (size in 32..50 step 6) {
+        for (size in 23..50 step 9) {
             fontParam.size = size
             resources.put("font_$size", fontGenerator.generateFont(fontParam))
         }
