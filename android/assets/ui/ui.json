@@ -13,6 +13,10 @@
     },
     "label": {
       "font": "font_32"
+    },
+    "dialog_title": {
+      "font": "font_32",
+      "up": "dialog_title"
     }
   },
   "ProgressBarStyle": {

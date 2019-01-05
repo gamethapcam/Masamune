@@ -7,12 +7,12 @@ import com.quillraven.masamune.model.EItemType
 class ItemComponent : Component, Pool.Poolable {
     var type: EItemType = EItemType.UNDEFINED
     var price = 0f
-    // unique ID is assigned when item is moved to inventory
-    var ID = -1
+    // unique id is assigned when item is moved to inventory
+    var id = -1
 
     override fun reset() {
         type = EItemType.UNDEFINED
         price = 0f
-        ID = -1
+        id = -1
     }
 }
