@@ -12,7 +12,8 @@ import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
-import com.quillraven.masamune.model.*
+import com.quillraven.masamune.model.ObjectCfgMap
+import com.quillraven.masamune.model.ObjectType
 
 private const val TAG = "MapManager"
 
@@ -28,9 +29,9 @@ class MapManager constructor(game: MainGame) {
     private val assetManger = game.assetManager
     private val gameEventManager = game.gameEventManager
     private val gameSerializer = game.serializer
-    private val characterCfgMap = assetManger.get("cfg/character.json", CharacterCfgMap::class.java)
+    private val characterCfgMap = assetManger.get("cfg/character.json", ObjectCfgMap::class.java)
     private val objectCfgMap = assetManger.get("cfg/object.json", ObjectCfgMap::class.java)
-    private val itemCfgMap = assetManger.get("cfg/item.json", ItemCfgMap::class.java)
+    private val itemCfgMap = assetManger.get("cfg/item.json", ObjectCfgMap::class.java)
     private val b2dUtils = game.b2dUtils
 
     private val bgdLayers = Array<TiledMapTileLayer>()
@@ -134,7 +135,7 @@ class MapManager constructor(game: MainGame) {
             }
 
             try {
-                val charCfg = characterCfgMap[ECharacterType.valueOf(charTypeStr)]
+                val charCfg = characterCfgMap[ObjectType.valueOf(charTypeStr)]
                 if (charCfg == null) {
                     Gdx.app.error(TAG, "There is no character cfg of type  $charTypeStr defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
                     continue
@@ -197,7 +198,7 @@ class MapManager constructor(game: MainGame) {
             }
 
             try {
-                val objCfg = objectCfgMap[EObjectType.valueOf(objTypeStr)]
+                val objCfg = objectCfgMap[ObjectType.valueOf(objTypeStr)]
                 if (objCfg == null) {
                     Gdx.app.error(TAG, "There is no object cfg of type  $objTypeStr defined for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
                     continue
@@ -230,7 +231,7 @@ class MapManager constructor(game: MainGame) {
             }
 
             try {
-                val itemCfg = itemCfgMap[EItemType.valueOf(itemTypeStr)]
+                val itemCfg = itemCfgMap[ObjectType.valueOf(itemTypeStr)]
                 if (itemCfg == null) {
                     Gdx.app.error(TAG, "There is no item cfg of type  $itemTypeStr defined for $LAYER_ITEM tile ${mapObj.properties.get("id", Int::class.java)}")
                     continue

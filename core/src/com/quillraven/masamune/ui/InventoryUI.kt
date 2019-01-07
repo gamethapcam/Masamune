@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.ui.*
-import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.quillraven.masamune.event.GameEventManager
 
@@ -40,9 +39,6 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
 
         // slot table of content table
         slotTable.defaults().space(5f)
-        for (i in 1..40) {
-            addInventorySlot()
-        }
         contentTable.add(slotTable).padTop(10f).expand().fill().colspan(2)
 
         // add title area and content to table
@@ -70,14 +66,6 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
                 return true
             }
         })
-
-        // test stuff
-        addItem(0, "claymore")
-        addItem(2, "claymore")
-        addItem(3, "claymore")
-        addItem(13, "brilliant_blue_new")
-        addItem(13, "brilliant_blue_new")
-        addItem(-1, "brilliant_blue_new")
     }
 
     private fun addInventorySlot() {
@@ -119,14 +107,13 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
         // drag target
         dragAndDrop.addTarget(object : DragAndDrop.Target(slot) {
             override fun drag(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int): Boolean {
-                // valid drag only on empty slots that are different from the source slot
-                return imgItem.drawable == null && source.actor != actor
+                // valid drag only on slots that are different from the source slot
+                return source.actor != actor
             }
 
             override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int) {
                 // valid drop --> add item to new slot and remove it from old slot
-                removeItem(slotTable.children.indexOf(source.actor))
-                addItem(slotTable.children.indexOf(actor), (dragActor.drawable as BaseDrawable).name)
+                eventMgr.dispatchItemMove(slotTable.children.indexOf(source.actor), slotTable.children.indexOf(actor))
             }
         })
 
@@ -134,8 +121,7 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
         slot.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                 if (imgItem.drawable != null) {
-                    //teststuff
-                    updateItemInfo("Claymore", "A basic sword with awesome stats\n+10 Strength", (imgItem.drawable as BaseDrawable).name)
+                    eventMgr.dispatchInputShowItem(slotTable.children.indexOf(slot))
                 }
                 return true
             }
@@ -152,34 +138,26 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
         }
     }
 
-    fun removeItem(slotIdx: Int) {
+    fun updateItemSlot(slotIdx: Int, texture: String) {
         if (slotIdx < 0 || slotIdx >= slotTable.children.size) {
-            Gdx.app.error(TAG, "Trying to remove item from invalid slot $slotIdx")
+            Gdx.app.error(TAG, "Trying to update item $texture to invalid slot $slotIdx")
             return
         }
 
         val slot = slotTable.children[slotIdx] as WidgetGroup
         val item = slot.children[1] as Image
-        if (item.drawable == null) {
-            Gdx.app.error(TAG, "Slot $slotIdx does not have any item")
-            return
-        }
-        item.drawable = null
+        item.drawable = if (texture.isBlank()) null else skin.getDrawable(texture)
     }
 
-    fun addItem(slotIdx: Int, texture: String) {
-        if (slotIdx < 0 || slotIdx >= slotTable.children.size) {
-            Gdx.app.error(TAG, "Trying to add item $texture to invalid slot $slotIdx")
-            return
+    fun setInventorySize(size: Int) {
+        // add missing slots
+        while (slotTable.children.size < size) {
+            addInventorySlot()
         }
 
-        val slot = slotTable.children[slotIdx] as WidgetGroup
-        val item = slot.children[1] as Image
-        if (item.drawable != null) {
-            Gdx.app.error(TAG, "Slot $slotIdx already has an item")
-            return
+        // remove slots if there are too much
+        while (slotTable.children.size > size) {
+            slotTable.removeActor(slotTable.children[slotTable.children.size - 1])
         }
-
-        item.drawable = skin.getDrawable(texture)
     }
 }

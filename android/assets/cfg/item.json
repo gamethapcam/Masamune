@@ -1,9 +1,9 @@
 {
   "SWORD": [
     {
-      "class": "com.quillraven.masamune.ecs.component.ItemComponent",
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
       "type": "SWORD",
-      "price": 150
+      "entityType": "ITEM"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.AttributeComponent",
@@ -24,9 +24,9 @@
   ],
   "MANA_POTION": [
     {
-      "class": "com.quillraven.masamune.ecs.component.ItemComponent",
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
       "type": "MANA_POTION",
-      "price": 10
+      "entityType": "ITEM"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.HealComponent",

@@ -14,6 +14,8 @@ class GameEventManager {
 
     private val contactListeners = Array<ContactListener>()
 
+    private val itemListeners = Array<ItemListener>()
+
     fun addMapListener(listener: MapListener) {
         mapListeners.add(listener)
     }
@@ -49,6 +51,18 @@ class GameEventManager {
         }
     }
 
+    fun dispatchInputShowInventory() {
+        for (listener in inputListeners) {
+            listener.inputShowInventory()
+        }
+    }
+
+    fun dispatchInputShowItem(slotIdx: Int) {
+        for (listener in inputListeners) {
+            listener.inputShowItem(slotIdx)
+        }
+    }
+
     fun addContactListener(listener: ContactListener) {
         contactListeners.add(listener)
     }
@@ -74,6 +88,22 @@ class GameEventManager {
     fun dispatchContactEndItem(player: Entity, item: Entity) {
         for (listener in contactListeners) {
             listener.endCharacterContact(player, item)
+        }
+    }
+
+    fun addItemListener(listener: ItemListener) {
+        itemListeners.add(listener)
+    }
+
+    fun dispatchItemMove(fromSlotIdx: Int, toSlotIdx: Int) {
+        for (listener in itemListeners) {
+            listener.itemMoved(fromSlotIdx, toSlotIdx)
+        }
+    }
+
+    fun dispatchItemSlotUpdated(slotIdx: Int, item: Entity?) {
+        for (listener in itemListeners) {
+            listener.itemSlotUpdated(slotIdx, item)
         }
     }
 }

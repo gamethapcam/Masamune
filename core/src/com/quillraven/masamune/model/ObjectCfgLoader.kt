@@ -26,7 +26,7 @@ class ObjectCfgLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader<Ob
         val jsonValue = JsonReader().parse(file)
         var entry = jsonValue.child
         while (entry != null) {
-            val type = EObjectType.valueOf(entry.name)
+            val type = ObjectType.valueOf(entry.name)
             cfgMap[type] = entry.child
             entry = entry.next
         }

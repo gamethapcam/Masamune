@@ -1,13 +1,16 @@
 package com.quillraven.masamune.ui
 
-import com.badlogic.gdx.scenes.scene2d.*
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.quillraven.masamune.event.GameEventManager
 
 
 class GameUI constructor(skin: Skin, private val eventMgr: GameEventManager) : Table(skin) {
-    private val inventoryUI = InventoryUI(skin, eventMgr)
+    internal val inventoryUI = InventoryUI(skin, eventMgr)
 
     init {
         setFillParent(true)
@@ -27,6 +30,7 @@ class GameUI constructor(skin: Skin, private val eventMgr: GameEventManager) : T
         btnInventory.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                 if (inventoryUI.stage == null) {
+                    eventMgr.dispatchInputShowInventory()
                     stage.addActor(inventoryUI)
                 }
                 return true

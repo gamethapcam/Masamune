@@ -3,11 +3,11 @@ package com.quillraven.masamune.physic
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.physics.box2d.*
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.model.ECharacterType
+import com.quillraven.masamune.ecs.EntityType
+import com.quillraven.masamune.model.ObjectType
 
 class Q2DContactListener constructor(game: MainGame) : ContactListener {
-    private val charCmpMapper = game.cmpMapper.character
-    private val itemCmpMapper = game.cmpMapper.item
+    private val idCmpMapper = game.cmpMapper.identify
     private var player: Entity? = null
     private var character: Entity? = null
     private var item: Entity? = null
@@ -21,42 +21,36 @@ class Q2DContactListener constructor(game: MainGame) : ContactListener {
 
         val dataA = fixA.body.userData
         if (dataA is Entity) {
-            val charCmp = charCmpMapper.get(dataA)
-            if (charCmp != null) {
-                if (charCmp.type == ECharacterType.HERO) {
+            val idCmp = idCmpMapper.get(dataA)
+            if (idCmp.entityType == EntityType.CHARACTER) {
+                if (idCmp.type == ObjectType.HERO) {
                     player = dataA
                     playerSensor = fixA.isSensor
                 } else {
                     character = dataA
                 }
-            } else {
-                val itemCmp = itemCmpMapper.get(dataA)
-                if (itemCmp != null) {
-                    item = dataA
-                }
+            } else if (idCmp.entityType == EntityType.ITEM) {
+                item = dataA
             }
         }
 
         val dataB = fixB.body.userData
         if (dataB is Entity) {
-            val charCmp = charCmpMapper.get(dataB)
-            if (charCmp != null) {
-                if (charCmp.type == ECharacterType.HERO) {
+            val idCmp = idCmpMapper.get(dataB)
+            if (idCmp.entityType == EntityType.CHARACTER) {
+                if (idCmp.type == ObjectType.HERO) {
                     player = dataB
                     playerSensor = fixB.isSensor
                 } else {
                     character = dataB
                 }
-            } else {
-                val itemCmp = itemCmpMapper.get(dataB)
-                if (itemCmp != null) {
-                    item = dataB
-                }
+            } else if (idCmp.entityType == EntityType.ITEM) {
+                item = dataB
             }
         }
 
-        if (character != null && player != null && !playerSensor) {
-            // char <-> player contact should only happen with player detection radius and not with its real collision body
+        if ((character != null || item != null) && player != null && !playerSensor) {
+            // char/item <-> player contact should only happen with player detection radius and not with its real collision body
             player = null
         }
     }

@@ -2,31 +2,31 @@ package com.quillraven.masamune.ecs
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.JsonValue
 import com.badlogic.gdx.utils.SerializationException
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.component.CharacterComponent
 import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.ecs.system.*
-import com.quillraven.masamune.model.ECharacterType
 import com.quillraven.masamune.serialization.CLASS_KEY
 
 private const val TAG = "ECSEngine"
 
 class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Disposable {
-    private val characterEntities = getEntitiesFor(Family.all(CharacterComponent::class.java).exclude(RemoveComponent::class.java).get())
+    private val tmpEntities = Array<Entity>()
 
     init {
+        addSystem(IdentifySystem(game))
         addSystem(PlayerInputSystem(game))
         addSystem(Box2DSystem(game, this))
         addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
         addSystem(ActionableSystem(game, this))
+        addSystem(InventorySystem(game))
         addSystem(RenderFlipSystem(game))
         addSystem(GameRenderSystem(game))
         addSystem(RemoveSystem())
@@ -120,61 +120,52 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         addEntity(entity)
     }
 
-    fun getCharacterEntityByCharacterType(charType: ECharacterType): Entity? {
-        for (e in characterEntities) {
-            val charCmp = game.cmpMapper.character.get(e)
-            if (charCmp.type == charType) {
-                return e
-            }
-        }
-        return null
-    }
-
+    //TODO
     // helper method to set the component values of an entity to the given cmpData
     // this is used f.e. when changing from one map to another to take over the player entity configuration
     // from the old map to the new map
     // cmpData is a json array of serialized component data
-    fun initCharacterEntityFromConfig(charType: ECharacterType, cmpData: JsonValue) {
-        val entity = getCharacterEntityByCharacterType(charType)
-        if (entity == null) {
-            Gdx.app.debug(TAG, "There is no entity of type $charType that needs to be initialized")
-            return
-        }
-
-        var iterator: JsonValue? = cmpData
-        while (iterator != null) {
-            val value = iterator
-            iterator = iterator.next
-
-            val cmpClass = getComponentClassByName(value.getString(CLASS_KEY)) ?: continue
-            var cmp = entity.getComponent(cmpClass)
-            if (cmp == null) {
-                cmp = createComponent(cmpClass)
-                entity.add(cmp)
-            }
-            try {
-                game.json.readFields(cmp, value)
-            } catch (e: SerializationException) {
-                Gdx.app.error(TAG, "Cannot set fields of component $cmp", e)
-            }
-        }
-
-        setEntitySprite(entity)
-    }
+//    fun initCharacterEntityFromConfig(charType: ECharacterType, cmpData: JsonValue) {
+//        val entity = getCharacterEntityByCharacterType(charType)
+//        if (entity == null) {
+//            Gdx.app.debug(TAG, "There is no entity of type $charType that needs to be initialized")
+//            return
+//        }
+//
+//        var iterator: JsonValue? = cmpData
+//        while (iterator != null) {
+//            val value = iterator
+//            iterator = iterator.next
+//
+//            val cmpClass = getComponentClassByName(value.getString(CLASS_KEY)) ?: continue
+//            var cmp = entity.getComponent(cmpClass)
+//            if (cmp == null) {
+//                cmp = createComponent(cmpClass)
+//                entity.add(cmp)
+//            }
+//            try {
+//                game.json.readFields(cmp, value)
+//            } catch (e: SerializationException) {
+//                Gdx.app.error(TAG, "Cannot set fields of component $cmp", e)
+//            }
+//        }
+//
+//        setEntitySprite(entity)
+//    }
 
     fun destroyCharacterEntities() {
-        for (entity in entities) {
-            if (game.cmpMapper.character.get(entity) != null) {
-                entity.add(createComponent(RemoveComponent::class.java))
-            }
+        getSystem(IdentifySystem::class.java).getEntitiesOfType(EntityType.CHARACTER, tmpEntities)
+        for (entity in tmpEntities) {
+            entity.add(createComponent(RemoveComponent::class.java))
         }
+        tmpEntities.clear()
     }
 
     fun destroyObjectEntities() {
-        for (entity in entities) {
-            if (game.cmpMapper.obj.get(entity) != null) {
-                entity.add(createComponent(RemoveComponent::class.java))
-            }
+        getSystem(IdentifySystem::class.java).getEntitiesOfType(EntityType.OBJECT, tmpEntities)
+        for (entity in tmpEntities) {
+            entity.add(createComponent(RemoveComponent::class.java))
         }
+        tmpEntities.clear()
     }
 }

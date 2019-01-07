@@ -6,11 +6,9 @@ import com.badlogic.gdx.utils.JsonValue
 import com.badlogic.gdx.utils.StringBuilder
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
-import com.quillraven.masamune.ecs.component.CharacterComponent
 import com.quillraven.masamune.event.MapEvent
 import com.quillraven.masamune.event.MapListener
 import com.quillraven.masamune.map.EMapType
-import com.quillraven.masamune.model.ECharacterType
 
 private const val KEY_CURRENT_MAP = "currentMap"
 private const val KEY_MAP_DATA = "-data"
@@ -32,7 +30,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
     fun saveGameState() {
         gameStatePreference.putString(KEY_CURRENT_MAP, mapManager.currentMapType.name)
         gameStatePreference.putString("${mapManager.currentMapType.name}$KEY_MAP_DATA", json.toJson(ecsEngine))
-        gameStatePreference.flush()
+//        gameStatePreference.flush()
     }
 
     fun loadGameState() {
@@ -60,7 +58,8 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         }
     }
 
-    private fun getCharacterTypeFromEntityData(cmpData: JsonValue): ECharacterType {
+    //TODO
+    /*private fun getCharacterTypeFromEntityData(cmpData: JsonValue): ECharacterType {
         var iterator: JsonValue? = cmpData
         while (iterator != null) {
             val value = iterator
@@ -71,7 +70,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
             }
         }
         return ECharacterType.UNDEFINED
-    }
+    }*/
 
     override fun mapChanged(event: MapEvent) {
         loadMapEntities(event.newType)
@@ -86,12 +85,13 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
                     val cmpData = entityDataIterator.child
                     entityDataIterator = entityDataIterator.next
 
-                    val charType = getCharacterTypeFromEntityData(cmpData)
+                    //TODO
+                    /*val charType = getCharacterTypeFromEntityData(cmpData)
                     if (charType == ECharacterType.UNDEFINED) {
                         continue
                     }
 
-                    ecsEngine.initCharacterEntityFromConfig(charType, cmpData)
+                    ecsEngine.initCharacterEntityFromConfig(charType, cmpData)*/
                 }
             }
         }

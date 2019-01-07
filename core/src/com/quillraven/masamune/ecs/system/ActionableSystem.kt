@@ -3,21 +3,18 @@ package com.quillraven.masamune.ecs.system
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.Gdx
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
+import com.quillraven.masamune.ecs.EntityType
 import com.quillraven.masamune.ecs.component.ActionableComponent
 import com.quillraven.masamune.ecs.component.Box2DComponent
 import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.event.ContactListener
 import com.quillraven.masamune.event.InputListener
 
-private const val TAG = "ActionableSystem"
-
 class ActionableSystem constructor(game: MainGame, private val ecsEngine: ECSEngine) : IteratingSystem(Family.all(ActionableComponent::class.java).get()), ContactListener, InputListener {
     private val actCmpMapper = game.cmpMapper.actionable
-    private val itemCmpMapper = game.cmpMapper.item
-    private val inventoryCmpMapper = game.cmpMapper.inventory
+    private val idCmpMapper = game.cmpMapper.identify
     private var process = false
 
     init {
@@ -28,25 +25,15 @@ class ActionableSystem constructor(game: MainGame, private val ecsEngine: ECSEng
     override fun processEntity(entity: Entity, deltaTime: Float) {
         if (process) {
             val actionableCmp = actCmpMapper.get(entity)
-            val itemCmp = itemCmpMapper.get(entity)
-            if (itemCmp != null) {
+            val idCmp = idCmpMapper.get(entity)
+            if (idCmp.entityType == EntityType.ITEM) {
                 // item map interaction
-                val inventoryCmp = inventoryCmpMapper.get(actionableCmp.source)
-                if (inventoryCmp == null) {
-                    Gdx.app.error(TAG, "Entity tries to pickup an item without having an inventory")
-                    return
+                if (engine.getSystem(InventorySystem::class.java).addItem(actionableCmp.source, entity)) {
+                    // remove transform component so that it no longer gets rendered on the map
+                    entity.remove(TransformComponent::class.java)
+                    // remove box2d component to remove collision body
+                    entity.remove(Box2DComponent::class.java)
                 }
-                if (inventoryCmp.items.size >= inventoryCmp.maxSize) {
-                    Gdx.app.debug(TAG, "Inventory is full. Entity cannot pickup more items")
-                    return
-                }
-
-                // remove transform component so that it no longer gets rendered on the map
-                entity.remove(TransformComponent::class.java)
-                // remove box2d component to remove collision body
-                entity.remove(Box2DComponent::class.java)
-                // add to inventory
-                inventoryCmp.items.add(entity)
             }
 
             process = false
@@ -75,10 +62,6 @@ class ActionableSystem constructor(game: MainGame, private val ecsEngine: ECSEng
         if (actCmpMapper.get(item) != null) {
             item.remove(ActionableComponent::class.java)
         }
-    }
-
-    override fun inputMove(percentX: Float, percentY: Float) {
-        // not needed for this system
     }
 
     override fun inputAction() {

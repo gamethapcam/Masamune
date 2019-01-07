@@ -3,4 +3,4 @@ package com.quillraven.masamune.model
 import com.badlogic.gdx.utils.JsonValue
 import java.util.*
 
-class ObjectCfgMap : EnumMap<EObjectType, JsonValue>(EObjectType::class.java)
+class ObjectCfgMap : EnumMap<ObjectType, JsonValue>(ObjectType::class.java)

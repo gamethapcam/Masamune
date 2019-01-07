@@ -8,7 +8,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.quillraven.masamune.map.EMapType
-import com.quillraven.masamune.model.*
+import com.quillraven.masamune.model.ObjectCfgLoader
+import com.quillraven.masamune.model.ObjectCfgMap
 import com.quillraven.masamune.ui.LoadingUI
 
 class LoadingScreen : Q2DScreen() {
@@ -22,14 +23,14 @@ class LoadingScreen : Q2DScreen() {
     override fun show() {
         assetManager.load("textures.atlas", TextureAtlas::class.java)
 
-        assetManager.setLoader(CharacterCfgMap::class.java, CharacterCfgLoader(assetManager.fileHandleResolver))
-        assetManager.load("cfg/character.json", CharacterCfgMap::class.java)
+        assetManager.setLoader(ObjectCfgMap::class.java, ObjectCfgLoader(assetManager.fileHandleResolver))
+        assetManager.load("cfg/character.json", ObjectCfgMap::class.java)
 
         assetManager.setLoader(ObjectCfgMap::class.java, ObjectCfgLoader(assetManager.fileHandleResolver))
         assetManager.load("cfg/object.json", ObjectCfgMap::class.java)
 
-        assetManager.setLoader(ItemCfgMap::class.java, ItemCfgLoader(assetManager.fileHandleResolver))
-        assetManager.load("cfg/item.json", ItemCfgMap::class.java)
+        assetManager.setLoader(ObjectCfgMap::class.java, ObjectCfgLoader(assetManager.fileHandleResolver))
+        assetManager.load("cfg/item.json", ObjectCfgMap::class.java)
 
         assetManager.setLoader(TiledMap::class.java, TmxMapLoader(assetManager.fileHandleResolver))
         for (mapType in EMapType.values()) {

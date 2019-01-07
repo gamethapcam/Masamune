@@ -31,8 +31,4 @@ class PlayerInputSystem constructor(game: MainGame) : IteratingSystem(Family.all
         percX = percentX
         percY = percentY
     }
-
-    override fun inputAction() {
-        // not needed for this system
-    }
 }

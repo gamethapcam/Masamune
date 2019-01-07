@@ -1,8 +1,9 @@
 {
   "ROCK": [
     {
-      "class": "com.quillraven.masamune.ecs.component.ObjectComponent",
-      "type": "ROCK"
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
+      "type": "ROCK",
+      "entityType": "OBJECT"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"

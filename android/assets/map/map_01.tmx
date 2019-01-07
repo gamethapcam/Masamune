@@ -44,17 +44,17 @@
   </object>
  </objectgroup>
  <objectgroup id="7" name="item">
-  <object id="15" gid="38" x="322" y="1921" width="32" height="32">
+  <object id="15" gid="38" x="489" y="1919" width="32" height="32">
    <properties>
     <property name="type" value="SWORD"/>
    </properties>
   </object>
-  <object id="16" gid="27" x="338" y="1999" width="32" height="32">
+  <object id="16" gid="27" x="492" y="1971" width="32" height="32">
    <properties>
     <property name="type" value="MANA_POTION"/>
    </properties>
   </object>
-  <object id="18" gid="27" x="300" y="1977" width="32" height="32">
+  <object id="18" gid="27" x="483" y="1948" width="32" height="32">
    <properties>
     <property name="type" value="MANA_POTION"/>
    </properties>

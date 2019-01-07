@@ -1,8 +1,9 @@
 {
   "HERO": [
     {
-      "class": "com.quillraven.masamune.ecs.component.CharacterComponent",
-      "type": "HERO"
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
+      "type": "HERO",
+      "entityType": "CHARACTER"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"
@@ -33,13 +34,14 @@
     },
     {
       "class": "com.quillraven.masamune.ecs.component.InventoryComponent",
-      "maxSize": 20
+      "maxSize": 40
     }
   ],
   "ELDER": [
     {
-      "class": "com.quillraven.masamune.ecs.component.CharacterComponent",
-      "type": "ELDER"
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
+      "type": "ELDER",
+      "entityType": "CHARACTER"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"
@@ -59,8 +61,9 @@
   ],
   "LADY": [
     {
-      "class": "com.quillraven.masamune.ecs.component.CharacterComponent",
-      "type": "LADY"
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
+      "type": "LADY",
+      "entityType": "CHARACTER"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"
@@ -80,8 +83,9 @@
   ],
   "MERCHANT": [
     {
-      "class": "com.quillraven.masamune.ecs.component.CharacterComponent",
-      "type": "MERCHANT"
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
+      "type": "MERCHANT",
+      "entityType": "CHARACTER"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"
@@ -101,8 +105,9 @@
   ],
   "SMITH": [
     {
-      "class": "com.quillraven.masamune.ecs.component.CharacterComponent",
-      "type": "SMITH"
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
+      "type": "SMITH",
+      "entityType": "CHARACTER"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"
