@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.quillraven.masamune.MainGame
+import com.quillraven.masamune.SpriteCache
 import com.quillraven.masamune.UNIT_SCALE
 import com.quillraven.masamune.ecs.component.ActionableComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
@@ -39,6 +40,7 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
     private val camera = viewport.camera as OrthographicCamera
     private val shader = game.shaderOutline
     private val batch = game.batch
+    private val spriteCache = SpriteCache(game)
 
     private val mapRenderer = OrthogonalTiledMapRenderer(null, UNIT_SCALE, batch)
     private lateinit var bgdLayers: Array<TiledMapTileLayer>
@@ -46,14 +48,24 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
 
     private val actionableEntities by lazy { engine.getEntitiesFor(Family.all(TransformComponent::class.java, RenderComponent::class.java, ActionableComponent::class.java).get()) }
     // 1f / ... means the outline is exactly one pixel thick. higher values create a thicker outline
-    private val shaderOutlineStepX = 1.5f / game.spriteCache.texWidth
-    private val shaderOutlineStepY = 1.5f / game.spriteCache.texHeight
+    private val shaderOutlineStepX = 1.5f / spriteCache.texWidth
+    private val shaderOutlineStepY = 1.5f / spriteCache.texHeight
 
     private val clipBounds = Rectangle()
     private val scissors = Rectangle()
 
     init {
         game.gameEventManager.addMapListener(this)
+    }
+
+    override fun entityAdded(entity: Entity?) {
+        super.entityAdded(entity)
+
+        // set sprite if needed
+        val renderCmp = renderCmpMapper.get(entity)
+        if (renderCmp != null && !renderCmp.texture.isBlank()) {
+            renderCmp.sprite = spriteCache.getSprite(renderCmp.texture, renderCmp.texIndex)
+        }
     }
 
     override fun update(deltaTime: Float) {

@@ -32,16 +32,6 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
         when {
             Gdx.input.isKeyPressed(Input.Keys.NUM_1) -> game.mapManager.setMap(EMapType.MAP01)
             Gdx.input.isKeyPressed(Input.Keys.NUM_2) -> game.mapManager.setMap(EMapType.MAP02)
-            Gdx.input.isKeyPressed(Input.Keys.NUM_3) -> {
-                val renderCmp = game.cmpMapper.render.get(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity())
-                renderCmp.texture = "boris_new"
-                renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture, -1)
-            }
-            Gdx.input.isKeyPressed(Input.Keys.NUM_4) -> {
-                val renderCmp = game.cmpMapper.render.get(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity())
-                renderCmp.texture = "norbert"
-                renderCmp.sprite = game.spriteCache.getSprite(renderCmp.texture, -1)
-            }
         }
 
         game.ecsEngine.update(delta)
@@ -69,7 +59,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
 
     private fun resizeInventoryUI() {
         val inventoryCmp = game.ecsEngine.getSystem(InventorySystem::class.java).getInventory(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()!!)
-        gameUI.inventoryUI.setInventorySize(if (inventoryCmp != null) inventoryCmp.maxSize else 0)
+        gameUI.inventoryUI.setInventorySize(inventoryCmp?.maxSize ?: 0)
     }
 
     override fun itemMoved(fromSlotIdx: Int, toSlotIdx: Int) {

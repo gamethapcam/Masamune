@@ -45,19 +45,6 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         return jsonReader.parse(mapDataBuffer.chars, 0, mapDataStr.length)
     }
 
-    private fun loadMapEntities(mapType: EMapType) {
-        keyBuffer.setLength(0)
-        keyBuffer.append(mapType.name).append(KEY_MAP_DATA)
-        val mapDataKey = keyBuffer.toString()
-        if (gameStatePreference.contains(mapDataKey)) {
-            json.readValue(ECSEngine::class.java, null, readMapData(mapDataKey))
-        } else {
-            mapManager.loadCharacters()
-            mapManager.loadObjects()
-            mapManager.loadItems()
-        }
-    }
-
     //TODO
     /*private fun getCharacterTypeFromEntityData(cmpData: JsonValue): ECharacterType {
         var iterator: JsonValue? = cmpData
@@ -73,27 +60,13 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
     }*/
 
     override fun mapChanged(event: MapEvent) {
-        loadMapEntities(event.newType)
-
-        if (event.oldType != EMapType.UNDEFINED) {
-            keyBuffer.setLength(0)
-            keyBuffer.append(event.oldType.name).append(KEY_MAP_DATA)
-            val oldMapDataKey = keyBuffer.toString()
-            if (gameStatePreference.contains(oldMapDataKey)) {
-                var entityDataIterator = readMapData(oldMapDataKey).child
-                while (entityDataIterator != null) {
-                    val cmpData = entityDataIterator.child
-                    entityDataIterator = entityDataIterator.next
-
-                    //TODO
-                    /*val charType = getCharacterTypeFromEntityData(cmpData)
-                    if (charType == ECharacterType.UNDEFINED) {
-                        continue
-                    }
-
-                    ecsEngine.initCharacterEntityFromConfig(charType, cmpData)*/
-                }
-            }
+        keyBuffer.setLength(0)
+        keyBuffer.append(event.newType).append(KEY_MAP_DATA)
+        val mapDataKey = keyBuffer.toString()
+        if (gameStatePreference.contains(mapDataKey)) {
+            json.readValue(ECSEngine::class.java, null, readMapData(mapDataKey))
+        } else {
+            mapManager.loadEntitiesForAllLayers()
         }
     }
 }

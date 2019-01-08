@@ -12,6 +12,7 @@ import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
+import com.quillraven.masamune.ecs.EntityType
 import com.quillraven.masamune.model.ObjectCfgMap
 import com.quillraven.masamune.model.ObjectType
 
@@ -116,41 +117,6 @@ class MapManager constructor(game: MainGame) {
         }
     }
 
-    private fun destroyCharacters() {
-        ecsEngine.destroyCharacterEntities()
-    }
-
-    fun loadCharacters() {
-        val mapLayer = currentTiledMap.layers.get(LAYER_CHARACTER)
-        if (mapLayer == null) {
-            Gdx.app.debug(TAG, "There is no $LAYER_CHARACTER layer")
-            return
-        }
-
-        for (mapObj in mapLayer.objects) {
-            val charTypeStr = mapObj.properties.get("type", "", String::class.java)
-            if (charTypeStr.isBlank()) {
-                Gdx.app.error(TAG, "Type is not defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
-                continue
-            }
-
-            try {
-                val charCfg = characterCfgMap[ObjectType.valueOf(charTypeStr)]
-                if (charCfg == null) {
-                    Gdx.app.error(TAG, "There is no character cfg of type  $charTypeStr defined for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
-                    continue
-                }
-
-                val posX = mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE
-                val posY = mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE
-                ecsEngine.createEntityFromConfig(charCfg, posX, posY, widthScale = 0.75f, heightScale = 0.2f)
-            } catch (e: IllegalArgumentException) {
-                Gdx.app.error(TAG, "Invalid Type $charTypeStr for $LAYER_CHARACTER tile ${mapObj.properties.get("id", Int::class.java)}")
-                continue
-            }
-        }
-    }
-
     private fun getCameraBoundaries() {
         numCamBoundaries = 0
 
@@ -179,72 +145,53 @@ class MapManager constructor(game: MainGame) {
         }
     }
 
-    private fun destroyObjects() {
-        ecsEngine.destroyObjectEntities()
+    fun loadEntitiesForAllLayers() {
+        loadEntitiesFromLayer(LAYER_CHARACTER, characterCfgMap, 0.75f, 0.2f)
+        loadEntitiesFromLayer(LAYER_OBJECT, objectCfgMap)
+        loadEntitiesFromLayer(LAYER_ITEM, itemCfgMap, 0.8f, 0.3f)
     }
 
-    fun loadObjects() {
-        val mapLayer = currentTiledMap.layers.get(LAYER_OBJECT)
+    private fun loadEntitiesFromLayer(layerName: String, objCfgMap: ObjectCfgMap, widthScale: Float = 1f, heightScale: Float = 1f) {
+        val mapLayer = currentTiledMap.layers.get(layerName)
         if (mapLayer == null) {
-            Gdx.app.debug(TAG, "There is no $LAYER_OBJECT layer")
+            Gdx.app.debug(TAG, "There is no $layerName layer")
             return
         }
 
         for (mapObj in mapLayer.objects) {
-            val objTypeStr = mapObj.properties.get("type", "", String::class.java)
-            if (objTypeStr.isBlank()) {
-                Gdx.app.error(TAG, "Type is not defined for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
+            val typeStr = mapObj.properties.get("type", "", String::class.java)
+            if (typeStr.isBlank()) {
+                Gdx.app.error(TAG, "Type is not defined for $layerName tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
             }
 
             try {
-                val objCfg = objectCfgMap[ObjectType.valueOf(objTypeStr)]
-                if (objCfg == null) {
-                    Gdx.app.error(TAG, "There is no object cfg of type  $objTypeStr defined for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
-                    continue
-                }
-
-                ecsEngine.createEntityFromConfig(objCfg, mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE, mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE)
-            } catch (e: IllegalArgumentException) {
-                Gdx.app.error(TAG, "Invalid Type $objTypeStr for $LAYER_OBJECT tile ${mapObj.properties.get("id", Int::class.java)}")
-                continue
-            }
-        }
-    }
-
-    private fun destroyItems() {
-        //TODO
-    }
-
-    fun loadItems() {
-        val mapLayer = currentTiledMap.layers.get(LAYER_ITEM)
-        if (mapLayer == null) {
-            Gdx.app.debug(TAG, "There is no $LAYER_ITEM layer")
-            return
-        }
-
-        for (mapObj in mapLayer.objects) {
-            val itemTypeStr = mapObj.properties.get("type", "", String::class.java)
-            if (itemTypeStr.isBlank()) {
-                Gdx.app.error(TAG, "Type is not defined for $LAYER_ITEM tile ${mapObj.properties.get("id", Int::class.java)}")
-                continue
-            }
-
-            try {
-                val itemCfg = itemCfgMap[ObjectType.valueOf(itemTypeStr)]
-                if (itemCfg == null) {
-                    Gdx.app.error(TAG, "There is no item cfg of type  $itemTypeStr defined for $LAYER_ITEM tile ${mapObj.properties.get("id", Int::class.java)}")
+                val cfg = objCfgMap[ObjectType.valueOf(typeStr)]
+                if (cfg == null) {
+                    Gdx.app.error(TAG, "There is no cfg of type  $typeStr defined for $layerName tile ${mapObj.properties.get("id", Int::class.java)}")
                     continue
                 }
 
                 val posX = mapObj.properties.get("x", 0f, Float::class.java) * UNIT_SCALE
                 val posY = mapObj.properties.get("y", 0f, Float::class.java) * UNIT_SCALE
-                ecsEngine.createEntityFromConfig(itemCfg, posX, posY, widthScale = 0.75f, heightScale = 0.2f)
+                ecsEngine.createEntityFromConfig(cfg, posX, posY, widthScale, heightScale)
             } catch (e: IllegalArgumentException) {
-                Gdx.app.error(TAG, "Invalid Type $itemTypeStr for $LAYER_ITEM tile ${mapObj.properties.get("id", Int::class.java)}")
+                Gdx.app.error(TAG, "Invalid Type $typeStr for $layerName tile ${mapObj.properties.get("id", Int::class.java)}")
                 continue
             }
         }
+    }
+
+    private fun destroyCharacters() {
+        ecsEngine.destroyEntitiesOfType(EntityType.CHARACTER)
+    }
+
+    private fun destroyObjects() {
+        ecsEngine.destroyEntitiesOfType(EntityType.OBJECT)
+    }
+
+    private fun destroyItems() {
+        //TODO
     }
 
     private fun getRenderLayers() {

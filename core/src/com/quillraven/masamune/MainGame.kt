@@ -81,8 +81,6 @@ class MainGame : Q2DGame() {
     internal val json by lazy { Json(JsonWriter.OutputType.minimal) }
     internal val serializer by lazy { Q2DSerializer(this) }
 
-    internal val spriteCache by lazy { SpriteCache(this) }
-
     override fun initialize() {
         Gdx.input.inputProcessor = stage
     }

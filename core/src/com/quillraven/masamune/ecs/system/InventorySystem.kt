@@ -1,28 +1,35 @@
 package com.quillraven.masamune.ecs.system
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntityListener
+import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.Gdx
 import com.quillraven.masamune.MainGame
+import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.InventoryComponent
 
 private const val TAG = "InventorySystem"
 
-class InventorySystem constructor(game: MainGame) : IteratingSystem(Family.all(InventoryComponent::class.java).get()) {
+class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener {
     private val invCmpMapper = game.cmpMapper.inventory
     private val idCmpMapper = game.cmpMapper.identify
     private val gameEventManager = game.gameEventManager
 
-    override fun processEntity(entity: Entity, deltaTime: Float) {
+    init {
+        ecsEngine.addEntityListener(Family.all(InventoryComponent::class.java).get(), this)
+        setProcessing(false)
+    }
+
+    override fun entityAdded(entity: Entity) {
+        // initialize inventory size
         val inventoryCmp = invCmpMapper.get(entity)
-        if (inventoryCmp.items.size != inventoryCmp.maxSize) {
-            // add inventory slots
-            while (inventoryCmp.items.size < inventoryCmp.maxSize) {
-                inventoryCmp.items.add(-1)
-            }
-            //TODO remove inventory slots: move items to other slots or drop on map
+        while (inventoryCmp.items.size < inventoryCmp.maxSize) {
+            inventoryCmp.items.add(-1)
         }
+    }
+
+    override fun entityRemoved(entity: Entity) {
     }
 
     fun getInventory(entity: Entity): InventoryComponent? {
@@ -34,17 +41,13 @@ class InventorySystem constructor(game: MainGame) : IteratingSystem(Family.all(I
     }
 
     fun addItem(entity: Entity, item: Entity): Boolean {
-        val inventoryCmp = invCmpMapper.get(entity)
-        if (inventoryCmp == null) {
-            Gdx.app.error(TAG, "Entity tries to pickup an item without having an inventory")
-            return false
-        }
+        val inventory = getInventory(entity) ?: return false
 
         // find free index
-        for (idx in 0 until inventoryCmp.maxSize) {
-            if (inventoryCmp.items[idx] == -1) {
-                // add to inventory
-                inventoryCmp.items[idx] = idCmpMapper.get(item).id
+        for (idx in 0 until inventory.items.size) {
+            if (inventory.items[idx] == -1) {
+                // found empty slot --> add to inventory by assigning entity ID to the slot
+                inventory.items[idx] = idCmpMapper.get(item).id
                 gameEventManager.dispatchItemSlotUpdated(idx, item)
                 return true
             }
