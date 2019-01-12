@@ -3,6 +3,7 @@ package com.quillraven.masamune.screen
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.quillraven.masamune.ecs.system.DEFAULT_ENTITY_ID
 import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.ecs.system.InventorySystem
 import com.quillraven.masamune.event.InputListener
@@ -83,7 +84,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
         if (inventoryCmp != null) {
             resizeInventoryUI()
             for (index in 0 until inventoryCmp.items.size) {
-                if (inventoryCmp.items[index] == -1) continue
+                if (inventoryCmp.items[index] == DEFAULT_ENTITY_ID) continue
 
                 gameUI.inventoryUI.updateItemSlot(index, game.cmpMapper.render.get(game.ecsEngine.getSystem(IdentifySystem::class.java).getEntityByID(inventoryCmp.items[index])).texture)
             }

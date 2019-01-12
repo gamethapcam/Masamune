@@ -25,7 +25,7 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         // initialize inventory size
         val inventoryCmp = invCmpMapper.get(entity)
         while (inventoryCmp.items.size < inventoryCmp.maxSize) {
-            inventoryCmp.items.add(-1)
+            inventoryCmp.items.add(DEFAULT_ENTITY_ID)
         }
     }
 
@@ -45,7 +45,7 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
 
         // find free index
         for (idx in 0 until inventory.items.size) {
-            if (inventory.items[idx] == -1) {
+            if (inventory.items[idx] == DEFAULT_ENTITY_ID) {
                 // found empty slot --> add to inventory by assigning entity ID to the slot
                 inventory.items[idx] = idCmpMapper.get(item).id
                 gameEventManager.dispatchItemSlotUpdated(idx, item)
@@ -79,8 +79,8 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
             inventory.items[fromSlotIdx] = itemTo
             inventory.items[toSlotIdx] = itemFrom
 
-            gameEventManager.dispatchItemSlotUpdated(fromSlotIdx, if (inventory.items[fromSlotIdx] == -1) null else engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[fromSlotIdx]))
-            gameEventManager.dispatchItemSlotUpdated(toSlotIdx, if (inventory.items[toSlotIdx] == -1) null else engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[toSlotIdx]))
+            gameEventManager.dispatchItemSlotUpdated(fromSlotIdx, if (inventory.items[fromSlotIdx] == DEFAULT_ENTITY_ID) null else engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[fromSlotIdx]))
+            gameEventManager.dispatchItemSlotUpdated(toSlotIdx, if (inventory.items[toSlotIdx] == DEFAULT_ENTITY_ID) null else engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[toSlotIdx]))
         }
     }
 }

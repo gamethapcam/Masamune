@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.IntArray
 import com.badlogic.gdx.utils.Pool
 
 class InventoryComponent : Component, Pool.Poolable {
-    val items = IntArray()
+    val items = IntArray(0)
     var maxSize = 0
 
     override fun reset() {

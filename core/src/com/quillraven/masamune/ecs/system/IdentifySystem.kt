@@ -17,13 +17,14 @@ import com.quillraven.masamune.ecs.component.IdentifyComponent
 import com.quillraven.masamune.model.ObjectType
 
 private const val TAG = "IdentifySystem"
+const val DEFAULT_ENTITY_ID = 0
 
 class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, Disposable {
     private val entityMapById = IntMap<Entity>()
     private val entityMapByType = ObjectMap<EntityType, Array<Entity>>()
     private val immutableEntityMapByType = ObjectMap<EntityType, ImmutableArray<Entity>>()
     private val idCmpMapper = game.cmpMapper.identify
-    private var currentIdIdx = -1
+    private var currentIdIdx = DEFAULT_ENTITY_ID
     private var playerEntity: Entity? = null
 
     init {
@@ -41,7 +42,7 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
 
     override fun entityAdded(entity: Entity) {
         val idCmp = idCmpMapper.get(entity)
-        if (idCmp.id == -1) {
+        if (idCmp.id == DEFAULT_ENTITY_ID) {
             ++currentIdIdx
             if (idCmp.type == ObjectType.HERO) {
                 // player ID
