@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.SerializationException
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.ecs.system.*
-import com.quillraven.masamune.serialization.CLASS_KEY
 
 private const val TAG = "ECSEngine"
 
@@ -18,11 +17,11 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
     init {
         addSystem(IdentifySystem(game, this))
         addSystem(PlayerInputSystem(game))
-        addSystem(Box2DSystem(game, this))
-        addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
         addSystem(ActionableSystem(game, this))
         addSystem(InventorySystem(game, this))
         addSystem(RenderFlipSystem(game))
+        addSystem(Box2DSystem(game, this))
+        addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
         addSystem(GameRenderSystem(game))
         addSystem(RemoveSystem())
 
@@ -63,7 +62,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
             val value = iterator
             iterator = iterator.next
 
-            val cmpClass = getComponentClassByName(value.getString(CLASS_KEY)) ?: continue
+            val cmpClass = getComponentClassByName(value.getString("class")) ?: continue
             val cmp = createComponent(cmpClass)
             entity.add(cmp)
             try {
@@ -90,8 +89,25 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         addEntity(entity)
     }
 
-    fun destroyEntitiesOfType(type: EntityType) {
+    fun destroyNonPlayerEntitiesOfType(type: EntityType) {
+        val playerEntity = getSystem(IdentifySystem::class.java).getPlayerEntity()
+        val playerInventory = if (playerEntity == null) null else getSystem(InventorySystem::class.java).getInventory(playerEntity)
+
         for (entity in getSystem(IdentifySystem::class.java).getEntitiesOfType(type)) {
+            if (playerEntity != null) {
+                if (entity == playerEntity) continue
+                if (playerInventory != null) {
+                    var found = false
+                    for (idx in 0 until playerInventory.items.size) {
+                        if (playerInventory.items[idx] != DEFAULT_ENTITY_ID && game.cmpMapper.identify.get(entity).id == playerInventory.items[idx]) {
+                            found = true
+                            break
+                        }
+                    }
+                    if (found) continue
+                }
+            }
+
             entity.add(createComponent(RemoveComponent::class.java))
         }
     }

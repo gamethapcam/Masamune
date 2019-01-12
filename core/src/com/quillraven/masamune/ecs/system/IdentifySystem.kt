@@ -6,10 +6,8 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.utils.*
 import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.IntMap
-import com.badlogic.gdx.utils.ObjectMap
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.EntityType
@@ -19,7 +17,7 @@ import com.quillraven.masamune.model.ObjectType
 private const val TAG = "IdentifySystem"
 const val DEFAULT_ENTITY_ID = 0
 
-class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, Disposable {
+class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, Disposable, Json.Serializer<IdentifySystem> {
     private val entityMapById = IntMap<Entity>()
     private val entityMapByType = ObjectMap<EntityType, Array<Entity>>()
     private val immutableEntityMapByType = ObjectMap<EntityType, ImmutableArray<Entity>>()
@@ -44,21 +42,23 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
         val idCmp = idCmpMapper.get(entity)
         if (idCmp.id == DEFAULT_ENTITY_ID) {
             ++currentIdIdx
-            if (idCmp.type == ObjectType.HERO) {
-                // player ID
-                if (playerEntity != null) {
-                    Gdx.app.error(TAG, "Created another player entity")
-                }
-                playerEntity = entity
-            }
-
             // assign new ID
             idCmp.id = currentIdIdx
             Gdx.app.debug(TAG, "Assigning id ${idCmp.id} to entity of entityType ${idCmp.entityType} and type ${idCmp.type}")
-            // add to entity maps for fast access
-            entityMapById.put(idCmp.id, entity)
-            entityMapByType.get(idCmp.entityType).add(entity)
         }
+
+        if (idCmp.type == ObjectType.HERO) {
+            // player ID
+            if (playerEntity != null) {
+                Gdx.app.error(TAG, "Created another player entity")
+            }
+            playerEntity = entity
+        }
+
+        // add to entity maps for fast access
+        Gdx.app.debug(TAG, "Adding entity with id ${idCmp.id} and type ${idCmp.type}")
+        entityMapById.put(idCmp.id, entity)
+        entityMapByType.get(idCmp.entityType).add(entity)
     }
 
     override fun entityRemoved(entity: Entity) {
@@ -90,6 +90,7 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
     }
 
     override fun dispose() {
+        Gdx.app.debug(TAG, "number of entities ${engine.entities.size()}")
         Gdx.app.debug(TAG, "number of entities with id: ${entityMapById.size}")
 
         for (type in EntityType.values()) {
@@ -97,5 +98,16 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
 
             Gdx.app.debug(TAG, "number of entities of type $type: ${entityMapByType.get(type).size}")
         }
+    }
+
+    override fun write(json: Json, obj: IdentifySystem, knownType: Class<*>?) {
+        json.writeObjectStart()
+        json.writeValue("currentIdx", currentIdIdx)
+        json.writeObjectEnd()
+    }
+
+    override fun read(json: Json, jsonData: JsonValue, type: Class<*>?): IdentifySystem {
+        currentIdIdx = jsonData.getInt("currentIdx")
+        return this
     }
 }

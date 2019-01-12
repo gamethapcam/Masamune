@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.Box2DComponent
+import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.ecs.component.TransformComponent
 
 class Box2DSystem constructor(game: MainGame, ecsEngine: ECSEngine, private val fixedStep: Float = 1 / 60f) : EntitySystem(), EntityListener {
@@ -18,7 +19,7 @@ class Box2DSystem constructor(game: MainGame, ecsEngine: ECSEngine, private val 
     private val transformCmpMapper = game.cmpMapper.transform
     private var accumulator = 0f
     private val world = game.world
-    private val family = Family.all(Box2DComponent::class.java, TransformComponent::class.java).get()
+    private val family = Family.all(Box2DComponent::class.java, TransformComponent::class.java).exclude(RemoveComponent::class.java).get()
     private val b2dEntities = ecsEngine.getEntitiesFor(family)
     private val b2dUtils = game.b2dUtils
 
@@ -44,7 +45,7 @@ class Box2DSystem constructor(game: MainGame, ecsEngine: ECSEngine, private val 
             )
         }
     }
-    
+
     override fun entityRemoved(entity: Entity) {
 
     }

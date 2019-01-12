@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="19">
+<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="10" nextobjectid="20">
  <tileset firstgid="1" source="tileset_01.tsx"/>
  <layer id="1" name="ground" width="64" height="64">
   <data encoding="base64" compression="zlib">
@@ -13,15 +13,15 @@
  </layer>
  <layer id="8" name="foreground" width="64" height="64">
   <data encoding="base64" compression="zlib">
-   eJztwzEJAAAMA7BKmn91e2uhkEASAAAAAAAAAAAAAAAAAGDdVQBg0wOi/ACR
+   eJztwzEJAAAMA7Aqmn95e2uhkEASAAAAAAAAAAAAAAAAAIBtVwFg1QPqJQCL
   </data>
  </layer>
- <objectgroup id="2" name="character">
-  <object id="1" gid="148" x="576" y="1915" width="32" height="32">
-   <properties>
-    <property name="type" value="HERO"/>
-   </properties>
+ <objectgroup color="#ffff00" id="9" name="startLocation">
+  <object id="19" x="558" y="1930">
+   <point/>
   </object>
+ </objectgroup>
+ <objectgroup id="2" name="character">
   <object id="9" gid="242" x="512" y="1697" width="32" height="32">
    <properties>
     <property name="type" value="MERCHANT"/>

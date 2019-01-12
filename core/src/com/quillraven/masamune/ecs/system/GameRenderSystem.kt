@@ -19,12 +19,13 @@ import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.SpriteCache
 import com.quillraven.masamune.UNIT_SCALE
 import com.quillraven.masamune.ecs.component.ActionableComponent
+import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.ecs.component.RenderComponent
 import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.event.MapEvent
 import com.quillraven.masamune.event.MapListener
 
-class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(TransformComponent::class.java, RenderComponent::class.java).get(), YComparator(game)), MapListener, Disposable {
+class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Family.all(TransformComponent::class.java, RenderComponent::class.java).exclude(RemoveComponent::class.java).get(), YComparator(game)), MapListener, Disposable {
     private class YComparator constructor(game: MainGame) : Comparator<Entity> {
         private val transformCmpMapper = game.cmpMapper.transform
 

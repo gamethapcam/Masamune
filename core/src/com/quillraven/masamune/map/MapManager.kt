@@ -7,12 +7,16 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.UNIT_SCALE
 import com.quillraven.masamune.ecs.EntityType
+import com.quillraven.masamune.ecs.component.Box2DComponent
+import com.quillraven.masamune.ecs.component.TransformComponent
+import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.model.ObjectCfgMap
 import com.quillraven.masamune.model.ObjectType
 
@@ -23,6 +27,7 @@ private const val LAYER_CHARACTER = "character"
 private const val LAYER_CAMERA_BOUNDARY = "cameraBoundary"
 private const val LAYER_OBJECT = "object"
 private const val LAYER_ITEM = "item"
+private const val LAYER_START_LOCATION = "startLocation"
 private const val GROUND_USER_DATA = "ground"
 
 class MapManager constructor(game: MainGame) {
@@ -38,6 +43,8 @@ class MapManager constructor(game: MainGame) {
     private val bgdLayers = Array<TiledMapTileLayer>()
     private val fgdLayers = Array<TiledMapTileLayer>()
 
+    private val startLocation = Vector2()
+
     internal var currentMapType = EMapType.UNDEFINED
     private lateinit var currentTiledMap: TiledMap
     private val camBoundaryCache = Array<Rectangle>()
@@ -50,10 +57,13 @@ class MapManager constructor(game: MainGame) {
         } else if (currentMapType != EMapType.UNDEFINED) {
             // save current map state
             gameSerializer.saveGameState()
-            // unload current map
-            destroyCollisionObjects()
-            destroyCharacters()
-            destroyObjects()
+            // destroy old map collision objects
+            b2dUtils.destroyBodies(GROUND_USER_DATA)
+            // destroy map entities
+            for (entityType in EntityType.values()) {
+                if (entityType == EntityType.UNDEFINED) continue
+                ecsEngine.destroyNonPlayerEntitiesOfType(entityType)
+            }
         }
 
         val previousMapType = currentMapType
@@ -63,6 +73,7 @@ class MapManager constructor(game: MainGame) {
         loadCollisionObjects()
         getCameraBoundaries()
         getRenderLayers()
+        parseStartLocation()
 
         gameEventManager.dispatchMapChanged(previousMapType, currentMapType, currentTiledMap,
                 currentTiledMap.properties.get("width", 0f, Float::class.java),
@@ -70,15 +81,40 @@ class MapManager constructor(game: MainGame) {
                 bgdLayers, fgdLayers)
     }
 
+    private fun parseStartLocation() {
+        val mapLayer = currentTiledMap.layers.get(LAYER_START_LOCATION)
+        if (mapLayer == null) {
+            Gdx.app.debug(TAG, "There is no $LAYER_START_LOCATION layer")
+            return
+        }
+
+        if (mapLayer.objects.count != 1) {
+            Gdx.app.error(TAG, "There is more than one startlocation defined for $currentMapType")
+            return
+        }
+
+        (mapLayer.objects[0] as RectangleMapObject).rectangle.getPosition(startLocation)
+        startLocation.scl(UNIT_SCALE)
+    }
+
+    fun setPlayerStartLocation() {
+        val playerEntity = ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()
+        if (playerEntity == null) {
+            Gdx.app.error(TAG, "Trying to set start location of a null player")
+            return
+        }
+
+        val transformCmp = playerEntity.getComponent(TransformComponent::class.java)
+        playerEntity.getComponent(Box2DComponent::class.java).body.apply {
+            setTransform(startLocation.x + transformCmp.width * 0.5f, startLocation.y + transformCmp.height * 0.5f, angle)
+        }
+    }
+
     fun getCameraBoundaries(fill: Array<Rectangle>) {
         fill.clear()
         for (i in 0 until numCamBoundaries) {
             fill.add(camBoundaryCache.get(i))
         }
-    }
-
-    private fun destroyCollisionObjects() {
-        b2dUtils.destroyBodies(GROUND_USER_DATA)
     }
 
     private fun loadCollisionObjects() {
@@ -146,6 +182,16 @@ class MapManager constructor(game: MainGame) {
     }
 
     fun loadEntitiesForAllLayers() {
+        val playerEntity = ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()
+        if (playerEntity == null) {
+            val playerCfg = characterCfgMap[ObjectType.HERO]
+            if (playerCfg == null) {
+                Gdx.app.error(TAG, "There is no player configuration defined")
+            } else {
+                ecsEngine.createEntityFromConfig(playerCfg, widthScale = 0.75f, heightScale = 0.2f)
+            }
+        }
+
         loadEntitiesFromLayer(LAYER_CHARACTER, characterCfgMap, 0.75f, 0.2f)
         loadEntitiesFromLayer(LAYER_OBJECT, objectCfgMap)
         loadEntitiesFromLayer(LAYER_ITEM, itemCfgMap, 0.8f, 0.3f)
@@ -180,18 +226,6 @@ class MapManager constructor(game: MainGame) {
                 continue
             }
         }
-    }
-
-    private fun destroyCharacters() {
-        ecsEngine.destroyEntitiesOfType(EntityType.CHARACTER)
-    }
-
-    private fun destroyObjects() {
-        ecsEngine.destroyEntitiesOfType(EntityType.OBJECT)
-    }
-
-    private fun destroyItems() {
-        //TODO
     }
 
     private fun getRenderLayers() {

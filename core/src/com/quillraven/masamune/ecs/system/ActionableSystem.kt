@@ -59,6 +59,7 @@ class ActionableSystem constructor(game: MainGame, private val ecsEngine: ECSEng
                     entity.remove(TransformComponent::class.java)
                     // remove box2d component to remove collision body
                     entity.remove(Box2DComponent::class.java)
+                    entity.remove(ActionableComponent::class.java)
                 }
             }
 

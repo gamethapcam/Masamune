@@ -11,6 +11,7 @@ class Box2DComponent : Component, Pool.Poolable {
     var detectionRadius = 0f
 
     override fun reset() {
+        body.userData = null
         body.world.destroyBody(body)
         type = 0
         detectionRadius = 0f
