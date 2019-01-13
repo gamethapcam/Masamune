@@ -9,41 +9,49 @@ import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.InventoryComponent
 import com.quillraven.masamune.ecs.component.RemoveComponent
+import com.quillraven.masamune.event.InputListener
 
 private const val TAG = "InventorySystem"
 
-class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener {
+class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, InputListener {
     private val invCmpMapper = game.cmpMapper.inventory
     private val idCmpMapper = game.cmpMapper.identify
     private val stackCmpMapper = game.cmpMapper.stackable
     private val gameEventManager = game.gameEventManager
+    private val idSystem by lazy { engine.getSystem(IdentifySystem::class.java) }
 
     init {
         ecsEngine.addEntityListener(Family.all(InventoryComponent::class.java).get(), this)
+        gameEventManager.addInputListener(this)
         setProcessing(false)
     }
 
     override fun entityAdded(entity: Entity) {
         // initialize inventory size
         val inventoryCmp = invCmpMapper.get(entity)
-        while (inventoryCmp.items.size < inventoryCmp.maxSize) {
-            inventoryCmp.items.add(DEFAULT_ENTITY_ID)
-        }
+        resizeInventory(entity, inventoryCmp.maxSize)
     }
 
     override fun entityRemoved(entity: Entity) {
     }
 
-    fun getInventory(entity: Entity): InventoryComponent? {
-        val inventory = invCmpMapper.get(entity)
-        if (inventory == null) {
-            Gdx.app.error(TAG, "Trying to get an inventory for an entity without inventory component")
+    override fun inputItemMoved(fromSlotIdx: Int, toSlotIdx: Int) {
+        moveItem(idSystem.getPlayerEntity(), fromSlotIdx, toSlotIdx)
+    }
+
+    private fun resizeInventory(entity: Entity, newSize: Int) {
+        val inventoryCmp = invCmpMapper.get(entity)
+        inventoryCmp.maxSize = newSize
+        while (inventoryCmp.items.size < inventoryCmp.maxSize) {
+            inventoryCmp.items.add(DEFAULT_ENTITY_ID)
         }
-        return inventory
+        if (entity == engine.getSystem(IdentifySystem::class.java).getPlayerEntity()) {
+            gameEventManager.dispatchInventoryResize(inventoryCmp.maxSize)
+        }
     }
 
     fun addItem(entity: Entity, item: Entity): Boolean {
-        val inventory = getInventory(entity) ?: return false
+        val inventory = invCmpMapper.get(entity)
         val stackCmp = stackCmpMapper.get(item)
         if (stackCmp != null) {
             // check if there is already an item of that specific type and increase its stack
@@ -51,11 +59,11 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
             for (idx in 0 until inventory.items.size) {
                 if (inventory.items[idx] == DEFAULT_ENTITY_ID) continue
 
-                val existingItem = engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[idx])
+                val existingItem = idSystem.getEntityByID(inventory.items[idx])
                 if (idCmpMapper.get(existingItem).type == idCmp.type) {
                     // found item of same type --> increase stack
                     stackCmpMapper.get(existingItem).size += stackCmp.size
-                    // and remove the item from the game
+                    // and remove the item from the game because it is part of the stack
                     item.add((engine as ECSEngine).createComponent(RemoveComponent::class.java))
                     gameEventManager.dispatchItemSlotUpdated(idx, existingItem)
                     return true
@@ -78,29 +86,31 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
     }
 
     fun getInventoryItem(entity: Entity, slotIdx: Int): Entity? {
-        val inventory = getInventory(entity)
+        val inventory = invCmpMapper.get(entity)
         if (inventory != null && inventory.items.size > slotIdx) {
-            return engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[slotIdx])
+            if (inventory.items[slotIdx] == DEFAULT_ENTITY_ID) {
+                // empty slot without item
+                return null
+            }
+            return idSystem.getEntityByID(inventory.items[slotIdx])
         }
         Gdx.app.error(TAG, "Trying to access an item that is not existing in slot $slotIdx")
         return null
     }
 
-    fun moveItem(entity: Entity, fromSlotIdx: Int, toSlotIdx: Int) {
-        val inventory = getInventory(entity)
-        if (inventory != null) {
-            if (inventory.items.size <= fromSlotIdx || inventory.items.size <= toSlotIdx) {
-                Gdx.app.error(TAG, "Trying to move items of invalid slots: $fromSlotIdx - $toSlotIdx")
-                return
-            }
-
-            val itemFrom = inventory.items[fromSlotIdx]
-            val itemTo = inventory.items[toSlotIdx]
-            inventory.items[fromSlotIdx] = itemTo
-            inventory.items[toSlotIdx] = itemFrom
-
-            gameEventManager.dispatchItemSlotUpdated(fromSlotIdx, if (inventory.items[fromSlotIdx] == DEFAULT_ENTITY_ID) null else engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[fromSlotIdx]))
-            gameEventManager.dispatchItemSlotUpdated(toSlotIdx, if (inventory.items[toSlotIdx] == DEFAULT_ENTITY_ID) null else engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[toSlotIdx]))
+    private fun moveItem(entity: Entity, fromSlotIdx: Int, toSlotIdx: Int) {
+        val inventory = invCmpMapper.get(entity)
+        if (inventory.items.size <= fromSlotIdx || inventory.items.size <= toSlotIdx) {
+            Gdx.app.error(TAG, "Trying to move items of invalid slots: $fromSlotIdx - $toSlotIdx")
+            return
         }
+
+        val itemFrom = inventory.items[fromSlotIdx]
+        val itemTo = inventory.items[toSlotIdx]
+        inventory.items[fromSlotIdx] = itemTo
+        inventory.items[toSlotIdx] = itemFrom
+
+        gameEventManager.dispatchItemSlotUpdated(fromSlotIdx, getInventoryItem(entity, fromSlotIdx))
+        gameEventManager.dispatchItemSlotUpdated(toSlotIdx, getInventoryItem(entity, toSlotIdx))
     }
 }

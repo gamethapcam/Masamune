@@ -92,7 +92,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
 
     fun destroyNonPlayerEntitiesOfType(type: EntityType) {
         val playerEntity = getSystem(IdentifySystem::class.java).getPlayerEntity()
-        val playerInventory = getSystem(InventorySystem::class.java).getInventory(playerEntity)
+        val playerInventory = game.cmpMapper.inventory.get(playerEntity)
 
         for (entity in getSystem(IdentifySystem::class.java).getEntitiesOfType(type)) {
             if (entity == playerEntity) continue

@@ -8,4 +8,6 @@ interface InputListener {
     fun inputShowInventory() {}
 
     fun inputShowItem(slotIdx: Int) {}
+
+    fun inputItemMoved(fromSlotIdx: Int, toSlotIdx: Int) {}
 }

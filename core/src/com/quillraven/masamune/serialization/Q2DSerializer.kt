@@ -14,7 +14,6 @@ import com.quillraven.masamune.ecs.component.InventoryComponent
 import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.ecs.system.DEFAULT_ENTITY_ID
 import com.quillraven.masamune.ecs.system.IdentifySystem
-import com.quillraven.masamune.ecs.system.InventorySystem
 import com.quillraven.masamune.event.MapEvent
 import com.quillraven.masamune.event.MapListener
 import com.quillraven.masamune.map.EMapType
@@ -39,6 +38,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
 
     private val idCmpMapper = game.cmpMapper.identify
     private val transfCmpMapper = game.cmpMapper.transform
+    private val inventoryCmpMapper = game.cmpMapper.inventory
     private val playerEntityIDs = IntArray(0)
 
     private val gameStatePreference = Gdx.app.getPreferences("masamune")
@@ -89,7 +89,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
     private fun savePlayerData() {
         val playerEntity = ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()
         gameStatePreference.putString(KEY_PLAYER_DATA, getPlayerSaveString(playerEntity))
-        gameStatePreference.putString(KEY_PLAYER_ITEM_DATA, getInventorySaveString(ecsEngine.getSystem(InventorySystem::class.java).getInventory(playerEntity)))
+        gameStatePreference.putString(KEY_PLAYER_ITEM_DATA, getInventorySaveString(inventoryCmpMapper.get(playerEntity)))
     }
 
     private fun getPlayerSaveString(playerEntity: Entity): String {

@@ -19,6 +19,8 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         dragActor.setSize(50f, 50f)
     }
 
+    internal var selectedSlotIdx = -1
+
     private val itemInfoImg = Image()
     private val itemInfoTitle = TextButton("", skin, "label")
     private val itemInfoDesc = TextButton("", skin, "label_small")
@@ -63,7 +65,7 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         btnClose.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                 // clear item info and hide inventory UI
-                updateItemInfo("", "", "")
+                updateItemInfo(-1, "", "", "")
                 stage.root.removeActor(this@InventoryUI)
                 return true
             }
@@ -125,7 +127,7 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
 
             override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int) {
                 // valid drop --> add item to new slot and remove it from old slot
-                eventMgr.dispatchItemMove(slotTable.children.indexOf(source.actor), slotTable.children.indexOf(actor))
+                eventMgr.dispatchInputItemMove(slotTable.children.indexOf(source.actor), slotTable.children.indexOf(actor))
             }
         })
 
@@ -140,7 +142,8 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         })
     }
 
-    fun updateItemInfo(name: String, description: String, texture: String) {
+    fun updateItemInfo(slotIdx: Int, name: String, description: String, texture: String) {
+        selectedSlotIdx = slotIdx
         itemInfoTitle.label.text.apply {
             setLength(0)
             append("[HIGHLIGHT]")

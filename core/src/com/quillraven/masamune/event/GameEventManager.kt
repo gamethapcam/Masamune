@@ -63,6 +63,12 @@ class GameEventManager {
         }
     }
 
+    fun dispatchInputItemMove(fromSlotIdx: Int, toSlotIdx: Int) {
+        for (listener in inputListeners) {
+            listener.inputItemMoved(fromSlotIdx, toSlotIdx)
+        }
+    }
+
     fun addContactListener(listener: ContactListener) {
         contactListeners.add(listener)
     }
@@ -95,15 +101,15 @@ class GameEventManager {
         itemListeners.add(listener)
     }
 
-    fun dispatchItemMove(fromSlotIdx: Int, toSlotIdx: Int) {
-        for (listener in itemListeners) {
-            listener.itemMoved(fromSlotIdx, toSlotIdx)
-        }
-    }
-
     fun dispatchItemSlotUpdated(slotIdx: Int, item: Entity?) {
         for (listener in itemListeners) {
             listener.itemSlotUpdated(slotIdx, item)
+        }
+    }
+
+    fun dispatchInventoryResize(newSize: Int) {
+        for (listener in itemListeners) {
+            listener.inventoryResize(newSize)
         }
     }
 }

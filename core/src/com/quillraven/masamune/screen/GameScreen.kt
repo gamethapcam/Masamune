@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.utils.StringBuilder
-import com.quillraven.masamune.ecs.system.DEFAULT_ENTITY_ID
 import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.ecs.system.InventorySystem
 import com.quillraven.masamune.event.InputListener
@@ -14,6 +13,8 @@ import com.quillraven.masamune.ui.GameUI
 
 class GameScreen : Q2DScreen(), InputListener, ItemListener {
     private val gameUI = GameUI(game)
+    private val inventorySystem by lazy { game.ecsEngine.getSystem(InventorySystem::class.java) }
+    private val idSystem by lazy { game.ecsEngine.getSystem(IdentifySystem::class.java) }
     private val strBuffer = StringBuilder(0)
 
     init {
@@ -60,17 +61,11 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
 
     }
 
-    private fun resizeInventoryUI() {
-        val inventoryCmp = game.ecsEngine.getSystem(InventorySystem::class.java).getInventory(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity())
-        gameUI.inventoryUI.setInventorySize(inventoryCmp?.maxSize ?: 0)
-    }
-
-    override fun itemMoved(fromSlotIdx: Int, toSlotIdx: Int) {
-        game.ecsEngine.getSystem(InventorySystem::class.java).moveItem(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity(), fromSlotIdx, toSlotIdx)
+    override fun inventoryResize(newSize: Int) {
+        gameUI.inventoryUI.setInventorySize(newSize)
     }
 
     override fun itemSlotUpdated(slotIdx: Int, item: Entity?) {
-        resizeInventoryUI()
         if (item != null) {
             val stackCmp = game.cmpMapper.stackable.get(item)
             if (stackCmp != null) {
@@ -78,44 +73,47 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
             } else {
                 gameUI.inventoryUI.updateItemSlot(slotIdx, game.cmpMapper.render.get(item).texture)
             }
+            if (slotIdx == gameUI.inventoryUI.selectedSlotIdx) {
+                inputShowItem(slotIdx)
+            }
         } else {
             gameUI.inventoryUI.updateItemSlot(slotIdx, "")
         }
     }
 
+    private fun getItemNameString(item: Entity): String {
+        val descCmp = game.cmpMapper.description.get(item)
+        val priceCmp = game.cmpMapper.price.get(item)
+        val stackCmp = game.cmpMapper.stackable.get(item)
+
+        strBuffer.setLength(0)
+        if (stackCmp != null) {
+            strBuffer.append(stackCmp.size)
+            strBuffer.append("x ")
+        }
+        strBuffer.append(descCmp.name)
+        if (priceCmp != null) {
+            strBuffer.append(" (")
+            strBuffer.append(priceCmp.price)
+            strBuffer.append(" G")
+            strBuffer.append(")")
+        }
+        return strBuffer.toString()
+    }
+
     override fun inputShowItem(slotIdx: Int) {
-        val item = game.ecsEngine.getSystem(InventorySystem::class.java).getInventoryItem(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity(), slotIdx)
+        val item = inventorySystem.getInventoryItem(idSystem.getPlayerEntity(), slotIdx)
         if (item != null) {
             val descCmp = game.cmpMapper.description.get(item)
-            val priceCmp = game.cmpMapper.price.get(item)
-            val stackCmp = game.cmpMapper.stackable.get(item)
-
-            strBuffer.setLength(0)
-            if (stackCmp != null) {
-                strBuffer.append(stackCmp.size)
-                strBuffer.append("x ")
-            }
-            strBuffer.append(descCmp.name)
-            if (priceCmp != null) {
-                strBuffer.append(" (")
-                strBuffer.append(priceCmp.price)
-                strBuffer.append(" G")
-                strBuffer.append(")")
-            }
-
-            gameUI.inventoryUI.updateItemInfo(strBuffer.toString(), descCmp.description, game.cmpMapper.render.get(item).texture)
+            gameUI.inventoryUI.updateItemInfo(slotIdx, getItemNameString(item), descCmp.description, game.cmpMapper.render.get(item).texture)
         }
     }
 
     override fun inputShowInventory() {
-        val inventoryCmp = game.ecsEngine.getSystem(InventorySystem::class.java).getInventory(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity())
-        if (inventoryCmp != null) {
-            resizeInventoryUI()
-            for (index in 0 until inventoryCmp.items.size) {
-                if (inventoryCmp.items[index] == DEFAULT_ENTITY_ID) continue
-
-                itemSlotUpdated(index, game.ecsEngine.getSystem(IdentifySystem::class.java).getEntityByID(inventoryCmp.items[index]))
-            }
+        val player = idSystem.getPlayerEntity()
+        val inventoryCmp = game.cmpMapper.inventory.get(player)
+        for (index in 0 until inventoryCmp.items.size) {
+            itemSlotUpdated(index, inventorySystem.getInventoryItem(player, index))
         }
     }
 }
