@@ -8,12 +8,14 @@ import com.badlogic.gdx.Gdx
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.InventoryComponent
+import com.quillraven.masamune.ecs.component.RemoveComponent
 
 private const val TAG = "InventorySystem"
 
 class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener {
     private val invCmpMapper = game.cmpMapper.inventory
     private val idCmpMapper = game.cmpMapper.identify
+    private val stackCmpMapper = game.cmpMapper.stackable
     private val gameEventManager = game.gameEventManager
 
     init {
@@ -42,6 +44,24 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
 
     fun addItem(entity: Entity, item: Entity): Boolean {
         val inventory = getInventory(entity) ?: return false
+        val stackCmp = stackCmpMapper.get(item)
+        if (stackCmp != null) {
+            // check if there is already an item of that specific type and increase its stack
+            val idCmp = idCmpMapper.get(item)
+            for (idx in 0 until inventory.items.size) {
+                if (inventory.items[idx] == DEFAULT_ENTITY_ID) continue
+
+                val existingItem = engine.getSystem(IdentifySystem::class.java).getEntityByID(inventory.items[idx])
+                if (idCmpMapper.get(existingItem).type == idCmp.type) {
+                    // found item of same type --> increase stack
+                    stackCmpMapper.get(existingItem).size += stackCmp.size
+                    // and remove the item from the game
+                    item.add((engine as ECSEngine).createComponent(RemoveComponent::class.java))
+                    gameEventManager.dispatchItemSlotUpdated(idx, existingItem)
+                    return true
+                }
+            }
+        }
 
         // find free index
         for (idx in 0 until inventory.items.size) {

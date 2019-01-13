@@ -6,6 +6,13 @@
       "entityType": "ITEM"
     },
     {
+      "class": "com.quillraven.masamune.ecs.component.DescriptionComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.PriceComponent",
+      "price": 15
+    },
+    {
       "class": "com.quillraven.masamune.ecs.component.AttributeComponent",
       "strength": 3
     },
@@ -27,6 +34,16 @@
       "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
       "type": "MANA_POTION",
       "entityType": "ITEM"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.DescriptionComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.PriceComponent",
+      "price": 3
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.StackableComponent"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.HealComponent",

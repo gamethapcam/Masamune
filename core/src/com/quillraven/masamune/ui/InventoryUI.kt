@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
+import com.badlogic.gdx.utils.Align
 import com.quillraven.masamune.event.GameEventManager
 
 private const val TAG = "InventoryUI"
@@ -70,14 +71,22 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
 
     private fun addInventorySlot() {
         val slot = WidgetGroup()
+        // background graphic
         val imgSlot = Image(skin.getDrawable("slot_cursed"))
         imgSlot.setSize(60f, 60f)
         slot.addActor(imgSlot)
+        // item graphic
         val imgItem = Image()
         imgItem.setSize(50f, 50f)
         imgItem.setPosition(10f, 10f)
         imgItem.scaleBy(-0.25f)
         slot.addActor(imgItem)
+        // item stack size
+        val stackLbl = Label("", skin)
+        stackLbl.setAlignment(Align.bottomRight)
+        stackLbl.scaleBy(0.75f)
+        stackLbl.setPosition(53f, 1f)
+        slot.addActor(stackLbl)
 
         slotTable.add(slot).expand().fill()
         if (slotTable.children.size % 10 == 0) {
@@ -95,12 +104,14 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
                 // add item as drag actor --> item gets visually removed from slot but the real remove is not triggered yet
                 dragActor.drawable = imgItem.drawable
                 imgItem.isVisible = false
+                stackLbl.isVisible = false
                 dragAndDrop.setDragActorPosition(dragActor.width * 0.5f, -dragActor.height * 0.5f)
                 return payload
             }
 
             override fun dragStop(event: InputEvent?, x: Float, y: Float, pointer: Int, payload: DragAndDrop.Payload?, target: DragAndDrop.Target?) {
                 imgItem.isVisible = true
+                stackLbl.isVisible = true
             }
         })
 
@@ -138,7 +149,7 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
         }
     }
 
-    fun updateItemSlot(slotIdx: Int, texture: String) {
+    fun updateItemSlot(slotIdx: Int, texture: String, amount: Int = 1) {
         if (slotIdx < 0 || slotIdx >= slotTable.children.size) {
             Gdx.app.error(TAG, "Trying to update item $texture to invalid slot $slotIdx")
             return
@@ -147,6 +158,12 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
         val slot = slotTable.children[slotIdx] as WidgetGroup
         val item = slot.children[1] as Image
         item.drawable = if (texture.isBlank()) null else skin.getDrawable(texture)
+        val stack = slot.children[2] as Label
+        stack.text.setLength(0)
+        if (amount > 1) {
+            stack.text.append(amount)
+        }
+        stack.invalidateHierarchy()
     }
 
     fun setInventorySize(size: Int) {

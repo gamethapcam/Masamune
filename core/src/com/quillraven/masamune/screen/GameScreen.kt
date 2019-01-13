@@ -69,7 +69,16 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
 
     override fun itemSlotUpdated(slotIdx: Int, item: Entity?) {
         resizeInventoryUI()
-        gameUI.inventoryUI.updateItemSlot(slotIdx, if (item != null) game.cmpMapper.render.get(item).texture else "")
+        if (item != null) {
+            val stackCmp = game.cmpMapper.stackable.get(item)
+            if (stackCmp != null) {
+                gameUI.inventoryUI.updateItemSlot(slotIdx, game.cmpMapper.render.get(item).texture, stackCmp.size)
+            } else {
+                gameUI.inventoryUI.updateItemSlot(slotIdx, game.cmpMapper.render.get(item).texture)
+            }
+        } else {
+            gameUI.inventoryUI.updateItemSlot(slotIdx, "")
+        }
     }
 
     override fun inputShowItem(slotIdx: Int) {
@@ -86,7 +95,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
             for (index in 0 until inventoryCmp.items.size) {
                 if (inventoryCmp.items[index] == DEFAULT_ENTITY_ID) continue
 
-                gameUI.inventoryUI.updateItemSlot(index, game.cmpMapper.render.get(game.ecsEngine.getSystem(IdentifySystem::class.java).getEntityByID(inventoryCmp.items[index])).texture)
+                itemSlotUpdated(index, game.ecsEngine.getSystem(IdentifySystem::class.java).getEntityByID(inventoryCmp.items[index]))
             }
         }
     }
