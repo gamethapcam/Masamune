@@ -6,11 +6,12 @@ import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
-import com.quillraven.masamune.event.GameEventManager
+import com.quillraven.masamune.MainGame
 
 
-class GameUI constructor(skin: Skin, private val eventMgr: GameEventManager) : Table(skin) {
-    internal val inventoryUI = InventoryUI(skin, eventMgr)
+class GameUI constructor(game: MainGame) : Table(game.skin) {
+    private val eventMgr = game.gameEventManager
+    internal val inventoryUI = InventoryUI(game)
 
     init {
         setFillParent(true)

@@ -13,7 +13,7 @@ import com.quillraven.masamune.model.ObjectCfgMap
 import com.quillraven.masamune.ui.LoadingUI
 
 class LoadingScreen : Q2DScreen() {
-    private val loadingUI = LoadingUI(game.skin)
+    private val loadingUI = LoadingUI(game)
     private val assetManager = game.assetManager
 
     override fun hide() {

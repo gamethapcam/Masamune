@@ -3,6 +3,7 @@ package com.quillraven.masamune.screen
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.utils.StringBuilder
 import com.quillraven.masamune.ecs.system.DEFAULT_ENTITY_ID
 import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.ecs.system.InventorySystem
@@ -12,7 +13,8 @@ import com.quillraven.masamune.map.EMapType
 import com.quillraven.masamune.ui.GameUI
 
 class GameScreen : Q2DScreen(), InputListener, ItemListener {
-    private val gameUI = GameUI(game.skin, game.gameEventManager)
+    private val gameUI = GameUI(game)
+    private val strBuffer = StringBuilder(0)
 
     init {
         game.gameEventManager.addInputListener(this)
@@ -84,7 +86,24 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
     override fun inputShowItem(slotIdx: Int) {
         val item = game.ecsEngine.getSystem(InventorySystem::class.java).getInventoryItem(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()!!, slotIdx)
         if (item != null) {
-            gameUI.inventoryUI.updateItemInfo("X", "Y", game.cmpMapper.render.get(item).texture)
+            val descCmp = game.cmpMapper.description.get(item)
+            val priceCmp = game.cmpMapper.price.get(item)
+            val stackCmp = game.cmpMapper.stackable.get(item)
+
+            strBuffer.setLength(0)
+            if (stackCmp != null) {
+                strBuffer.append(stackCmp.size)
+                strBuffer.append("x ")
+            }
+            strBuffer.append(descCmp.name)
+            if (priceCmp != null) {
+                strBuffer.append(" (")
+                strBuffer.append(priceCmp.price)
+                strBuffer.append("G")
+                strBuffer.append(")")
+            }
+
+            gameUI.inventoryUI.updateItemInfo(strBuffer.toString(), descCmp.description, game.cmpMapper.render.get(item).texture)
         }
     }
 

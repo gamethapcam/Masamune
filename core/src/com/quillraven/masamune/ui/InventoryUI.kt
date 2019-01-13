@@ -6,11 +6,12 @@ import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.Align
-import com.quillraven.masamune.event.GameEventManager
+import com.quillraven.masamune.MainGame
 
 private const val TAG = "InventoryUI"
 
-class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager) : Table(skin) {
+class InventoryUI constructor(game: MainGame) : Table(game.skin) {
+    private val eventMgr = game.gameEventManager
     private val dragAndDrop = DragAndDrop()
     private val dragActor = Image()
     private val payload = DragAndDrop.Payload().apply {
@@ -36,7 +37,7 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
         val itemInfo = VerticalGroup()
         itemInfo.addActor(itemInfoTitle)
         itemInfo.addActor(itemInfoDesc)
-        contentTable.add(itemInfo).expandX().fillX().padRight(35f).minHeight(100f).row()
+        contentTable.add(itemInfo).expandX().fillX().padRight(35f).minHeight(105f).row()
 
         // slot table of content table
         slotTable.defaults().space(5f)
@@ -44,7 +45,7 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
 
         // add title area and content to table
         // title area
-        val label = TextButton("Inventory", skin, "dialog_title")
+        val label = TextButton("[DIALOG_TITLE_LIGHT]${game.resourceBundle.get("Inventory")}", skin, "dialog_title")
         val imgSkull = Image(skin.getDrawable("skull"))
         val btnClose = ImageButton(skin.getDrawable("btn_close"))
         imgSkull.setScale(0.75f, 0.75f)
@@ -140,8 +141,18 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
     }
 
     fun updateItemInfo(name: String, description: String, texture: String) {
-        itemInfoTitle.setText(name)
-        itemInfoDesc.setText(description)
+        itemInfoTitle.label.text.apply {
+            setLength(0)
+            append("[HIGHLIGHT]")
+            append(name)
+        }
+        itemInfoTitle.label.invalidateHierarchy()
+        itemInfoDesc.label.text.apply {
+            setLength(0)
+            append("[BLACK]")
+            append(description)
+        }
+        itemInfoDesc.label.invalidateHierarchy()
         if (texture.isBlank()) {
             itemInfoImg.drawable = null
         } else {
@@ -161,6 +172,7 @@ class InventoryUI constructor(skin: Skin, private val eventMgr: GameEventManager
         val stack = slot.children[2] as Label
         stack.text.setLength(0)
         if (amount > 1) {
+            stack.text.append("[BLACK]")
             stack.text.append(amount)
         }
         stack.invalidateHierarchy()

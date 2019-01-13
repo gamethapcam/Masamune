@@ -16,6 +16,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
 
     init {
         addSystem(IdentifySystem(game, this))
+        addSystem(DescriptionSystem(game, this))
         addSystem(PlayerInputSystem(game))
         addSystem(ActionableSystem(game, this))
         addSystem(InventorySystem(game, this))
