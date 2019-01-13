@@ -61,12 +61,12 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
     }
 
     private fun resizeInventoryUI() {
-        val inventoryCmp = game.ecsEngine.getSystem(InventorySystem::class.java).getInventory(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()!!)
+        val inventoryCmp = game.ecsEngine.getSystem(InventorySystem::class.java).getInventory(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity())
         gameUI.inventoryUI.setInventorySize(inventoryCmp?.maxSize ?: 0)
     }
 
     override fun itemMoved(fromSlotIdx: Int, toSlotIdx: Int) {
-        game.ecsEngine.getSystem(InventorySystem::class.java).moveItem(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()!!, fromSlotIdx, toSlotIdx)
+        game.ecsEngine.getSystem(InventorySystem::class.java).moveItem(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity(), fromSlotIdx, toSlotIdx)
     }
 
     override fun itemSlotUpdated(slotIdx: Int, item: Entity?) {
@@ -84,7 +84,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
     }
 
     override fun inputShowItem(slotIdx: Int) {
-        val item = game.ecsEngine.getSystem(InventorySystem::class.java).getInventoryItem(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()!!, slotIdx)
+        val item = game.ecsEngine.getSystem(InventorySystem::class.java).getInventoryItem(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity(), slotIdx)
         if (item != null) {
             val descCmp = game.cmpMapper.description.get(item)
             val priceCmp = game.cmpMapper.price.get(item)
@@ -99,7 +99,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
             if (priceCmp != null) {
                 strBuffer.append(" (")
                 strBuffer.append(priceCmp.price)
-                strBuffer.append("G")
+                strBuffer.append(" G")
                 strBuffer.append(")")
             }
 
@@ -108,7 +108,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
     }
 
     override fun inputShowInventory() {
-        val inventoryCmp = game.ecsEngine.getSystem(InventorySystem::class.java).getInventory(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()!!)
+        val inventoryCmp = game.ecsEngine.getSystem(InventorySystem::class.java).getInventory(game.ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity())
         if (inventoryCmp != null) {
             resizeInventoryUI()
             for (index in 0 until inventoryCmp.items.size) {

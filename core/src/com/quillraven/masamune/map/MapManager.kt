@@ -99,11 +99,6 @@ class MapManager constructor(game: MainGame) {
 
     fun setPlayerStartLocation() {
         val playerEntity = ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()
-        if (playerEntity == null) {
-            Gdx.app.error(TAG, "Trying to set start location of a null player")
-            return
-        }
-
         val transformCmp = playerEntity.getComponent(TransformComponent::class.java)
         playerEntity.getComponent(Box2DComponent::class.java).body.apply {
             setTransform(startLocation.x + transformCmp.width * 0.5f, startLocation.y + transformCmp.height * 0.5f, angle)
@@ -182,16 +177,6 @@ class MapManager constructor(game: MainGame) {
     }
 
     fun loadEntitiesForAllLayers() {
-        val playerEntity = ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()
-        if (playerEntity == null) {
-            val playerCfg = characterCfgMap[ObjectType.HERO]
-            if (playerCfg == null) {
-                Gdx.app.error(TAG, "There is no player configuration defined")
-            } else {
-                ecsEngine.createEntityFromConfig(playerCfg, widthScale = 0.75f, heightScale = 0.2f)
-            }
-        }
-
         loadEntitiesFromLayer(LAYER_CHARACTER, characterCfgMap, 0.75f, 0.2f)
         loadEntitiesFromLayer(LAYER_OBJECT, objectCfgMap)
         loadEntitiesFromLayer(LAYER_ITEM, itemCfgMap, 0.8f, 0.3f)

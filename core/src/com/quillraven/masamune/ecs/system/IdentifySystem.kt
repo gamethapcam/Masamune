@@ -23,7 +23,7 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
     private val immutableEntityMapByType = ObjectMap<EntityType, ImmutableArray<Entity>>()
     private val idCmpMapper = game.cmpMapper.identify
     private var currentIdIdx = DEFAULT_ENTITY_ID
-    private var playerEntity: Entity? = null
+    private lateinit var playerEntity: Entity
 
     init {
         ecsEngine.addEntityListener(Family.all(IdentifyComponent::class.java).get(), this)
@@ -49,9 +49,6 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
 
         if (idCmp.type == ObjectType.HERO) {
             // player ID
-            if (playerEntity != null) {
-                Gdx.app.error(TAG, "Created another player entity")
-            }
             playerEntity = entity
         }
 
@@ -66,14 +63,11 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
         entityMapById.remove(idCmp.id)
         entityMapByType.get(idCmp.entityType).removeValue(entity, true)
         if (entity == playerEntity) {
-            playerEntity = null
+            Gdx.app.debug(TAG, "Player got removed")
         }
     }
 
-    fun getPlayerEntity(): Entity? {
-        if (playerEntity == null) {
-            Gdx.app.error(TAG, "Trying to get non-existing player entity")
-        }
+    fun getPlayerEntity(): Entity {
         return playerEntity
     }
 

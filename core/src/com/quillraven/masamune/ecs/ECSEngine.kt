@@ -92,21 +92,19 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
 
     fun destroyNonPlayerEntitiesOfType(type: EntityType) {
         val playerEntity = getSystem(IdentifySystem::class.java).getPlayerEntity()
-        val playerInventory = if (playerEntity == null) null else getSystem(InventorySystem::class.java).getInventory(playerEntity)
+        val playerInventory = getSystem(InventorySystem::class.java).getInventory(playerEntity)
 
         for (entity in getSystem(IdentifySystem::class.java).getEntitiesOfType(type)) {
-            if (playerEntity != null) {
-                if (entity == playerEntity) continue
-                if (playerInventory != null) {
-                    var found = false
-                    for (idx in 0 until playerInventory.items.size) {
-                        if (playerInventory.items[idx] != DEFAULT_ENTITY_ID && game.cmpMapper.identify.get(entity).id == playerInventory.items[idx]) {
-                            found = true
-                            break
-                        }
+            if (entity == playerEntity) continue
+            if (playerInventory != null) {
+                var found = false
+                for (idx in 0 until playerInventory.items.size) {
+                    if (playerInventory.items[idx] != DEFAULT_ENTITY_ID && game.cmpMapper.identify.get(entity).id == playerInventory.items[idx]) {
+                        found = true
+                        break
                     }
-                    if (found) continue
                 }
+                if (found) continue
             }
 
             entity.add(createComponent(RemoveComponent::class.java))
