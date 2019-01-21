@@ -16,7 +16,6 @@ private const val TAG = "EquipmentSystem"
 class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, InputListener {
     private val equipCmpMapper = game.cmpMapper.equipment
     private val invCmpMapper = game.cmpMapper.inventory
-    private val idCmpMapper = game.cmpMapper.identify
     private val gameEventManager = game.gameEventManager
     private val idSystem by lazy { engine.getSystem(IdentifySystem::class.java) }
     private val inventorySystem by lazy { engine.getSystem(InventorySystem::class.java) }
@@ -45,7 +44,7 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         unequipItem(idSystem.getPlayerEntity(), inventorySlotIdx, type)
     }
 
-    fun getEquipmentItem(entity: Entity, type: EEquipType): Entity? {
+    private fun getEquipmentItem(entity: Entity, type: EEquipType): Entity? {
         val equipCmp = equipCmpMapper.get(entity)
         if (equipCmp != null && equipCmp.equipment.size <= EEquipType.values().size) {
             if (equipCmp.equipment.items[type.ordinal] == DEFAULT_ENTITY_ID) {
@@ -58,7 +57,7 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         return null
     }
 
-    fun unequipItem(entity: Entity, inventorySlotIdx: Int, type: EEquipType) {
+    private fun unequipItem(entity: Entity, inventorySlotIdx: Int, type: EEquipType) {
         val equippedItem = getEquipmentItem(entity, type)
         if (equippedItem == null) {
             Gdx.app.error(TAG, "Trying to unequip an item that does not exist $type")
@@ -77,7 +76,7 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         gameEventManager.dispatchEquipmentSlotUpdated(type, null)
     }
 
-    fun equipItem(entity: Entity, inventorySlotIdx: Int, type: EEquipType) {
+    private fun equipItem(entity: Entity, inventorySlotIdx: Int, type: EEquipType) {
         // get item from inventory
         val item = inventorySystem.getInventoryItem(entity, inventorySlotIdx)
         if (item == null) {

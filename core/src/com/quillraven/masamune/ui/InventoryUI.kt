@@ -152,7 +152,7 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
                     // equip item
                     eventMgr.dispatchInputItemEquip(sourceTable.children.indexOf(source.actor), actor.userObject as EEquipType)
                 } else if (targetTable == inventorySlotTable && sourceTable == equipSlotTable) {
-                    // uneqip item
+                    // unequip item
                     eventMgr.dispatchInputItemUnequip(inventorySlotTable.children.indexOf(actor), source.actor.userObject as EEquipType)
                 }
             }
