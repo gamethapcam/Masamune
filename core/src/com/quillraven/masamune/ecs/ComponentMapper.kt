@@ -15,4 +15,5 @@ class ComponentMapper {
     internal val stackable = ComponentMapper.getFor(StackableComponent::class.java)
     internal val description = ComponentMapper.getFor(DescriptionComponent::class.java)
     internal val price = ComponentMapper.getFor(PriceComponent::class.java)
+    internal val equipment = ComponentMapper.getFor(EquipmentComponent::class.java)
 }

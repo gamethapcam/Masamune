@@ -35,6 +35,9 @@
     {
       "class": "com.quillraven.masamune.ecs.component.InventoryComponent",
       "maxSize": 40
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.EquipmentComponent"
     }
   ],
   "ELDER": [

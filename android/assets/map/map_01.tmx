@@ -44,22 +44,22 @@
   </object>
  </objectgroup>
  <objectgroup id="7" name="item">
-  <object id="15" gid="38" x="489" y="1919" width="32" height="32">
+  <object id="15" gid="38" x="516" y="1926" width="32" height="32">
    <properties>
     <property name="type" value="SWORD"/>
    </properties>
   </object>
-  <object id="16" gid="27" x="492" y="1971" width="32" height="32">
+  <object id="16" gid="27" x="525" y="1960" width="32" height="32">
    <properties>
     <property name="type" value="MANA_POTION"/>
    </properties>
   </object>
-  <object id="18" gid="27" x="483" y="1948" width="32" height="32">
+  <object id="18" gid="27" x="518" y="1952" width="32" height="32">
    <properties>
     <property name="type" value="MANA_POTION"/>
    </properties>
   </object>
-  <object id="20" gid="38" x="539" y="2001" width="32" height="32">
+  <object id="20" gid="38" x="554" y="1954" width="32" height="32">
    <properties>
     <property name="type" value="SWORD"/>
    </properties>

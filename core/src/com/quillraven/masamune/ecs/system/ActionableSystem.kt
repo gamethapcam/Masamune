@@ -54,7 +54,7 @@ class ActionableSystem constructor(game: MainGame, private val ecsEngine: ECSEng
             val idCmp = idCmpMapper.get(entity)
             if (idCmp.entityType == EntityType.ITEM) {
                 // item map interaction
-                if (engine.getSystem(InventorySystem::class.java).addItem(actionableCmp.source, entity)) {
+                if (engine.getSystem(InventorySystem::class.java).addItem(actionableCmp.source, entity) >= 0) {
                     // remove transform component so that it no longer gets rendered on the map
                     entity.remove(TransformComponent::class.java)
                     // remove box2d component to remove collision body

@@ -50,7 +50,7 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         }
     }
 
-    fun addItem(entity: Entity, item: Entity): Boolean {
+    fun addItem(entity: Entity, item: Entity): Int {
         val inventory = invCmpMapper.get(entity)
         val stackCmp = stackCmpMapper.get(item)
         if (stackCmp != null) {
@@ -66,7 +66,7 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
                     // and remove the item from the game because it is part of the stack
                     item.add((engine as ECSEngine).createComponent(RemoveComponent::class.java))
                     gameEventManager.dispatchItemSlotUpdated(idx, existingItem)
-                    return true
+                    return idx
                 }
             }
         }
@@ -77,12 +77,12 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
                 // found empty slot --> add to inventory by assigning entity ID to the slot
                 inventory.items[idx] = idCmpMapper.get(item).id
                 gameEventManager.dispatchItemSlotUpdated(idx, item)
-                return true
+                return idx
             }
         }
 
         Gdx.app.debug(TAG, "Inventory is full. Entity cannot pickup more items")
-        return false
+        return -1
     }
 
     fun getInventoryItem(entity: Entity, slotIdx: Int): Entity? {
@@ -98,7 +98,7 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         return null
     }
 
-    private fun moveItem(entity: Entity, fromSlotIdx: Int, toSlotIdx: Int) {
+    fun moveItem(entity: Entity, fromSlotIdx: Int, toSlotIdx: Int) {
         val inventory = invCmpMapper.get(entity)
         if (inventory.items.size <= fromSlotIdx || inventory.items.size <= toSlotIdx) {
             Gdx.app.error(TAG, "Trying to move items of invalid slots: $fromSlotIdx - $toSlotIdx")
@@ -112,5 +112,10 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
 
         gameEventManager.dispatchItemSlotUpdated(fromSlotIdx, getInventoryItem(entity, fromSlotIdx))
         gameEventManager.dispatchItemSlotUpdated(toSlotIdx, getInventoryItem(entity, toSlotIdx))
+    }
+
+    fun removeItem(entity: Entity, slotIdx: Int) {
+        invCmpMapper.get(entity).items.set(slotIdx, DEFAULT_ENTITY_ID)
+        gameEventManager.dispatchItemSlotUpdated(slotIdx, getInventoryItem(entity, slotIdx))
     }
 }

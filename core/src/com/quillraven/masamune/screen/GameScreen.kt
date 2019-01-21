@@ -9,6 +9,7 @@ import com.quillraven.masamune.ecs.system.InventorySystem
 import com.quillraven.masamune.event.InputListener
 import com.quillraven.masamune.event.ItemListener
 import com.quillraven.masamune.map.EMapType
+import com.quillraven.masamune.model.EEquipType
 import com.quillraven.masamune.ui.GameUI
 
 class GameScreen : Q2DScreen(), InputListener, ItemListener {
@@ -78,6 +79,14 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
             }
         } else {
             gameUI.inventoryUI.updateItemSlot(slotIdx, "")
+        }
+    }
+
+    override fun equipSlotUpdated(type: EEquipType, item: Entity?) {
+        if (item != null) {
+            gameUI.inventoryUI.updateEquipSlot(type, game.cmpMapper.render.get(item).texture)
+        } else {
+            gameUI.inventoryUI.updateEquipSlot(type, "")
         }
     }
 

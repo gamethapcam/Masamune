@@ -83,7 +83,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         savePlayerData()
         saveMapData()
         // store file
-        gameStatePreference.flush()
+//        gameStatePreference.flush()
     }
 
     private fun savePlayerData() {
