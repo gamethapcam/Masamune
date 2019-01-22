@@ -6,7 +6,8 @@ import com.badlogic.gdx.utils.Pool
 import com.quillraven.masamune.model.EEquipType
 
 class EquipmentComponent : Pool.Poolable, Component {
-    val equipment = IntArray(EEquipType.values().size)
+    // reduce size by 1 because UNDEFINED is no valid type
+    val equipment = IntArray(EEquipType.values().size - 1)
 
     override fun reset() {
     }

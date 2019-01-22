@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.EquipmentComponent
+import com.quillraven.masamune.ecs.component.IdentifyComponent
 import com.quillraven.masamune.event.InputListener
 import com.quillraven.masamune.model.EEquipType
 
@@ -15,6 +16,7 @@ private const val TAG = "EquipmentSystem"
 
 class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, InputListener {
     private val equipCmpMapper = game.cmpMapper.equipment
+    private val equipTypeCmpMapper = game.cmpMapper.equipType
     private val invCmpMapper = game.cmpMapper.inventory
     private val gameEventManager = game.gameEventManager
     private val idSystem by lazy { engine.getSystem(IdentifySystem::class.java) }
@@ -28,7 +30,8 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
 
     override fun entityAdded(entity: Entity) {
         val equipCmp = equipCmpMapper.get(entity)
-        while (equipCmp.equipment.size < EEquipType.values().size) {
+        // reduce loop by 1 because type UNDEFINED is no valid equipment
+        while (equipCmp.equipment.size < EEquipType.values().size - 1) {
             equipCmp.equipment.add(DEFAULT_ENTITY_ID)
         }
     }
@@ -46,7 +49,8 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
 
     private fun getEquipmentItem(entity: Entity, type: EEquipType): Entity? {
         val equipCmp = equipCmpMapper.get(entity)
-        if (equipCmp != null && equipCmp.equipment.size <= EEquipType.values().size) {
+        // sub -1 from EEquipType because UNDEFINED is no valid type
+        if (equipCmp != null && equipCmp.equipment.size <= EEquipType.values().size - 1) {
             if (equipCmp.equipment.items[type.ordinal] == DEFAULT_ENTITY_ID) {
                 // empty slot without equipment
                 return null
@@ -81,6 +85,17 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         val item = inventorySystem.getInventoryItem(entity, inventorySlotIdx)
         if (item == null) {
             Gdx.app.error(TAG, "Cannot equip a non existing item of slot $inventorySlotIdx")
+            return
+        }
+
+        val itemEquipType = equipTypeCmpMapper.get(item)
+        if (itemEquipType == null || itemEquipType.type == EEquipType.UNDEFINED) {
+            Gdx.app.debug(TAG, "Cannot equip an item with no equipType ${item.getComponent(IdentifyComponent::class.java).type}")
+            return
+        }
+
+        if (type != itemEquipType.type) {
+            Gdx.app.debug(TAG, "Cannot equip item of type ${itemEquipType.type} in slot $type")
             return
         }
 

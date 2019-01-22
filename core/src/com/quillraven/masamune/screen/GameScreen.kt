@@ -69,16 +69,17 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
     override fun itemSlotUpdated(slotIdx: Int, item: Entity?) {
         if (item != null) {
             val stackCmp = game.cmpMapper.stackable.get(item)
+            val equipType = game.cmpMapper.equipType.get(item)?.type
             if (stackCmp != null) {
-                gameUI.inventoryUI.updateItemSlot(slotIdx, game.cmpMapper.render.get(item).texture, stackCmp.size)
+                gameUI.inventoryUI.updateItemSlot(slotIdx, game.cmpMapper.render.get(item).texture, stackCmp.size, equipType)
             } else {
-                gameUI.inventoryUI.updateItemSlot(slotIdx, game.cmpMapper.render.get(item).texture)
+                gameUI.inventoryUI.updateItemSlot(slotIdx, game.cmpMapper.render.get(item).texture, equipType = equipType)
             }
             if (slotIdx == gameUI.inventoryUI.selectedSlotIdx) {
                 inputShowItem(slotIdx)
             }
         } else {
-            gameUI.inventoryUI.updateItemSlot(slotIdx, "")
+            gameUI.inventoryUI.updateItemSlot(slotIdx, "", equipType = null)
         }
     }
 

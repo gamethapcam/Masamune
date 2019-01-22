@@ -72,6 +72,7 @@ class GameRenderSystem constructor(game: MainGame) : SortedIteratingSystem(Famil
     override fun update(deltaTime: Float) {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+        batch.setColor(1f, 1f, 1f, 1f)
 
         viewport.apply()
         mapRenderer.setView(camera)

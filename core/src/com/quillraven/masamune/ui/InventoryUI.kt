@@ -15,9 +15,13 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
     private val eventMgr = game.gameEventManager
     private val dragAndDrop = DragAndDrop()
     private val dragActor = Image()
+    private val invalidDragActor = Image()
     private val payload = DragAndDrop.Payload().apply {
         dragActor = this@InventoryUI.dragActor
         dragActor.setSize(50f, 50f)
+        invalidDragActor = this@InventoryUI.invalidDragActor
+        invalidDragActor.setSize(50f, 50f)
+        invalidDragActor.setColor(1f, 0f, 0f, 1f)
     }
 
     internal var selectedSlotIdx = -1
@@ -65,17 +69,17 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         equipSlotTable.defaults().pad(5f)
         equipSlotTable.add(TextButton("[DIALOG_TITLE_LIGHT]${game.resourceBundle.get("Equipment")}", skin, "label")).expandX().fillX().pad(40f, 0f, 0f, 0f).colspan(3).row()
         // helmet
-        addInventorySlot(equipSlotTable, EEquipType.HELMET).colspan(3).padLeft(94f).padTop(20f).row()
+        addInventorySlot(equipSlotTable, "slot_helmet", EEquipType.HELMET).colspan(3).padLeft(94f).padTop(20f).row()
         // weapon, armor, shield
-        addInventorySlot(equipSlotTable, EEquipType.WEAPON).padLeft(25f)
-        addInventorySlot(equipSlotTable, EEquipType.ARMOR).padLeft(-26f)
-        addInventorySlot(equipSlotTable, EEquipType.SHIELD).padLeft(-23f).row()
+        addInventorySlot(equipSlotTable, "slot_weapon", EEquipType.WEAPON).padLeft(25f)
+        addInventorySlot(equipSlotTable, "slot_armor", EEquipType.ARMOR).padLeft(-26f)
+        addInventorySlot(equipSlotTable, "slot_shield", EEquipType.SHIELD).padLeft(-23f).row()
         // gloves, boots
-        addInventorySlot(equipSlotTable, EEquipType.GLOVES).padLeft(62f)
-        addInventorySlot(equipSlotTable, EEquipType.BOOTS).row()
+        addInventorySlot(equipSlotTable, "slot_gloves", EEquipType.GLOVES).padLeft(62f)
+        addInventorySlot(equipSlotTable, "slot_boots", EEquipType.BOOTS).row()
         // ring, necklace
-        addInventorySlot(equipSlotTable, EEquipType.RING).padLeft(62f).padBottom(50f)
-        addInventorySlot(equipSlotTable, EEquipType.NECKLACE).padBottom(50f).row()
+        addInventorySlot(equipSlotTable, "slot_ring", EEquipType.RING).padLeft(62f).padBottom(50f)
+        addInventorySlot(equipSlotTable, "slot_amulet", EEquipType.NECKLACE).padBottom(50f).row()
         add(equipSlotTable).width(240f).height(400f).pad(0f, -60f, 35f, 40f)
 
         // move little bit to the right to center between touchpad and action button
@@ -92,7 +96,7 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         })
     }
 
-    private fun addInventorySlot(slotTable: Table, userObject: Any? = null): Cell<WidgetGroup> {
+    private fun addInventorySlot(slotTable: Table, slotInfoTexture: String = "", userObject: Any? = null): Cell<WidgetGroup> {
         val slot = WidgetGroup()
         // background graphic
         val imgSlot = Image(skin.getDrawable("slot_cursed"))
@@ -111,6 +115,14 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         stackLbl.scaleBy(0.75f)
         stackLbl.setPosition(53f, 1f)
         slot.addActor(stackLbl)
+        if (!slotInfoTexture.isBlank()) {
+            // slot info graphic. used f.e. for equipment slots
+            val imgSlotInfo = Image(skin.getDrawable(slotInfoTexture))
+            imgSlotInfo.setSize(50f, 50f)
+            imgSlotInfo.setPosition(10f, 10f)
+            imgSlotInfo.scaleBy(-0.25f)
+            slot.addActor(imgSlotInfo)
+        }
 
         // drag source
         dragAndDrop.addSource(object : DragAndDrop.Source(slot) {
@@ -122,8 +134,13 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
 
                 // add item as drag actor --> item gets visually removed from slot but the real remove is not triggered yet
                 dragActor.drawable = imgItem.drawable
+                dragActor.userObject = imgItem.userObject
+                invalidDragActor.drawable = imgItem.drawable
                 imgItem.isVisible = false
                 stackLbl.isVisible = false
+                if (slot.children.size >= 4) {
+                    slot.children[3].isVisible = true
+                }
                 dragAndDrop.setDragActorPosition(dragActor.width * 0.5f, -dragActor.height * 0.5f)
                 return payload
             }
@@ -131,17 +148,29 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
             override fun dragStop(event: InputEvent?, x: Float, y: Float, pointer: Int, payload: DragAndDrop.Payload?, target: DragAndDrop.Target?) {
                 imgItem.isVisible = true
                 stackLbl.isVisible = true
+                if (slot.children.size >= 4) {
+                    slot.children[3].isVisible = imgItem.drawable == null
+                }
             }
         })
 
         // drag target
         dragAndDrop.addTarget(object : DragAndDrop.Target(slot) {
             override fun drag(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int): Boolean {
-                // valid drag only on slots that are different from the source slot
-                return source.actor != actor
+                val targetTable = actor.parent
+                if (targetTable == equipSlotTable) {
+                    // can only drop on valid type
+                    return actor.userObject == dragActor.userObject
+                }
+                return true
             }
 
             override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int) {
+                if (source.actor == actor) {
+                    // same slot nothing to do
+                    return
+                }
+
                 val sourceTable = source.actor.parent
                 val targetTable = actor.parent
 
@@ -192,9 +221,18 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         }
     }
 
-    private fun updateItemSlot(slot: WidgetGroup, texture: String, amount: Int) {
+    private fun updateItemSlot(slot: WidgetGroup, texture: String, amount: Int, equipType: EEquipType?) {
+        // update slot graphic
         val item = slot.children[1] as Image
-        item.drawable = if (texture.isBlank()) null else skin.getDrawable(texture)
+        if (texture.isBlank()) {
+            item.drawable = null
+            item.userObject = null
+        } else {
+            item.drawable = skin.getDrawable(texture)
+            item.userObject = equipType
+        }
+
+        // update stack size information
         val stack = slot.children[2] as Label
         stack.text.setLength(0)
         if (amount > 1) {
@@ -202,15 +240,20 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
             stack.text.append(amount)
         }
         stack.invalidateHierarchy()
+
+        if (slot.children.size >= 4) {
+            // update slot information image (visible if no item in slot)
+            slot.children[3].isVisible = item.drawable == null
+        }
     }
 
-    fun updateItemSlot(slotIdx: Int, texture: String, amount: Int = 1) {
+    fun updateItemSlot(slotIdx: Int, texture: String, amount: Int = 1, equipType: EEquipType?) {
         if (slotIdx < 0 || slotIdx >= inventorySlotTable.children.size) {
             Gdx.app.error(TAG, "Trying to update item $texture to invalid slot $slotIdx")
             return
         }
 
-        updateItemSlot(inventorySlotTable.children[slotIdx] as WidgetGroup, texture, amount)
+        updateItemSlot(inventorySlotTable.children[slotIdx] as WidgetGroup, texture, amount, equipType)
     }
 
     fun setInventorySize(size: Int) {
@@ -232,7 +275,7 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
     fun updateEquipSlot(type: EEquipType, texture: String) {
         for (slot in equipSlotTable.children) {
             if (slot.userObject == type) {
-                updateItemSlot(slot as WidgetGroup, texture, 1)
+                updateItemSlot(slot as WidgetGroup, texture, 1, if (texture.isBlank()) null else type)
                 break
             }
         }
