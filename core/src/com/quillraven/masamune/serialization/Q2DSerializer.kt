@@ -29,6 +29,9 @@ private const val KEY_PLAYER_Y = "playerY"
 private const val TAG = "Serializer"
 
 class Q2DSerializer constructor(game: MainGame) : MapListener {
+    // set prettyPrint to false to reduce filesize of savefile but it also becomes more difficult to read the file for debug purposes ;)
+    private val prettyPrint = true
+
     private var playerCreated = false
     private val playerCfg = game.assetManager.get("cfg/character.json", ObjectCfgMap::class.java)[ObjectType.HERO]
     private val json = game.json
@@ -60,6 +63,9 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         StreamUtils.closeQuietly(json.writer)
         val result = json.writer.writer.toString()
         json.setWriter(null)
+        if (prettyPrint) {
+            return jsonReader.parse(result).prettyPrint(JsonWriter.OutputType.minimal, 0)
+        }
         return result
     }
 
@@ -97,7 +103,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
 
         writeObjectStart()
         writeComponentData("player", playerEntity)
-        return jsonReader.parse(writeObjectEnd()).prettyPrint(JsonWriter.OutputType.minimal, 0)
+        return writeObjectEnd()
     }
 
     private fun getInventorySaveString(inventoryCmp: InventoryComponent?): String {
@@ -122,7 +128,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
             }
         }
         json.writeArrayEnd()
-        return jsonReader.parse(writeObjectEnd()).prettyPrint(JsonWriter.OutputType.minimal, 0)
+        return writeObjectEnd()
     }
 
     private fun getEquipmentSaveString(equipmentCmp: EquipmentComponent?): String {
@@ -147,7 +153,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
             }
         }
         json.writeArrayEnd()
-        return jsonReader.parse(writeObjectEnd()).prettyPrint(JsonWriter.OutputType.minimal, 0)
+        return writeObjectEnd()
     }
 
     private fun saveMapData() {
@@ -177,7 +183,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
             json.writeObjectEnd()
         }
         json.writeArrayEnd()
-        return jsonReader.parse(writeObjectEnd()).prettyPrint(JsonWriter.OutputType.minimal, 0)
+        return writeObjectEnd()
     }
 
     fun loadGameState() {
@@ -202,6 +208,19 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         }
     }
 
+    private fun createPlayerItemEntities(saveString: String?) {
+        if (saveString == null) return
+        val itemData = jsonReader.parse(saveString)
+        if (itemData != null) {
+            var iterator = itemData.child.child
+            while (iterator != null) {
+                val value = iterator.child.child
+                iterator = iterator.next
+                ecsEngine.createEntityFromConfig(value)
+            }
+        }
+    }
+
     private fun loadPlayerData() {
         if (!playerCreated) {
             playerCreated = true
@@ -209,26 +228,8 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
                 // load player data from save file
                 val playerData = jsonReader.parse(gameStatePreference.getString(KEY_PLAYER_DATA))
                 ecsEngine.createEntityFromConfig(playerData.child.child)
-                // load inventory
-                val inventoryData = jsonReader.parse(gameStatePreference.getString(KEY_PLAYER_INVENTORY_DATA))
-                if (inventoryData != null) {
-                    var iterator = inventoryData.child.child
-                    while (iterator != null) {
-                        val value = iterator.child.child
-                        iterator = iterator.next
-                        ecsEngine.createEntityFromConfig(value)
-                    }
-                }
-                // load equipment
-                val equipmentData = jsonReader.parse(gameStatePreference.getString(KEY_PLAYER_EQUIPMENT_DATA))
-                if (equipmentData != null) {
-                    var iterator = equipmentData.child.child
-                    while (iterator != null) {
-                        val value = iterator.child.child
-                        iterator = iterator.next
-                        ecsEngine.createEntityFromConfig(value)
-                    }
-                }
+                createPlayerItemEntities(gameStatePreference.getString(KEY_PLAYER_INVENTORY_DATA))
+                createPlayerItemEntities(gameStatePreference.getString(KEY_PLAYER_EQUIPMENT_DATA))
             } else {
                 // create new player instance
                 if (playerCfg == null) {
