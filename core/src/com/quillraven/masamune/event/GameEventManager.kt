@@ -58,9 +58,15 @@ class GameEventManager {
         }
     }
 
-    fun dispatchInputShowItem(slotIdx: Int) {
+    fun dispatchInputShowInventoryItem(slotIdx: Int) {
         for (listener in inputListeners) {
-            listener.inputShowItem(slotIdx)
+            listener.inputShowInventoryItem(slotIdx)
+        }
+    }
+
+    fun dispatchInputShowEquipmentItem(type: EEquipType) {
+        for (listener in inputListeners) {
+            listener.inputShowEquipmentItem(type)
         }
     }
 
@@ -114,9 +120,9 @@ class GameEventManager {
         itemListeners.add(listener)
     }
 
-    fun dispatchItemSlotUpdated(slotIdx: Int, item: Entity?) {
+    fun dispatchInventorySlotUpdated(slotIdx: Int, item: Entity?) {
         for (listener in itemListeners) {
-            listener.itemSlotUpdated(slotIdx, item)
+            listener.inventorySlotUpdated(slotIdx, item)
         }
     }
 

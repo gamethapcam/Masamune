@@ -8,10 +8,7 @@ import com.badlogic.gdx.utils.JsonReader
 import com.badlogic.gdx.utils.JsonWriter
 import com.badlogic.gdx.utils.StreamUtils
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.component.ActionableComponent
-import com.quillraven.masamune.ecs.component.Box2DComponent
-import com.quillraven.masamune.ecs.component.InventoryComponent
-import com.quillraven.masamune.ecs.component.TransformComponent
+import com.quillraven.masamune.ecs.component.*
 import com.quillraven.masamune.ecs.system.DEFAULT_ENTITY_ID
 import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.event.MapEvent
@@ -23,7 +20,8 @@ import java.io.StringWriter
 
 private const val KEY_CURRENT_MAP = "currentMap"
 private const val KEY_PLAYER_DATA = "playerData"
-private const val KEY_PLAYER_ITEM_DATA = "playerItemData"
+private const val KEY_PLAYER_INVENTORY_DATA = "playerInventoryData"
+private const val KEY_PLAYER_EQUIPMENT_DATA = "playerEquipmentData"
 private const val KEY_MAP_DATA = "-data"
 private const val KEY_PLAYER_X = "playerX"
 private const val KEY_PLAYER_Y = "playerY"
@@ -39,6 +37,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
     private val idCmpMapper = game.cmpMapper.identify
     private val transfCmpMapper = game.cmpMapper.transform
     private val inventoryCmpMapper = game.cmpMapper.inventory
+    private val equipCmpMapper = game.cmpMapper.equipment
     private val playerEntityIDs = IntArray(0)
 
     private val gameStatePreference = Gdx.app.getPreferences("masamune")
@@ -83,13 +82,14 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         savePlayerData()
         saveMapData()
         // store file
-//        gameStatePreference.flush()
+        gameStatePreference.flush()
     }
 
     private fun savePlayerData() {
-        val playerEntity = ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()
+        val playerEntity = idSystem.getPlayerEntity()
         gameStatePreference.putString(KEY_PLAYER_DATA, getPlayerSaveString(playerEntity))
-        gameStatePreference.putString(KEY_PLAYER_ITEM_DATA, getInventorySaveString(inventoryCmpMapper.get(playerEntity)))
+        gameStatePreference.putString(KEY_PLAYER_INVENTORY_DATA, getInventorySaveString(inventoryCmpMapper.get(playerEntity)))
+        gameStatePreference.putString(KEY_PLAYER_EQUIPMENT_DATA, getEquipmentSaveString(equipCmpMapper.get(playerEntity)))
     }
 
     private fun getPlayerSaveString(playerEntity: Entity): String {
@@ -110,12 +110,37 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         json.writeArrayStart("inventory")
         for (idx in 0 until inventoryCmp.items.size) {
             if (inventoryCmp.items[idx] != DEFAULT_ENTITY_ID) {
-                val itemEntity = ecsEngine.getSystem(IdentifySystem::class.java).getEntityByID(inventoryCmp.items[idx])
+                val itemEntity = idSystem.getEntityByID(inventoryCmp.items[idx])
                 if (itemEntity == null) {
                     Gdx.app.error(TAG, "Trying to save invalid item of id ${inventoryCmp.items[idx]}")
                     continue
                 }
                 playerEntityIDs.add(inventoryCmp.items[idx])
+                json.writeObjectStart()
+                writeComponentData("slot-$idx", itemEntity)
+                json.writeObjectEnd()
+            }
+        }
+        json.writeArrayEnd()
+        return jsonReader.parse(writeObjectEnd()).prettyPrint(JsonWriter.OutputType.minimal, 0)
+    }
+
+    private fun getEquipmentSaveString(equipmentCmp: EquipmentComponent?): String {
+        if (equipmentCmp == null) {
+            Gdx.app.debug(TAG, "There is no player equipment to save")
+            return ""
+        }
+
+        writeObjectStart()
+        json.writeArrayStart("equipment")
+        for (idx in 0 until equipmentCmp.equipment.size) {
+            if (equipmentCmp.equipment[idx] != DEFAULT_ENTITY_ID) {
+                val itemEntity = idSystem.getEntityByID(equipmentCmp.equipment[idx])
+                if (itemEntity == null) {
+                    Gdx.app.error(TAG, "Trying to save invalid item of id ${equipmentCmp.equipment[idx]}")
+                    continue
+                }
+                playerEntityIDs.add(equipmentCmp.equipment[idx])
                 json.writeObjectStart()
                 writeComponentData("slot-$idx", itemEntity)
                 json.writeObjectEnd()
@@ -137,7 +162,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
 
         writeObjectStart()
         // save player location
-        val playerEntity = ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()
+        val playerEntity = idSystem.getPlayerEntity()
         json.writeValue(KEY_PLAYER_X, transfCmpMapper.get(playerEntity).x)
         json.writeValue(KEY_PLAYER_Y, transfCmpMapper.get(playerEntity).y)
 
@@ -184,9 +209,20 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
                 // load player data from save file
                 val playerData = jsonReader.parse(gameStatePreference.getString(KEY_PLAYER_DATA))
                 ecsEngine.createEntityFromConfig(playerData.child.child)
-                val inventoryData = jsonReader.parse(gameStatePreference.getString(KEY_PLAYER_ITEM_DATA))
+                // load inventory
+                val inventoryData = jsonReader.parse(gameStatePreference.getString(KEY_PLAYER_INVENTORY_DATA))
                 if (inventoryData != null) {
                     var iterator = inventoryData.child.child
+                    while (iterator != null) {
+                        val value = iterator.child.child
+                        iterator = iterator.next
+                        ecsEngine.createEntityFromConfig(value)
+                    }
+                }
+                // load equipment
+                val equipmentData = jsonReader.parse(gameStatePreference.getString(KEY_PLAYER_EQUIPMENT_DATA))
+                if (equipmentData != null) {
+                    var iterator = equipmentData.child.child
                     while (iterator != null) {
                         val value = iterator.child.child
                         iterator = iterator.next
@@ -207,7 +243,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
     private fun loadMapData() {
         val mapData = jsonReader.parse(gameStatePreference.getString("${mapManager.currentMapType.name}$KEY_MAP_DATA"))
         if (mapData != null) {
-            val playerEntity = ecsEngine.getSystem(IdentifySystem::class.java).getPlayerEntity()
+            val playerEntity = idSystem.getPlayerEntity()
             val playerX = mapData.getFloat(KEY_PLAYER_X)
             val playerY = mapData.getFloat(KEY_PLAYER_Y)
             val transformCmp = playerEntity.getComponent(TransformComponent::class.java)

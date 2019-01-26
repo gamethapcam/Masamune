@@ -47,7 +47,7 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         unequipItem(idSystem.getPlayerEntity(), inventorySlotIdx, type)
     }
 
-    private fun getEquipmentItem(entity: Entity, type: EEquipType): Entity? {
+    fun getEquipmentItem(entity: Entity, type: EEquipType): Entity? {
         val equipCmp = equipCmpMapper.get(entity)
         // sub -1 from EEquipType because UNDEFINED is no valid type
         if (equipCmp != null && equipCmp.equipment.size <= EEquipType.values().size - 1) {

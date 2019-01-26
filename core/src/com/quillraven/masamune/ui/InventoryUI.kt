@@ -191,7 +191,11 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         slot.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                 if (imgItem.drawable != null) {
-                    eventMgr.dispatchInputShowItem(slotTable.children.indexOf(slot))
+                    if (slotTable == inventorySlotTable) {
+                        eventMgr.dispatchInputShowInventoryItem(slotTable.children.indexOf(slot))
+                    } else {
+                        eventMgr.dispatchInputShowEquipmentItem(slot.userObject as EEquipType)
+                    }
                 }
                 return true
             }

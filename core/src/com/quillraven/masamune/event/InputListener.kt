@@ -9,7 +9,9 @@ interface InputListener {
 
     fun inputShowInventory() {}
 
-    fun inputShowItem(slotIdx: Int) {}
+    fun inputShowInventoryItem(slotIdx: Int) {}
+
+    fun inputShowEquipmentItem(type: EEquipType) {}
 
     fun inputItemMoved(fromSlotIdx: Int, toSlotIdx: Int) {}
 

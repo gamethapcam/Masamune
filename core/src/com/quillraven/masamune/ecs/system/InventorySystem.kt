@@ -65,7 +65,7 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
                     stackCmpMapper.get(existingItem).size += stackCmp.size
                     // and remove the item from the game because it is part of the stack
                     item.add((engine as ECSEngine).createComponent(RemoveComponent::class.java))
-                    gameEventManager.dispatchItemSlotUpdated(idx, existingItem)
+                    gameEventManager.dispatchInventorySlotUpdated(idx, existingItem)
                     return idx
                 }
             }
@@ -76,7 +76,7 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
             if (inventory.items[idx] == DEFAULT_ENTITY_ID) {
                 // found empty slot --> add to inventory by assigning entity ID to the slot
                 inventory.items[idx] = idCmpMapper.get(item).id
-                gameEventManager.dispatchItemSlotUpdated(idx, item)
+                gameEventManager.dispatchInventorySlotUpdated(idx, item)
                 return idx
             }
         }
@@ -110,12 +110,12 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         inventory.items[fromSlotIdx] = itemTo
         inventory.items[toSlotIdx] = itemFrom
 
-        gameEventManager.dispatchItemSlotUpdated(fromSlotIdx, getInventoryItem(entity, fromSlotIdx))
-        gameEventManager.dispatchItemSlotUpdated(toSlotIdx, getInventoryItem(entity, toSlotIdx))
+        gameEventManager.dispatchInventorySlotUpdated(fromSlotIdx, getInventoryItem(entity, fromSlotIdx))
+        gameEventManager.dispatchInventorySlotUpdated(toSlotIdx, getInventoryItem(entity, toSlotIdx))
     }
 
     fun removeItem(entity: Entity, slotIdx: Int) {
         invCmpMapper.get(entity).items.set(slotIdx, DEFAULT_ENTITY_ID)
-        gameEventManager.dispatchItemSlotUpdated(slotIdx, getInventoryItem(entity, slotIdx))
+        gameEventManager.dispatchInventorySlotUpdated(slotIdx, getInventoryItem(entity, slotIdx))
     }
 }

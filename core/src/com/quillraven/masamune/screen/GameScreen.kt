@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.utils.StringBuilder
+import com.quillraven.masamune.ecs.system.EquipmentSystem
 import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.ecs.system.InventorySystem
 import com.quillraven.masamune.event.InputListener
@@ -15,6 +16,7 @@ import com.quillraven.masamune.ui.GameUI
 class GameScreen : Q2DScreen(), InputListener, ItemListener {
     private val gameUI = GameUI(game)
     private val inventorySystem by lazy { game.ecsEngine.getSystem(InventorySystem::class.java) }
+    private val equipSystem by lazy { game.ecsEngine.getSystem(EquipmentSystem::class.java) }
     private val idSystem by lazy { game.ecsEngine.getSystem(IdentifySystem::class.java) }
     private val strBuffer = StringBuilder(0)
 
@@ -66,7 +68,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
         gameUI.inventoryUI.setInventorySize(newSize)
     }
 
-    override fun itemSlotUpdated(slotIdx: Int, item: Entity?) {
+    override fun inventorySlotUpdated(slotIdx: Int, item: Entity?) {
         if (item != null) {
             val stackCmp = game.cmpMapper.stackable.get(item)
             val equipType = game.cmpMapper.equipType.get(item)?.type
@@ -76,7 +78,10 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
                 gameUI.inventoryUI.updateItemSlot(slotIdx, game.cmpMapper.render.get(item).texture, equipType = equipType)
             }
             if (slotIdx == gameUI.inventoryUI.selectedSlotIdx) {
-                inputShowItem(slotIdx)
+                // special case for stackable items
+                // if item is shown in inventory UI and a new item is obtained then the stack counter
+                // needs to be updated
+                inputShowInventoryItem(slotIdx)
             }
         } else {
             gameUI.inventoryUI.updateItemSlot(slotIdx, "", equipType = null)
@@ -111,7 +116,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
         return strBuffer.toString()
     }
 
-    override fun inputShowItem(slotIdx: Int) {
+    override fun inputShowInventoryItem(slotIdx: Int) {
         val item = inventorySystem.getInventoryItem(idSystem.getPlayerEntity(), slotIdx)
         if (item != null) {
             val descCmp = game.cmpMapper.description.get(item)
@@ -119,11 +124,23 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
         }
     }
 
+    override fun inputShowEquipmentItem(type: EEquipType) {
+        val item = equipSystem.getEquipmentItem(idSystem.getPlayerEntity(), type)
+        if (item != null) {
+            val descCmp = game.cmpMapper.description.get(item)
+            gameUI.inventoryUI.updateItemInfo(-1, getItemNameString(item), descCmp.description, game.cmpMapper.render.get(item).texture)
+        }
+    }
+
     override fun inputShowInventory() {
         val player = idSystem.getPlayerEntity()
         val inventoryCmp = game.cmpMapper.inventory.get(player)
         for (index in 0 until inventoryCmp.items.size) {
-            itemSlotUpdated(index, inventorySystem.getInventoryItem(player, index))
+            inventorySlotUpdated(index, inventorySystem.getInventoryItem(player, index))
+        }
+        for (type in EEquipType.values()) {
+            if (type == EEquipType.UNDEFINED) continue
+            equipSlotUpdated(type, equipSystem.getEquipmentItem(player, type))
         }
     }
 }
