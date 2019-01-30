@@ -17,4 +17,5 @@ class ComponentMapper {
     internal val price = ComponentMapper.getFor(PriceComponent::class.java)
     internal val equipment = ComponentMapper.getFor(EquipmentComponent::class.java)
     internal val equipType = ComponentMapper.getFor(EquiptypeComponent::class.java)
+    internal val attribute = ComponentMapper.getFor(AttributeComponent::class.java)
 }

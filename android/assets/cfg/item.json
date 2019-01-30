@@ -18,7 +18,18 @@
     },
     {
       "class": "com.quillraven.masamune.ecs.component.AttributeComponent",
-      "strength": 3
+      "attributes": {
+        "items": [
+          0,
+          0,
+          0,
+          0,
+          10,
+          0,
+          0
+        ],
+        "size": 7
+      }
     },
     {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"

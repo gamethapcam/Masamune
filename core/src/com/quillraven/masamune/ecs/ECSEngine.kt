@@ -21,6 +21,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         addSystem(ActionableSystem(game, this))
         addSystem(InventorySystem(game, this))
         addSystem(EquipmentSystem(game, this))
+        addSystem(AttributeSystem(game, this))
         addSystem(RenderFlipSystem(game))
         addSystem(Box2DSystem(game, this))
         addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values

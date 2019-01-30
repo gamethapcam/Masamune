@@ -10,6 +10,7 @@ import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.EquipmentComponent
 import com.quillraven.masamune.ecs.component.IdentifyComponent
 import com.quillraven.masamune.event.InputListener
+import com.quillraven.masamune.model.EAttributeType
 import com.quillraven.masamune.model.EEquipType
 
 private const val TAG = "EquipmentSystem"
@@ -19,6 +20,7 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
     private val equipTypeCmpMapper = game.cmpMapper.equipType
     private val invCmpMapper = game.cmpMapper.inventory
     private val gameEventManager = game.gameEventManager
+    private val attrCmpMapper = game.cmpMapper.attribute
     private val idSystem by lazy { engine.getSystem(IdentifySystem::class.java) }
     private val inventorySystem by lazy { engine.getSystem(InventorySystem::class.java) }
 
@@ -78,6 +80,14 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         val equipCmp = equipCmpMapper.get(entity)
         equipCmp.equipment.set(type.ordinal, DEFAULT_ENTITY_ID)
         gameEventManager.dispatchEquipmentSlotUpdated(type, null)
+        // updateEntityAttributes
+        val itemAttrCmp = attrCmpMapper.get(equippedItem)
+        val entityAttrCmp = attrCmpMapper.get(entity)
+        if (itemAttrCmp != null && entityAttrCmp != null) {
+            for (attType in EAttributeType.values()) {
+                entityAttrCmp.attributes[attType.ordinal] -= itemAttrCmp.attributes[attType.ordinal]
+            }
+        }
     }
 
     private fun equipItem(entity: Entity, inventorySlotIdx: Int, type: EEquipType) {
@@ -112,5 +122,13 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
         // set as equipment
         equipCmp.equipment.set(type.ordinal, itemID)
         gameEventManager.dispatchEquipmentSlotUpdated(type, getEquipmentItem(entity, type))
+        // updateEntityAttributes
+        val itemAttrCmp = attrCmpMapper.get(item)
+        val entityAttrCmp = attrCmpMapper.get(entity)
+        if (itemAttrCmp != null && entityAttrCmp != null) {
+            for (attType in EAttributeType.values()) {
+                entityAttrCmp.attributes[attType.ordinal] += itemAttrCmp.attributes[attType.ordinal]
+            }
+        }
     }
 }

@@ -29,8 +29,18 @@
     },
     {
       "class": "com.quillraven.masamune.ecs.component.AttributeComponent",
-      "strength": 10,
-      "intelligence": 10
+      "attributes": {
+        "items": [
+          75,
+          75,
+          20,
+          20,
+          10,
+          10,
+          10
+        ],
+        "size": 7
+      }
     },
     {
       "class": "com.quillraven.masamune.ecs.component.InventoryComponent",
