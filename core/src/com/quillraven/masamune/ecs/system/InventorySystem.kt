@@ -13,10 +13,11 @@ import com.quillraven.masamune.event.InputListener
 
 private const val TAG = "InventorySystem"
 
-class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, InputListener {
+class InventorySystem constructor(game: MainGame, private val ecsEngine: ECSEngine) : EntitySystem(), EntityListener, InputListener {
     private val invCmpMapper = game.cmpMapper.inventory
     private val idCmpMapper = game.cmpMapper.identify
     private val stackCmpMapper = game.cmpMapper.stackable
+    private val consumableCmpMapper = game.cmpMapper.consumable
     private val gameEventManager = game.gameEventManager
     private val idSystem by lazy { engine.getSystem(IdentifySystem::class.java) }
 
@@ -37,6 +38,32 @@ class InventorySystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
 
     override fun inputItemMoved(fromSlotIdx: Int, toSlotIdx: Int) {
         moveItem(idSystem.getPlayerEntity(), fromSlotIdx, toSlotIdx)
+    }
+
+    override fun inputUseItem(inventorySlotIdx: Int) {
+        val item = getInventoryItem(idSystem.getPlayerEntity(), inventorySlotIdx)
+        if (item == null) {
+            Gdx.app.error(TAG, "Trying to use a non-existing item in slot $inventorySlotIdx")
+            return
+        }
+
+        if (consumableCmpMapper.get(item) == null) {
+            Gdx.app.debug(TAG, "Cannot use a non-consumable item")
+            return
+        }
+
+        gameEventManager.dispatchUseItem(idSystem.getPlayerEntity(), item)
+        val stackCmp = stackCmpMapper.get(item)
+        if (stackCmp != null && stackCmp.size > 1) {
+            // reduce stack
+            --stackCmp.size
+            gameEventManager.dispatchInventorySlotUpdated(inventorySlotIdx, item)
+            return
+        }
+
+        // remove item
+        removeItem(idSystem.getPlayerEntity(), inventorySlotIdx)
+        item.add(ecsEngine.createComponent(RemoveComponent::class.java))
     }
 
     private fun resizeInventory(entity: Entity, newSize: Int) {

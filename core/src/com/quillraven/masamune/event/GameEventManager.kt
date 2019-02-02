@@ -88,6 +88,12 @@ class GameEventManager {
         }
     }
 
+    fun dispatchInputUseItem(inventorySlotIdx: Int) {
+        for (listener in inputListeners) {
+            listener.inputUseItem(inventorySlotIdx)
+        }
+    }
+
     fun addContactListener(listener: ContactListener) {
         contactListeners.add(listener)
     }
@@ -132,9 +138,15 @@ class GameEventManager {
         }
     }
 
-    fun dispatchEquipmentSlotUpdated(type: EEquipType, item: Entity?) {
+    fun dispatchEquipmentSlotUpdated(entity: Entity, type: EEquipType, prevItem: Entity?, newItem: Entity?) {
         for (listener in itemListeners) {
-            listener.equipSlotUpdated(type, item)
+            listener.equipSlotUpdated(entity, type, prevItem, newItem)
+        }
+    }
+
+    fun dispatchUseItem(entity: Entity, item: Entity) {
+        for(listener in itemListeners){
+            listener.useItem(entity,item)
         }
     }
 }

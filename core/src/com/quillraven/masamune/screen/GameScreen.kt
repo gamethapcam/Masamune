@@ -88,9 +88,9 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
         }
     }
 
-    override fun equipSlotUpdated(type: EEquipType, item: Entity?) {
-        if (item != null) {
-            gameUI.inventoryUI.updateEquipSlot(type, game.cmpMapper.render.get(item).texture)
+    override fun equipSlotUpdated(entity: Entity, type: EEquipType, prevItem: Entity?, newItem: Entity?) {
+        if (newItem != null) {
+            gameUI.inventoryUI.updateEquipSlot(type, game.cmpMapper.render.get(newItem).texture)
         } else {
             gameUI.inventoryUI.updateEquipSlot(type, "")
         }
@@ -140,7 +140,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
         }
         for (type in EEquipType.values()) {
             if (type == EEquipType.UNDEFINED) continue
-            equipSlotUpdated(type, equipSystem.getEquipmentItem(player, type))
+            equipSlotUpdated(idSystem.getPlayerEntity(), type, null, equipSystem.getEquipmentItem(player, type))
         }
     }
 }

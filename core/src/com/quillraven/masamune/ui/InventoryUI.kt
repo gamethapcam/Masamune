@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.TimeUtils
 import com.quillraven.masamune.MainGame
 import com.quillraven.masamune.model.EEquipType
 
@@ -189,15 +190,26 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
 
         // show item info listener
         slot.addListener(object : InputListener() {
+            private var lastTouchUp = 0L
+
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                 if (imgItem.drawable != null) {
                     if (slotTable == inventorySlotTable) {
-                        eventMgr.dispatchInputShowInventoryItem(slotTable.children.indexOf(slot))
+                        if (lastTouchUp > 0L && TimeUtils.timeSinceMillis(lastTouchUp) <= 1000L) {
+                            lastTouchUp = 0L
+                            eventMgr.dispatchInputUseItem(slotTable.children.indexOf(slot))
+                        } else {
+                            eventMgr.dispatchInputShowInventoryItem(slotTable.children.indexOf(slot))
+                        }
                     } else {
                         eventMgr.dispatchInputShowEquipmentItem(slot.userObject as EEquipType)
                     }
                 }
                 return true
+            }
+
+            override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+                lastTouchUp = TimeUtils.millis()
             }
         })
 

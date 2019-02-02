@@ -65,6 +65,9 @@
       "mana": 50
     },
     {
+      "class": "com.quillraven.masamune.ecs.component.ConsumableComponent"
+    },
+    {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"
     },
     {
@@ -73,6 +76,53 @@
     {
       "class": "com.quillraven.masamune.ecs.component.RenderComponent",
       "texture": "brilliant_blue_new",
+      "width": 0.75,
+      "height": 0.75
+    }
+  ],
+  "STRENGTH_POTION": [
+    {
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
+      "type": "STRENGTH_POTION",
+      "entityType": "ITEM"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.DescriptionComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.PriceComponent",
+      "price": 35
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.AttributeComponent",
+      "attributes": {
+        "items": [
+          0,
+          0,
+          0,
+          0,
+          3,
+          0,
+          0
+        ],
+        "size": 7
+      }
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.ConsumableComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.StackableComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.TransformComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.Box2DComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.RenderComponent",
+      "texture": "orange_new",
       "width": 0.75,
       "height": 0.75
     }

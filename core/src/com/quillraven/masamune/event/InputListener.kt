@@ -18,4 +18,6 @@ interface InputListener {
     fun inputItemEquipped(inventorySlotIdx: Int, type: EEquipType) {}
 
     fun inputItemUnequipped(inventorySlotIdx: Int, type: EEquipType) {}
+
+    fun inputUseItem(inventorySlotIdx: Int) {}
 }
