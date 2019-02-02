@@ -8,7 +8,7 @@ import com.quillraven.masamune.map.EMapType
 import com.quillraven.masamune.model.EEquipType
 
 class GameEventManager {
-    private val mapEvent = MapEvent
+    private val mapEvent = MapEvent()
     private val mapListeners = Array<MapListener>()
 
     private val inputListeners = Array<InputListener>()

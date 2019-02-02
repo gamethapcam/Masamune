@@ -5,7 +5,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.map.EMapType
 
-object MapEvent {
+class MapEvent {
     internal var oldType = EMapType.UNDEFINED
     internal var newType = EMapType.UNDEFINED
     internal lateinit var map: TiledMap
