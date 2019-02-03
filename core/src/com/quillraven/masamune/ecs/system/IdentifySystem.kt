@@ -1,15 +1,11 @@
 package com.quillraven.masamune.ecs.system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.*
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.*
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.EntityType
 import com.quillraven.masamune.ecs.component.IdentifyComponent
 import com.quillraven.masamune.model.ObjectType
@@ -17,7 +13,7 @@ import com.quillraven.masamune.model.ObjectType
 private const val TAG = "IdentifySystem"
 const val DEFAULT_ENTITY_ID = 0
 
-class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, Disposable, Json.Serializer<IdentifySystem> {
+class IdentifySystem constructor(game: MainGame) : EntitySystem(), EntityListener, Disposable, Json.Serializer<IdentifySystem> {
     private val entityMapById = IntMap<Entity>()
     private val entityMapByType = ObjectMap<EntityType, Array<Entity>>()
     private val immutableEntityMapByType = ObjectMap<EntityType, ImmutableArray<Entity>>()
@@ -26,7 +22,6 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
     private lateinit var playerEntity: Entity
 
     init {
-        ecsEngine.addEntityListener(Family.all(IdentifyComponent::class.java).get(), this)
         for (type in EntityType.values()) {
             if (type == EntityType.UNDEFINED) continue
 
@@ -36,6 +31,16 @@ class IdentifySystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntityS
         }
 
         setProcessing(false)
+    }
+
+    override fun addedToEngine(engine: Engine) {
+        super.addedToEngine(engine)
+        engine.addEntityListener(Family.all(IdentifyComponent::class.java).get(), this)
+    }
+
+    override fun removedFromEngine(engine: Engine) {
+        super.removedFromEngine(engine)
+        engine.removeEntityListener(this)
     }
 
     override fun entityAdded(entity: Entity) {

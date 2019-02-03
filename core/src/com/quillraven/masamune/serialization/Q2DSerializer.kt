@@ -2,6 +2,7 @@ package com.quillraven.masamune.serialization
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.IntArray
 import com.badlogic.gdx.utils.JsonReader
@@ -29,9 +30,6 @@ private const val KEY_PLAYER_Y = "playerY"
 private const val TAG = "Serializer"
 
 class Q2DSerializer constructor(game: MainGame) : MapListener {
-    // set prettyPrint to false to reduce filesize of savefile but it also becomes more difficult to read the file for debug purposes ;)
-    private val prettyPrint = true
-
     private var playerCreated = false
     private val playerCfg = game.assetManager.get("cfg/character.json", ObjectCfgMap::class.java)[ObjectType.HERO]
     private val json = game.json
@@ -63,7 +61,7 @@ class Q2DSerializer constructor(game: MainGame) : MapListener {
         StreamUtils.closeQuietly(json.writer)
         val result = json.writer.writer.toString()
         json.setWriter(null)
-        if (prettyPrint) {
+        if (Gdx.app.logLevel == Application.LOG_DEBUG) {
             return jsonReader.parse(result).prettyPrint(JsonWriter.OutputType.minimal, 0)
         }
         return result

@@ -1,13 +1,9 @@
 package com.quillraven.masamune.ecs.system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.*
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.AttributeComponent
 import com.quillraven.masamune.event.ItemListener
 import com.quillraven.masamune.model.EAttributeType
@@ -15,13 +11,22 @@ import com.quillraven.masamune.model.EEquipType
 
 private const val TAG = "AttributeSystem"
 
-class AttributeSystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, ItemListener {
+class AttributeSystem constructor(game: MainGame) : EntitySystem(), EntityListener, ItemListener {
     private val attributeCmpMapper = game.cmpMapper.attribute
 
     init {
-        ecsEngine.addEntityListener(Family.all(AttributeComponent::class.java).get(), this)
         game.gameEventManager.addItemListener(this)
         setProcessing(false)
+    }
+
+    override fun addedToEngine(engine: Engine) {
+        super.addedToEngine(engine)
+        engine.addEntityListener(Family.all(AttributeComponent::class.java).get(), this)
+    }
+
+    override fun removedFromEngine(engine: Engine) {
+        super.removedFromEngine(engine)
+        engine.removeEntityListener(this)
     }
 
     override fun entityAdded(entity: Entity) {

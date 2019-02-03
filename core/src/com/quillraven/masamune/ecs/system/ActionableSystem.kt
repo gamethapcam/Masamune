@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.EntityType
 import com.quillraven.masamune.ecs.component.ActionableComponent
 import com.quillraven.masamune.ecs.component.Box2DComponent
@@ -13,7 +12,7 @@ import com.quillraven.masamune.ecs.component.TransformComponent
 import com.quillraven.masamune.event.ContactListener
 import com.quillraven.masamune.event.InputListener
 
-class ActionableSystem constructor(game: MainGame, private val ecsEngine: ECSEngine) : EntitySystem(), ContactListener, InputListener {
+class ActionableSystem constructor(game: MainGame) : EntitySystem(), ContactListener, InputListener {
     private val actCmpMapper = game.cmpMapper.actionable
     private val idCmpMapper = game.cmpMapper.identify
     private val actionableEntities by lazy { engine.getEntitiesFor(Family.all(ActionableComponent::class.java).exclude(RemoveComponent::class.java).get()) }
@@ -26,7 +25,7 @@ class ActionableSystem constructor(game: MainGame, private val ecsEngine: ECSEng
 
     override fun beginCharacterContact(player: Entity, character: Entity) {
         if (actCmpMapper.get(character) == null) {
-            character.add(ecsEngine.createComponent(ActionableComponent::class.java).apply { source = player })
+            character.add(engine.createComponent(ActionableComponent::class.java).apply { source = player })
         }
     }
 
@@ -38,7 +37,7 @@ class ActionableSystem constructor(game: MainGame, private val ecsEngine: ECSEng
 
     override fun beginItemContact(player: Entity, item: Entity) {
         if (actCmpMapper.get(item) == null) {
-            item.add(ecsEngine.createComponent(ActionableComponent::class.java).apply { source = player })
+            item.add(engine.createComponent(ActionableComponent::class.java).apply { source = player })
         }
     }
 

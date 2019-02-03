@@ -1,22 +1,27 @@
 package com.quillraven.masamune.ecs.system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.*
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.DescriptionComponent
 import com.quillraven.masamune.ecs.component.IdentifyComponent
 
-class DescriptionSystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener {
+class DescriptionSystem constructor(game: MainGame) : EntitySystem(), EntityListener {
     private val idMapper = game.cmpMapper.identify
     private val descMapper = game.cmpMapper.description
     private val i18nBundle = game.resourceBundle
 
     init {
-        ecsEngine.addEntityListener(Family.all(DescriptionComponent::class.java, IdentifyComponent::class.java).get(), this)
         setProcessing(false)
+    }
+
+    override fun addedToEngine(engine: Engine) {
+        super.addedToEngine(engine)
+        engine.addEntityListener(Family.all(DescriptionComponent::class.java, IdentifyComponent::class.java).get(), this)
+    }
+
+    override fun removedFromEngine(engine: Engine) {
+        super.removedFromEngine(engine)
+        engine.removeEntityListener(this)
     }
 
     override fun entityAdded(entity: Entity) {

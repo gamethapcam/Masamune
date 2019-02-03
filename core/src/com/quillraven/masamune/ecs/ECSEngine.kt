@@ -15,16 +15,16 @@ private const val TAG = "ECSEngine"
 class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Disposable {
 
     init {
-        addSystem(IdentifySystem(game, this))
-        addSystem(DescriptionSystem(game, this))
+        addSystem(IdentifySystem(game))
+        addSystem(DescriptionSystem(game))
         addSystem(PlayerInputSystem(game))
-        addSystem(ActionableSystem(game, this))
-        addSystem(InventorySystem(game, this))
-        addSystem(EquipmentSystem(game, this))
-        addSystem(AttributeSystem(game, this))
+        addSystem(ActionableSystem(game))
+        addSystem(InventorySystem(game))
+        addSystem(EquipmentSystem(game))
+        addSystem(AttributeSystem(game))
         addSystem(HealSystem(game))
         addSystem(RenderFlipSystem(game))
-        addSystem(Box2DSystem(game, this))
+        addSystem(Box2DSystem(game))
         addSystem(CameraSystem(game)) // add AFTER box2d system to use the calculated interpolated values
         addSystem(GameRenderSystem(game))
         addSystem(RemoveSystem())

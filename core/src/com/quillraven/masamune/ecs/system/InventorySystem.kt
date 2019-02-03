@@ -1,19 +1,15 @@
 package com.quillraven.masamune.ecs.system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.*
 import com.badlogic.gdx.Gdx
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.InventoryComponent
 import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.event.InputListener
 
 private const val TAG = "InventorySystem"
 
-class InventorySystem constructor(game: MainGame, private val ecsEngine: ECSEngine) : EntitySystem(), EntityListener, InputListener {
+class InventorySystem constructor(game: MainGame) : EntitySystem(), EntityListener, InputListener {
     private val invCmpMapper = game.cmpMapper.inventory
     private val idCmpMapper = game.cmpMapper.identify
     private val stackCmpMapper = game.cmpMapper.stackable
@@ -22,9 +18,18 @@ class InventorySystem constructor(game: MainGame, private val ecsEngine: ECSEngi
     private val idSystem by lazy { engine.getSystem(IdentifySystem::class.java) }
 
     init {
-        ecsEngine.addEntityListener(Family.all(InventoryComponent::class.java).get(), this)
         gameEventManager.addInputListener(this)
         setProcessing(false)
+    }
+
+    override fun addedToEngine(engine: Engine) {
+        super.addedToEngine(engine)
+        engine.addEntityListener(Family.all(InventoryComponent::class.java).get(), this)
+    }
+
+    override fun removedFromEngine(engine: Engine) {
+        super.removedFromEngine(engine)
+        engine.removeEntityListener(this)
     }
 
     override fun entityAdded(entity: Entity) {
@@ -63,7 +68,7 @@ class InventorySystem constructor(game: MainGame, private val ecsEngine: ECSEngi
 
         // remove item
         removeItem(idSystem.getPlayerEntity(), inventorySlotIdx)
-        item.add(ecsEngine.createComponent(RemoveComponent::class.java))
+        item.add(engine.createComponent(RemoveComponent::class.java))
     }
 
     private fun resizeInventory(entity: Entity, newSize: Int) {
@@ -91,7 +96,7 @@ class InventorySystem constructor(game: MainGame, private val ecsEngine: ECSEngi
                     // found item of same type --> increase stack
                     stackCmpMapper.get(existingItem).size += stackCmp.size
                     // and remove the item from the game because it is part of the stack
-                    item.add((engine as ECSEngine).createComponent(RemoveComponent::class.java))
+                    item.add(engine.createComponent(RemoveComponent::class.java))
                     gameEventManager.dispatchInventorySlotUpdated(idx, existingItem)
                     return idx
                 }

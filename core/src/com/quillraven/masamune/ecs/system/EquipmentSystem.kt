@@ -1,12 +1,8 @@
 package com.quillraven.masamune.ecs.system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.*
 import com.badlogic.gdx.Gdx
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.EquipmentComponent
 import com.quillraven.masamune.ecs.component.IdentifyComponent
 import com.quillraven.masamune.event.InputListener
@@ -14,7 +10,7 @@ import com.quillraven.masamune.model.EEquipType
 
 private const val TAG = "EquipmentSystem"
 
-class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : EntitySystem(), EntityListener, InputListener {
+class EquipmentSystem constructor(game: MainGame) : EntitySystem(), EntityListener, InputListener {
     private val equipCmpMapper = game.cmpMapper.equipment
     private val equipTypeCmpMapper = game.cmpMapper.equipType
     private val invCmpMapper = game.cmpMapper.inventory
@@ -23,9 +19,18 @@ class EquipmentSystem constructor(game: MainGame, ecsEngine: ECSEngine) : Entity
     private val inventorySystem by lazy { engine.getSystem(InventorySystem::class.java) }
 
     init {
-        ecsEngine.addEntityListener(Family.all(EquipmentComponent::class.java).get(), this)
         gameEventManager.addInputListener(this)
         setProcessing(false)
+    }
+
+    override fun addedToEngine(engine: Engine) {
+        super.addedToEngine(engine)
+        engine.addEntityListener(Family.all(EquipmentComponent::class.java).get(), this)
+    }
+
+    override fun removedFromEngine(engine: Engine) {
+        super.removedFromEngine(engine)
+        engine.removeEntityListener(this)
     }
 
     override fun entityAdded(entity: Entity) {

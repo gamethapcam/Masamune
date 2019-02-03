@@ -1,31 +1,36 @@
 package com.quillraven.masamune.ecs.system
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.*
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.Box2D
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.quillraven.masamune.MainGame
-import com.quillraven.masamune.ecs.ECSEngine
 import com.quillraven.masamune.ecs.component.Box2DComponent
 import com.quillraven.masamune.ecs.component.RemoveComponent
 import com.quillraven.masamune.ecs.component.TransformComponent
 
-class Box2DSystem constructor(game: MainGame, ecsEngine: ECSEngine, private val fixedStep: Float = 1 / 60f) : EntitySystem(), EntityListener {
+class Box2DSystem constructor(game: MainGame, private val fixedStep: Float = 1 / 60f) : EntitySystem(), EntityListener {
     private val b2dCmpMapper = game.cmpMapper.box2D
     private val transformCmpMapper = game.cmpMapper.transform
     private var accumulator = 0f
     private val world = game.world
     private val family = Family.all(Box2DComponent::class.java, TransformComponent::class.java).exclude(RemoveComponent::class.java).get()
-    private val b2dEntities = ecsEngine.getEntitiesFor(family)
+    private val b2dEntities by lazy { engine.getEntitiesFor(family) }
     private val b2dUtils = game.b2dUtils
 
     init {
         Box2D.init()
-        ecsEngine.addEntityListener(family, this)
+    }
+
+    override fun addedToEngine(engine: Engine) {
+        super.addedToEngine(engine)
+        engine.addEntityListener(family, this)
+    }
+
+    override fun removedFromEngine(engine: Engine) {
+        super.removedFromEngine(engine)
+        engine.removeEntityListener(this)
     }
 
     override fun entityAdded(entity: Entity) {
