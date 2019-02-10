@@ -12,6 +12,7 @@ private const val TAG = "HealSystem"
 class HealSystem constructor(game: MainGame) : EntitySystem(), ItemListener {
     private val healCmpMapper = game.cmpMapper.heal
     private val attrCmpMapper = game.cmpMapper.attribute
+    private val gameEventMgr = game.gameEventManager
 
     init {
         game.gameEventManager.addItemListener(this)
@@ -25,6 +26,10 @@ class HealSystem constructor(game: MainGame) : EntitySystem(), ItemListener {
             Gdx.app.debug(TAG, "Using healing item for ${itemHealCmp.life} life and ${itemHealCmp.mana} mana")
             entityAttrCmp.attributes.set(EAttributeType.LIFE.ordinal, Math.min(entityAttrCmp.attributes[EAttributeType.MAX_LIFE.ordinal], entityAttrCmp.attributes[EAttributeType.LIFE.ordinal] + itemHealCmp.life))
             entityAttrCmp.attributes.set(EAttributeType.MANA.ordinal, Math.min(entityAttrCmp.attributes[EAttributeType.MAX_MANA.ordinal], entityAttrCmp.attributes[EAttributeType.MANA.ordinal] + itemHealCmp.mana))
+            gameEventMgr.dispatchAttributeUpdated(entity, EAttributeType.LIFE, entityAttrCmp.attributes[EAttributeType.LIFE.ordinal])
+            gameEventMgr.dispatchAttributeUpdated(entity, EAttributeType.MAX_LIFE, entityAttrCmp.attributes[EAttributeType.MAX_LIFE.ordinal])
+            gameEventMgr.dispatchAttributeUpdated(entity, EAttributeType.MANA, entityAttrCmp.attributes[EAttributeType.MANA.ordinal])
+            gameEventMgr.dispatchAttributeUpdated(entity, EAttributeType.MAX_MANA, entityAttrCmp.attributes[EAttributeType.MAX_MANA.ordinal])
         }
     }
 }
