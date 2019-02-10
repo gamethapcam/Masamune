@@ -61,6 +61,13 @@ class MainGame : Q2DGame() {
         Colors.put("DIALOG_TITLE_LIGHT", Color(0x784e2cff))
         Colors.put("HIGHLIGHT", Color(0xff6a00ff.toInt()))
         Colors.put("BLACK", Color.BLACK)
+        Colors.put("WHITE", Color.WHITE)
+        Colors.put("GREEN", Color.GREEN)
+        Colors.put("BLUE", Color.BLUE)
+        Colors.put("GOLD", Color.GOLDENROD)
+        Colors.put("RED", Color.RED)
+        Colors.put("LIME", Color.LIME)
+        Colors.put("SKY", Color.SKY)
 
         val skinParameter = SkinLoader.SkinParameter(SKIN_ATLAS_PATH, resources)
         assetManager.load(SKIN_PATH, Skin::class.java, skinParameter)

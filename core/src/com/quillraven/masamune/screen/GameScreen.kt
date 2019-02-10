@@ -7,13 +7,15 @@ import com.badlogic.gdx.utils.StringBuilder
 import com.quillraven.masamune.ecs.system.EquipmentSystem
 import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.ecs.system.InventorySystem
+import com.quillraven.masamune.event.AttributeListener
 import com.quillraven.masamune.event.InputListener
 import com.quillraven.masamune.event.ItemListener
 import com.quillraven.masamune.map.EMapType
+import com.quillraven.masamune.model.EAttributeType
 import com.quillraven.masamune.model.EEquipType
 import com.quillraven.masamune.ui.GameUI
 
-class GameScreen : Q2DScreen(), InputListener, ItemListener {
+class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener {
     private val gameUI = GameUI(game)
     private val inventorySystem by lazy { game.ecsEngine.getSystem(InventorySystem::class.java) }
     private val equipSystem by lazy { game.ecsEngine.getSystem(EquipmentSystem::class.java) }
@@ -23,6 +25,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
     init {
         game.gameEventManager.addInputListener(this)
         game.gameEventManager.addItemListener(this)
+        game.gameEventManager.addAttributeListener(this)
     }
 
     override fun hide() {
@@ -141,6 +144,41 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener {
         for (type in EEquipType.values()) {
             if (type == EEquipType.UNDEFINED) continue
             equipSlotUpdated(idSystem.getPlayerEntity(), type, null, equipSystem.getEquipmentItem(player, type))
+        }
+    }
+
+    override fun inputShowStats() {
+        val player = idSystem.getPlayerEntity()
+        val attributeCmp = game.cmpMapper.attribute.get(player)
+
+        gameUI.statsUI.updateLife(attributeCmp.attributes[EAttributeType.LIFE.ordinal], attributeCmp.attributes[EAttributeType.MAX_LIFE.ordinal])
+        gameUI.statsUI.updateMana(attributeCmp.attributes[EAttributeType.MANA.ordinal], attributeCmp.attributes[EAttributeType.MAX_MANA.ordinal])
+        gameUI.statsUI.updateStrength(attributeCmp.attributes[EAttributeType.STRENGTH.ordinal])
+        gameUI.statsUI.updateAgility(attributeCmp.attributes[EAttributeType.AGILITY.ordinal])
+        gameUI.statsUI.updateIntelligence(attributeCmp.attributes[EAttributeType.INTELLIGENCE.ordinal])
+    }
+
+    override fun attributeUpdated(entity: Entity, type: EAttributeType, newValue: Float) {
+        if (entity == idSystem.getPlayerEntity()) {
+            when (type) {
+                EAttributeType.LIFE, EAttributeType.MAX_LIFE -> {
+                    val attributeCmp = game.cmpMapper.attribute.get(entity)
+                    gameUI.statsUI.updateLife(attributeCmp.attributes[EAttributeType.LIFE.ordinal], attributeCmp.attributes[EAttributeType.MAX_LIFE.ordinal])
+                }
+                EAttributeType.MANA, EAttributeType.MAX_MANA -> {
+                    val attributeCmp = game.cmpMapper.attribute.get(entity)
+                    gameUI.statsUI.updateMana(attributeCmp.attributes[EAttributeType.MANA.ordinal], attributeCmp.attributes[EAttributeType.MAX_MANA.ordinal])
+                }
+                EAttributeType.STRENGTH -> {
+                    gameUI.statsUI.updateStrength(newValue)
+                }
+                EAttributeType.INTELLIGENCE -> {
+                    gameUI.statsUI.updateIntelligence(newValue)
+                }
+                EAttributeType.AGILITY -> {
+                    gameUI.statsUI.updateAgility(newValue)
+                }
+            }
         }
     }
 }

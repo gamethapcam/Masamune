@@ -12,6 +12,7 @@ import com.quillraven.masamune.MainGame
 class GameUI constructor(game: MainGame) : Table(game.skin) {
     private val eventMgr = game.gameEventManager
     internal val inventoryUI = InventoryUI(game)
+    internal val statsUI = StatsUI(game)
 
     init {
         setFillParent(true)
@@ -24,6 +25,7 @@ class GameUI constructor(game: MainGame) : Table(game.skin) {
         })
         add(touchpad).bottom().left().pad(0f, 30f, 30f, 0f).size(Value.percentWidth(0.15f, this)).expandX()
 
+        // inventory
         val btnInventory = TextButton("", skin, "action")
         val imgInventory = Image(skin.getDrawable("inventory"))
         imgInventory.touchable = Touchable.disabled
@@ -37,8 +39,28 @@ class GameUI constructor(game: MainGame) : Table(game.skin) {
                 return true
             }
         })
-        add(WidgetGroup(btnInventory, imgInventory)).right().size(Value.percentWidth(0.1f, this)).padBottom(-15f).padRight(-25f)
 
+        // stats + skills
+        val btnSkills = TextButton("", skin, "action")
+        val imgSkills = Image(skin.getDrawable("stats"))
+        imgSkills.touchable = Touchable.disabled
+        imgSkills.setPosition(14f, 17f)
+        btnSkills.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                if (statsUI.stage == null) {
+                    eventMgr.dispatchInputShowStats()
+                    stage.addActor(statsUI)
+                }
+                return true
+            }
+        })
+        val skillGroup = WidgetGroup(btnSkills, imgSkills)
+        skillGroup.setPosition(35f, 55f)
+        val inventoryGroup = WidgetGroup(btnInventory, imgInventory)
+        inventoryGroup.setPosition(-10f, -10f)
+        add(WidgetGroup(skillGroup, inventoryGroup)).right().size(Value.percentWidth(0.1f, this)).padBottom(-15f).padRight(-25f)
+
+        // action
         val btnAction = TextButton("A", skin, "action")
         btnAction.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {

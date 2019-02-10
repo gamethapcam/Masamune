@@ -13,6 +13,7 @@ private const val TAG = "AttributeSystem"
 
 class AttributeSystem constructor(game: MainGame) : EntitySystem(), EntityListener, ItemListener {
     private val attributeCmpMapper = game.cmpMapper.attribute
+    private val gameEventMgr = game.gameEventManager
 
     init {
         game.gameEventManager.addItemListener(this)
@@ -47,6 +48,7 @@ class AttributeSystem constructor(game: MainGame) : EntitySystem(), EntityListen
             if (itemAttrCmp != null && entityAttrCmp != null) {
                 for (attType in EAttributeType.values()) {
                     entityAttrCmp.attributes[attType.ordinal] -= itemAttrCmp.attributes[attType.ordinal]
+                    gameEventMgr.dispatchAttributeUpdated(entity, attType, entityAttrCmp.attributes[attType.ordinal])
                 }
             }
         }
@@ -56,6 +58,7 @@ class AttributeSystem constructor(game: MainGame) : EntitySystem(), EntityListen
             if (itemAttrCmp != null && entityAttrCmp != null) {
                 for (attType in EAttributeType.values()) {
                     entityAttrCmp.attributes[attType.ordinal] += itemAttrCmp.attributes[attType.ordinal]
+                    gameEventMgr.dispatchAttributeUpdated(entity, attType, entityAttrCmp.attributes[attType.ordinal])
                 }
             }
         }
@@ -79,6 +82,7 @@ class AttributeSystem constructor(game: MainGame) : EntitySystem(), EntityListen
             Gdx.app.debug(TAG, "Using attribute item")
             for (attType in EAttributeType.values()) {
                 entityAttrCmp.attributes[attType.ordinal] += itemAttrCmp.attributes[attType.ordinal]
+                gameEventMgr.dispatchAttributeUpdated(entity, attType, entityAttrCmp.attributes[attType.ordinal])
             }
             debugEntityAttributes(entityAttrCmp)
         }

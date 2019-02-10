@@ -5,6 +5,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.map.EMapType
+import com.quillraven.masamune.model.EAttributeType
 import com.quillraven.masamune.model.EEquipType
 
 class GameEventManager {
@@ -16,6 +17,8 @@ class GameEventManager {
     private val contactListeners = Array<ContactListener>()
 
     private val itemListeners = Array<ItemListener>()
+
+    private val attributeListeners = Array<AttributeListener>()
 
     fun addMapListener(listener: MapListener) {
         mapListeners.add(listener)
@@ -55,6 +58,12 @@ class GameEventManager {
     fun dispatchInputShowInventory() {
         for (listener in inputListeners) {
             listener.inputShowInventory()
+        }
+    }
+
+    fun dispatchInputShowStats() {
+        for (listener in inputListeners) {
+            listener.inputShowStats()
         }
     }
 
@@ -145,8 +154,18 @@ class GameEventManager {
     }
 
     fun dispatchUseItem(entity: Entity, item: Entity) {
-        for(listener in itemListeners){
-            listener.useItem(entity,item)
+        for (listener in itemListeners) {
+            listener.useItem(entity, item)
+        }
+    }
+
+    fun addAttributeListener(listener: AttributeListener) {
+        attributeListeners.add(listener)
+    }
+
+    fun dispatchAttributeUpdated(entity: Entity, type: EAttributeType, newValue: Float) {
+        for (listener in attributeListeners) {
+            listener.attributeUpdated(entity, type, newValue)
         }
     }
 }
