@@ -2,17 +2,15 @@ package com.quillraven.masamune.ui
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import com.quillraven.masamune.MainGame
 
 
-class StatsUI constructor(game: MainGame) : Table(game.skin) {
+class StatsUI constructor(game: MainGame) : DialogLight(game, "Stats") {
     private val resourceBundle = game.resourceBundle
 
-    private val contentTable = Table(skin)
     private val skillTable = Table(skin)
     private val attributeTable = Table(skin)
 
@@ -21,25 +19,6 @@ class StatsUI constructor(game: MainGame) : Table(game.skin) {
     private val skillInfoDesc = TextButton("", skin, "label_small")
 
     init {
-        setFillParent(true)
-
-        // content table
-        contentTable.background = skin.getDrawable("dialog_light")
-        contentTable.pad(40f, 40f, 35f, 0f)
-
-        // add title area and content to table
-        // title area
-        val label = TextButton("[DIALOG_TITLE_LIGHT]${game.resourceBundle.get("Stats")}", skin, "dialog_title")
-        val imgSkull = Image(skin.getDrawable("skull"))
-        val btnClose = ImageButton(skin.getDrawable("btn_close"))
-        imgSkull.setScale(0.75f, 0.75f)
-        add(imgSkull).padBottom(-25f).padLeft(70f).colspan(2).row()
-        add(label).size(Value.percentWidth(0.6f, this), Value.prefHeight).height(130f).right().padLeft(90f)
-        add(btnClose).left().padLeft(-5f).row()
-        imgSkull.toFront()
-        // content
-        add(contentTable).padBottom(30f).padTop(-5f).colspan(2)
-
         // info of content table
         val infoTable = Table()
         val itemInfo = VerticalGroup()
@@ -50,14 +29,6 @@ class StatsUI constructor(game: MainGame) : Table(game.skin) {
         contentTable.add(infoTable).expandX().fillX().colspan(2).padTop(5f).padRight(290f).row()
         initSkillTable()
         initAttributeTable()
-
-        // close button hides the inventory UI
-        btnClose.addListener(object : InputListener() {
-            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                stage.root.removeActor(this@StatsUI)
-                return true
-            }
-        })
     }
 
     private fun createSkillSlot(skillGraphic: String): Actor {

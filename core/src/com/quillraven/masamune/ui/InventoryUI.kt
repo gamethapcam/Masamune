@@ -2,7 +2,6 @@ package com.quillraven.masamune.ui
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
@@ -12,7 +11,7 @@ import com.quillraven.masamune.model.EEquipType
 
 private const val TAG = "InventoryUI"
 
-class InventoryUI constructor(game: MainGame) : Table(game.skin) {
+class InventoryUI constructor(game: MainGame) : DialogLight(game, "Inventory") {
     private val eventMgr = game.gameEventManager
     private val dragAndDrop = DragAndDrop()
     private val dragActor = Image()
@@ -30,17 +29,10 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
     private val itemInfoImg = Image()
     private val itemInfoTitle = TextButton("", skin, "label")
     private val itemInfoDesc = TextButton("", skin, "label_small")
-    private val contentTable = Table(skin)
     private val inventorySlotTable = Table(skin)
     private val equipSlotTable = Table(skin)
 
     init {
-        setFillParent(true)
-
-        // content table
-        contentTable.background = skin.getDrawable("dialog_light")
-        contentTable.pad(40f, 40f, 35f, 0f)
-
         // item info of content table
         contentTable.add(itemInfoImg).size(75f, 75f).padLeft(35f)
         val itemInfo = VerticalGroup()
@@ -51,19 +43,6 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         // slot table of content table
         inventorySlotTable.defaults().space(5f)
         contentTable.add(inventorySlotTable).padTop(10f).expand().fill().colspan(2)
-
-        // add title area and content to table
-        // title area
-        val label = TextButton("[DIALOG_TITLE_LIGHT]${game.resourceBundle.get("Inventory")}", skin, "dialog_title")
-        val imgSkull = Image(skin.getDrawable("skull"))
-        val btnClose = ImageButton(skin.getDrawable("btn_close"))
-        imgSkull.setScale(0.75f, 0.75f)
-        add(imgSkull).padBottom(-25f).padLeft(70f).colspan(2).row()
-        add(label).size(Value.percentWidth(0.6f, this), Value.prefHeight).height(130f).right().padLeft(90f)
-        add(btnClose).left().padLeft(-5f).row()
-        imgSkull.toFront()
-        // content
-        add(contentTable).padBottom(30f).padTop(-5f).colspan(2)
 
         // equipment table
         equipSlotTable.background = skin.getDrawable("dialog_light")
@@ -82,19 +61,10 @@ class InventoryUI constructor(game: MainGame) : Table(game.skin) {
         addInventorySlot(equipSlotTable, "slot_ring", EEquipType.RING).padLeft(62f).padBottom(50f)
         addInventorySlot(equipSlotTable, "slot_amulet", EEquipType.NECKLACE).padBottom(50f).row()
         add(equipSlotTable).width(240f).height(400f).pad(0f, -60f, 35f, 40f)
+    }
 
-        // move little bit to the right to center between touchpad and action button
-        padLeft(60f)
-
-        // close button hides the inventory UI
-        btnClose.addListener(object : InputListener() {
-            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                // clear item info and hide inventory UI
-                updateItemInfo(-1, "", "", "")
-                stage.root.removeActor(this@InventoryUI)
-                return true
-            }
-        })
+    override fun beforeClose() {
+        updateItemInfo(-1, "", "", "")
     }
 
     private fun addInventorySlot(slotTable: Table, slotInfoTexture: String = "", userObject: Any? = null): Cell<WidgetGroup> {
