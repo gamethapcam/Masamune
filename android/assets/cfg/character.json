@@ -57,6 +57,10 @@
       "entityType": "CHARACTER"
     },
     {
+      "class": "com.quillraven.masamune.ecs.component.ConversationComponent",
+      "currentConversationId": "CONV_ELDER"
+    },
+    {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"
     },
     {
@@ -121,6 +125,10 @@
       "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
       "type": "SMITH",
       "entityType": "CHARACTER"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.ConversationComponent",
+      "currentConversationId": "CONV_SMITH"
     },
     {
       "class": "com.quillraven.masamune.ecs.component.TransformComponent"

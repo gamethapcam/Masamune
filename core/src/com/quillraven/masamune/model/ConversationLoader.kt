@@ -9,10 +9,12 @@ import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.JsonReader
+import com.quillraven.masamune.MainGame
 
-class ConversationLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader<ConversationCache, ConversationLoader.ConversationLoaderParameter>(resolver) {
+class ConversationLoader(game: MainGame, resolver: FileHandleResolver) : AsynchronousAssetLoader<ConversationCache, ConversationLoader.ConversationLoaderParameter>(resolver) {
     private val convCache = ConversationCache()
     private val reader = JsonReader()
+    private val resourceBundle = game.resourceBundle
 
     class ConversationLoaderParameter : AssetLoaderParameters<ConversationCache>()
 
@@ -45,15 +47,19 @@ class ConversationLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader
 
         while (entry != null) {
             // create node
-            val node = ConversationNode(entry.getInt("id"), entry.getString("narratorKey"), entry.getString("txtKey"), entry.getString("imgKey"))
+            val node = ConversationNode(
+                    entry.getInt("id"),
+                    "Conversation.narrator.${entry.getString("narratorKey")}",
+                    "Conversation.$conversationId.${entry.getString("txtKey")}",
+                    "Conversation.images.${entry.getString("imgKey")}")
             // create links of node
             val links = entry.get("links")
             var linkEntry = links.child
             while (linkEntry != null) {
                 if (linkEntry.has("targetNodeId")) {
-                    node.links.add(ConversationLink(linkEntry.getString("txtKey"), linkEntry.getInt("targetNodeId"), ConversationLinkType.valueOf(linkEntry.getString("type"))))
+                    node.links.add(ConversationLink("Conversation.link.${linkEntry.getString("txtKey")}", linkEntry.getInt("targetNodeId"), ConversationLinkType.valueOf(linkEntry.getString("type"))))
                 } else {
-                    node.links.add(ConversationLink(linkEntry.getString("txtKey"), type = ConversationLinkType.valueOf(linkEntry.getString("type"))))
+                    node.links.add(ConversationLink("Conversation.link.${linkEntry.getString("txtKey")}", type = ConversationLinkType.valueOf(linkEntry.getString("type"))))
                 }
                 linkEntry = linkEntry.next
             }
@@ -69,7 +75,7 @@ class ConversationLoader(resolver: FileHandleResolver) : AsynchronousAssetLoader
             entry = entry.next
         }
         // validate of conversation was correctly created
-        conversation!!.validate()
+        conversation!!.validate(resourceBundle)
         return conversation
     }
 }

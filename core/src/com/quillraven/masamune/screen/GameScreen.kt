@@ -8,14 +8,17 @@ import com.quillraven.masamune.ecs.system.EquipmentSystem
 import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.ecs.system.InventorySystem
 import com.quillraven.masamune.event.AttributeListener
+import com.quillraven.masamune.event.ConversationListener
 import com.quillraven.masamune.event.InputListener
 import com.quillraven.masamune.event.ItemListener
 import com.quillraven.masamune.map.EMapType
+import com.quillraven.masamune.model.Conversation
+import com.quillraven.masamune.model.ConversationNode
 import com.quillraven.masamune.model.EAttributeType
 import com.quillraven.masamune.model.EEquipType
 import com.quillraven.masamune.ui.GameUI
 
-class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener {
+class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener, ConversationListener {
     private val gameUI = GameUI(game)
     private val inventorySystem by lazy { game.ecsEngine.getSystem(InventorySystem::class.java) }
     private val equipSystem by lazy { game.ecsEngine.getSystem(EquipmentSystem::class.java) }
@@ -26,6 +29,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener {
         game.gameEventManager.addInputListener(this)
         game.gameEventManager.addItemListener(this)
         game.gameEventManager.addAttributeListener(this)
+        game.gameEventManager.addConversationListener(this)
     }
 
     override fun hide() {
@@ -42,6 +46,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener {
         when {
             Gdx.input.isKeyPressed(Input.Keys.NUM_1) -> game.mapManager.setMap(EMapType.MAP01)
             Gdx.input.isKeyPressed(Input.Keys.NUM_2) -> game.mapManager.setMap(EMapType.MAP02)
+            Gdx.input.isKeyPressed(Input.Keys.NUM_3) -> game.gameEventManager.dispatchInputConversationLink(0)
         }
 
         game.ecsEngine.update(delta)
@@ -180,5 +185,21 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener {
                 }
             }
         }
+    }
+
+    override fun startConversation(conversation: Conversation) {
+        //TODO
+    }
+
+    override fun endConversation() {
+        //TODO
+    }
+
+    override fun updateConversation(node: ConversationNode) {
+        //TODO
+    }
+
+    override fun openShopConversation(conversationEntity: Entity, player: Entity) {
+        //TODO
     }
 }

@@ -5,6 +5,8 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.utils.Array
 import com.quillraven.masamune.map.EMapType
+import com.quillraven.masamune.model.Conversation
+import com.quillraven.masamune.model.ConversationNode
 import com.quillraven.masamune.model.EAttributeType
 import com.quillraven.masamune.model.EEquipType
 
@@ -19,6 +21,8 @@ class GameEventManager {
     private val itemListeners = Array<ItemListener>()
 
     private val attributeListeners = Array<AttributeListener>()
+
+    private val conversationListeners = Array<ConversationListener>()
 
     fun addMapListener(listener: MapListener) {
         mapListeners.add(listener)
@@ -103,6 +107,12 @@ class GameEventManager {
         }
     }
 
+    fun dispatchInputConversationLink(linkIdx: Int) {
+        for (listener in inputListeners) {
+            listener.inputConversationLink(linkIdx)
+        }
+    }
+
     fun addContactListener(listener: ContactListener) {
         contactListeners.add(listener)
     }
@@ -166,6 +176,34 @@ class GameEventManager {
     fun dispatchAttributeUpdated(entity: Entity, type: EAttributeType, newValue: Float) {
         for (listener in attributeListeners) {
             listener.attributeUpdated(entity, type, newValue)
+        }
+    }
+
+    fun addConversationListener(listener: ConversationListener) {
+        conversationListeners.add(listener)
+    }
+
+    fun dispatchConversationStart(conversation: Conversation) {
+        for (listener in conversationListeners) {
+            listener.startConversation(conversation)
+        }
+    }
+
+    fun dispatchConversationEnd() {
+        for (listener in conversationListeners) {
+            listener.endConversation()
+        }
+    }
+
+    fun dispatchConversationUpdated(node: ConversationNode) {
+        for (listener in conversationListeners) {
+            listener.updateConversation(node)
+        }
+    }
+
+    fun dispatchConversationOpenShop(conversationEntity: Entity, player: Entity) {
+        for (listener in conversationListeners) {
+            listener.openShopConversation(conversationEntity, player)
         }
     }
 }

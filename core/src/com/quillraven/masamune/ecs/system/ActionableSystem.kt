@@ -15,6 +15,7 @@ import com.quillraven.masamune.event.InputListener
 class ActionableSystem constructor(game: MainGame) : EntitySystem(), ContactListener, InputListener {
     private val actCmpMapper = game.cmpMapper.actionable
     private val idCmpMapper = game.cmpMapper.identify
+    private val convCmpMapper = game.cmpMapper.conversation
     private val actionableEntities by lazy { engine.getEntitiesFor(Family.all(ActionableComponent::class.java).exclude(RemoveComponent::class.java).get()) }
 
     init {
@@ -60,8 +61,15 @@ class ActionableSystem constructor(game: MainGame) : EntitySystem(), ContactList
                     entity.remove(Box2DComponent::class.java)
                     entity.remove(ActionableComponent::class.java)
                 }
+            } else if (idCmp.entityType == EntityType.CHARACTER) {
+                // character map interaction
+                if (convCmpMapper.get(entity) != null) {
+                    // start conversation
+                    engine.getSystem(ConversationSystem::class.java).startConversation(entity)
+                }
             }
 
+            // only interact with one entity at a time
             break
         }
     }

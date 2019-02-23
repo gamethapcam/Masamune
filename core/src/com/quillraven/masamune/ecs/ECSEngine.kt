@@ -22,6 +22,7 @@ class ECSEngine constructor(private val game: MainGame) : PooledEngine(), Dispos
         addSystem(InventorySystem(game))
         addSystem(EquipmentSystem(game))
         addSystem(AttributeSystem(game))
+        addSystem(ConversationSystem(game))
         addSystem(HealSystem(game))
         addSystem(RenderFlipSystem(game))
         addSystem(Box2DSystem(game))

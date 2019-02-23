@@ -22,4 +22,6 @@ interface InputListener {
     fun inputUseItem(inventorySlotIdx: Int) {}
 
     fun inputShowStats() {}
+
+    fun inputConversationLink(linkIdx: Int) {}
 }

@@ -30,7 +30,7 @@ class LoadingScreen : Q2DScreen() {
         assetManager.load("cfg/object.json", ObjectCfgMap::class.java)
         assetManager.load("cfg/item.json", ObjectCfgMap::class.java)
 
-        assetManager.setLoader(ConversationCache::class.java, ConversationLoader(assetManager.fileHandleResolver))
+        assetManager.setLoader(ConversationCache::class.java, ConversationLoader(game, assetManager.fileHandleResolver))
         assetManager.load("conversation/allConversations.json", ConversationCache::class.java)
 
         assetManager.setLoader(TiledMap::class.java, TmxMapLoader(assetManager.fileHandleResolver))

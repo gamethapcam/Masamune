@@ -20,4 +20,5 @@ class ComponentMapper {
     internal val attribute = ComponentMapper.getFor(AttributeComponent::class.java)
     internal val heal = ComponentMapper.getFor(HealComponent::class.java)
     internal val consumable = ComponentMapper.getFor(ConsumableComponent::class.java)
+    internal val conversation = ComponentMapper.getFor(ConversationComponent::class.java)
 }

@@ -2,6 +2,7 @@ package com.quillraven.masamune.model
 
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.GdxRuntimeException
+import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.IntMap
 
 class Conversation constructor(internal val id: String, startNode: ConversationNode) {
@@ -25,15 +26,24 @@ class Conversation constructor(internal val id: String, startNode: ConversationN
         nodes.put(node.id, node)
     }
 
-    // validate should be called once the conversation is fully created to check if it has any invalid links
-    fun validate() {
+    fun getNode(id: Int): ConversationNode {
+        return nodes[id]
+    }
+
+    // validate should be called once the conversation is fully created to check if it has any invalid links or localizations
+    fun validate(resourceBundle: I18NBundle) {
         for (node in nodes.values()) {
+            resourceBundle.get(node.txtKey)
+            resourceBundle.get(node.narratorKey)
+            resourceBundle.get(node.imgKey)
+
             for (link in node.links) {
                 if (link.type == ConversationLinkType.NODE && !nodes.containsKey(link.targetNodeId)) {
                     throw GdxRuntimeException("Error for conversation $id. Link ${link.txtKey} of node ${node.id} is linking to a non-existing node ${link.targetNodeId}")
                 } else if (link.type != ConversationLinkType.NODE && nodes.containsKey(link.targetNodeId)) {
                     throw GdxRuntimeException("Error for conversation $id. Link ${link.txtKey} of node ${node.id} is linking to a node but its type is not of type NODE")
                 }
+                resourceBundle.get(link.txtKey)
             }
         }
     }
