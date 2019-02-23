@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "narratorKey": "smith",
+    "txtKey": "smith001",
+    "imgKey": "smith",
+    "links": [
+      {
+        "txtKey": "next",
+        "targetNodeId": 2,
+        "type": "NODE"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "narratorKey": "smith",
+    "txtKey": "smith002",
+    "imgKey": "smith",
+    "links": [
+      {
+        "txtKey": "yes",
+        "type": "OPEN_SHOP"
+      },
+      {
+        "txtKey": "no",
+        "type": "EXIT"
+      }
+    ]
+  }
+]

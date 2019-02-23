@@ -8,6 +8,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.quillraven.masamune.map.EMapType
+import com.quillraven.masamune.model.ConversationCache
+import com.quillraven.masamune.model.ConversationLoader
 import com.quillraven.masamune.model.ObjectCfgLoader
 import com.quillraven.masamune.model.ObjectCfgMap
 import com.quillraven.masamune.ui.LoadingUI
@@ -25,12 +27,11 @@ class LoadingScreen : Q2DScreen() {
 
         assetManager.setLoader(ObjectCfgMap::class.java, ObjectCfgLoader(assetManager.fileHandleResolver))
         assetManager.load("cfg/character.json", ObjectCfgMap::class.java)
-
-        assetManager.setLoader(ObjectCfgMap::class.java, ObjectCfgLoader(assetManager.fileHandleResolver))
         assetManager.load("cfg/object.json", ObjectCfgMap::class.java)
-
-        assetManager.setLoader(ObjectCfgMap::class.java, ObjectCfgLoader(assetManager.fileHandleResolver))
         assetManager.load("cfg/item.json", ObjectCfgMap::class.java)
+
+        assetManager.setLoader(ConversationCache::class.java, ConversationLoader(assetManager.fileHandleResolver))
+        assetManager.load("conversation/allConversations.json", ConversationCache::class.java)
 
         assetManager.setLoader(TiledMap::class.java, TmxMapLoader(assetManager.fileHandleResolver))
         for (mapType in EMapType.values()) {

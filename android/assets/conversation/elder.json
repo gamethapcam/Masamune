@@ -1,0 +1,53 @@
+[
+  {
+    "id": 1,
+    "narratorKey": "elder",
+    "txtKey": "elder001",
+    "imgKey": "elder",
+    "links": [
+      {
+        "txtKey": "next",
+        "targetNodeId": 2,
+        "type": "NODE"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "narratorKey": "elder",
+    "txtKey": "elder002",
+    "imgKey": "elder",
+    "links": [
+      {
+        "txtKey": "next",
+        "targetNodeId": 3,
+        "type": "NODE"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "narratorKey": "hero",
+    "txtKey": "elder003",
+    "imgKey": "hero",
+    "links": [
+      {
+        "txtKey": "next",
+        "targetNodeId": 4,
+        "type": "NODE"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "narratorKey": "elder",
+    "txtKey": "elder004",
+    "imgKey": "elder",
+    "links": [
+      {
+        "txtKey": "exit",
+        "type": "EXIT"
+      }
+    ]
+  }
+]
