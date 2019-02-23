@@ -188,18 +188,22 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener, 
     }
 
     override fun startConversation(conversation: Conversation) {
-        //TODO
+        gameUI.toggleConversationUI(true)
+        updateConversation(conversation.getStartNode())
     }
 
     override fun endConversation() {
-        //TODO
+        gameUI.toggleConversationUI(false)
     }
 
     override fun updateConversation(node: ConversationNode) {
-        //TODO
+        gameUI.conversationUI.updateConversation(node.imgKey, node.txtKey)
+        for (link in node.links) {
+            gameUI.conversationUI.addOption(link.txtKey)
+        }
     }
 
     override fun openShopConversation(conversationEntity: Entity, player: Entity) {
-        //TODO
+        gameUI.toggleConversationUI(false)
     }
 }

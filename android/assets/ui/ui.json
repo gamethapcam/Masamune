@@ -20,6 +20,10 @@
     "dialog_title": {
       "font": "font_32",
       "up": "dialog_title"
+    },
+    "conversation_option": {
+      "font": "font_32",
+      "up": "tutorial_cursor"
     }
   },
   "ProgressBarStyle": {

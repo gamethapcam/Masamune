@@ -13,6 +13,7 @@ class GameUI constructor(game: MainGame) : Table(game.skin) {
     private val eventMgr = game.gameEventManager
     internal val inventoryUI = InventoryUI(game)
     internal val statsUI = StatsUI(game)
+    internal val conversationUI = ConversationUI(game)
 
     init {
         setFillParent(true)
@@ -71,5 +72,13 @@ class GameUI constructor(game: MainGame) : Table(game.skin) {
         add(btnAction).bottom().right().pad(0f, 0f, 30f, 30f).size(Value.percentWidth(0.1f, this))
 
         bottom()
+    }
+
+    fun toggleConversationUI(show: Boolean) {
+        if (show && conversationUI.stage == null) {
+            stage.addActor(conversationUI)
+        } else if (!show && conversationUI.stage != null) {
+            stage.root.removeActor(conversationUI)
+        }
     }
 }
