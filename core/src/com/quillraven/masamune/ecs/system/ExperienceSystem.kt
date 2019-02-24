@@ -28,9 +28,10 @@ class ExperienceSystem constructor(game: MainGame) : EntitySystem(), EntityListe
             // initialize experience
             xpCmp.level = 1
             xpCmp.xpNeeded = getRequiredXP(xpCmp.level)
-            eventMgr.dispatchExperienceLevelUp(entity, xpCmp.level)
-            eventMgr.dispatchExperienceUpdated(entity, xpCmp.xp, xpCmp.xpNeeded)
         }
+        eventMgr.dispatchExperienceLevelUp(entity, xpCmp.level)
+        eventMgr.dispatchExperienceUpdated(entity, xpCmp.xp, xpCmp.xpNeeded)
+        eventMgr.dispatchExperienceSkillPointsUpdated(entity, xpCmp.unspentSkillPoints)
     }
 
     private fun getRequiredXP(level: Int): Int {
