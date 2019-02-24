@@ -22,6 +22,8 @@ class ConversationUI constructor(game: MainGame) : DialogLight(game, "Dialog") {
     private val options = Array<TextButton>(maxOptions)
 
     init {
+        btnClose.isVisible = false
+
         contentTable.add(img).expand().size(128f, 128f)
         text.label.setAlignment(Align.left)
         contentTable.add(text).fill().expand().colspan(maxOptions - 1).row()

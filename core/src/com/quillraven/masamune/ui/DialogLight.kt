@@ -7,6 +7,7 @@ import com.quillraven.masamune.MainGame
 
 abstract class DialogLight constructor(game: MainGame, titleKey: String) : Table(game.skin) {
     protected val contentTable = Table(skin)
+    protected val btnClose = ImageButton(skin.getDrawable("btn_close"))
 
     init {
         this.setFillParent(true)
@@ -15,7 +16,6 @@ abstract class DialogLight constructor(game: MainGame, titleKey: String) : Table
         // title area
         val label = TextButton("[DIALOG_TITLE_LIGHT]${game.resourceBundle.get(titleKey)}", skin, "dialog_title")
         val imgSkull = Image(skin.getDrawable("skull"))
-        val btnClose = ImageButton(skin.getDrawable("btn_close"))
         imgSkull.setScale(0.75f, 0.75f)
         this.add(imgSkull).padBottom(-25f).padLeft(70f).colspan(2).row()
         this.add(label).height(130f).right().padLeft(90f)
