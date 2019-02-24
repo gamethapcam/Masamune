@@ -24,6 +24,8 @@ class GameEventManager {
 
     private val conversationListeners = Array<ConversationListener>()
 
+    private val experienceListeners = Array<ExperienceListener>()
+
     fun addMapListener(listener: MapListener) {
         mapListeners.add(listener)
     }
@@ -206,4 +208,27 @@ class GameEventManager {
             listener.openShopConversation(conversationEntity, player)
         }
     }
+
+    fun addExperienceListener(listener: ExperienceListener) {
+        experienceListeners.add(listener)
+    }
+
+    fun dispatchExperienceUpdated(entity: Entity, newXP: Int, requiredXP: Int) {
+        for (listener in experienceListeners) {
+            listener.experienceUpdated(entity, newXP, requiredXP)
+        }
+    }
+
+    fun dispatchExperienceSkillPointsUpdated(entity: Entity, unspentSkillPoints: Int) {
+        for (listener in experienceListeners) {
+            listener.skillPointsUpdated(entity, unspentSkillPoints)
+        }
+    }
+
+    fun dispatchExperienceLevelUp(entity: Entity, newLevel: Int) {
+        for (listener in experienceListeners) {
+            listener.levelUp(entity, newLevel)
+        }
+    }
+
 }

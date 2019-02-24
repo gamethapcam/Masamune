@@ -1691,30 +1691,37 @@ wandering_mushroom_new
   orig: 32, 32
   offset: 0, 0
   index: -1
-wiglaf_new
+white_new
   rotate: false
   xy: 614, 146
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-wolf
+wiglaf_new
   rotate: false
   xy: 650, 146
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-xtahua_new
+wolf
   rotate: false
   xy: 686, 146
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-yredelemnul
+xtahua_new
   rotate: false
   xy: 722, 146
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+yredelemnul
+  rotate: false
+  xy: 758, 146
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

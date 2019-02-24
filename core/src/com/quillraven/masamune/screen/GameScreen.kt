@@ -7,10 +7,7 @@ import com.badlogic.gdx.utils.StringBuilder
 import com.quillraven.masamune.ecs.system.EquipmentSystem
 import com.quillraven.masamune.ecs.system.IdentifySystem
 import com.quillraven.masamune.ecs.system.InventorySystem
-import com.quillraven.masamune.event.AttributeListener
-import com.quillraven.masamune.event.ConversationListener
-import com.quillraven.masamune.event.InputListener
-import com.quillraven.masamune.event.ItemListener
+import com.quillraven.masamune.event.*
 import com.quillraven.masamune.map.EMapType
 import com.quillraven.masamune.model.Conversation
 import com.quillraven.masamune.model.ConversationNode
@@ -18,7 +15,7 @@ import com.quillraven.masamune.model.EAttributeType
 import com.quillraven.masamune.model.EEquipType
 import com.quillraven.masamune.ui.GameUI
 
-class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener, ConversationListener {
+class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener, ConversationListener, ExperienceListener {
     private val gameUI = GameUI(game)
     private val inventorySystem by lazy { game.ecsEngine.getSystem(InventorySystem::class.java) }
     private val equipSystem by lazy { game.ecsEngine.getSystem(EquipmentSystem::class.java) }
@@ -30,6 +27,7 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener, 
         game.gameEventManager.addItemListener(this)
         game.gameEventManager.addAttributeListener(this)
         game.gameEventManager.addConversationListener(this)
+        game.gameEventManager.addExperienceListener(this)
     }
 
     override fun hide() {
@@ -205,5 +203,23 @@ class GameScreen : Q2DScreen(), InputListener, ItemListener, AttributeListener, 
 
     override fun openShopConversation(conversationEntity: Entity, player: Entity) {
         gameUI.toggleConversationUI(false)
+    }
+
+    override fun experienceUpdated(entity: Entity, newXP: Int, requiredXP: Int) {
+        if (entity == idSystem.getPlayerEntity()) {
+            gameUI.statsUI.updateExperience(newXP, requiredXP)
+        }
+    }
+
+    override fun skillPointsUpdated(entity: Entity, unspentSkillPoints: Int) {
+        if (entity == idSystem.getPlayerEntity()) {
+            gameUI.statsUI.updateUnspentSkillPoints(unspentSkillPoints)
+        }
+    }
+
+    override fun levelUp(entity: Entity, newLevel: Int) {
+        if (entity == idSystem.getPlayerEntity()) {
+            gameUI.statsUI.updateLevel(newLevel)
+        }
     }
 }

@@ -32,7 +32,7 @@ limitMemory=true
 useIndexes=true
 
 scaleFactors=[{suffix:"",factor:1,resampling:bicubic}]
-inputFiles=[{path:gui,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:items,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false}]
+inputFiles=[{path:gui,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:items,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:characters,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false}]
 
 
 -PROJ-

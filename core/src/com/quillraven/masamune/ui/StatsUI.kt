@@ -62,7 +62,7 @@ class StatsUI constructor(game: MainGame) : DialogLight(game, "Stats") {
     }
 
     private fun initSkillTable() {
-        skillTable.add(TextButton("[DIALOG_TITLE_LIGHT]${resourceBundle.get("Skill")}", skin, "label")).expandX().fillX().colspan(3).row()
+        skillTable.add(TextButton("[DIALOG_TITLE_LIGHT]${resourceBundle.get("Skill")}: 0P", skin, "label")).expandX().fillX().colspan(3).row()
         skillTable.add(createSkillSlot("skill_0")).expand().fill()
         skillTable.add(createSkillSlot("skill_7")).expand().fill()
         skillTable.add(createSkillSlot("skill_3")).expand().fill().row()
@@ -76,6 +76,10 @@ class StatsUI constructor(game: MainGame) : DialogLight(game, "Stats") {
         contentTable.add(skillTable).expand().fill().top()
     }
 
+    fun updateUnspentSkillPoints(unspentPoints: Int) {
+        (skillTable.children[0] as TextButton).setText("[DIALOG_TITLE_LIGHT]${resourceBundle.get("Skill")}: ${unspentPoints}P")
+    }
+
     private fun createAttributeLabel(label: String, currentValue: Int, maxValue: Int = 0): TextButton {
         val txtButton = if (maxValue > 0) TextButton("$label: $currentValue / $maxValue", skin, "label") else TextButton("$label: $currentValue", skin, "label")
         txtButton.label.setAlignment(Align.left)
@@ -83,19 +87,23 @@ class StatsUI constructor(game: MainGame) : DialogLight(game, "Stats") {
     }
 
     private fun initAttributeTable() {
-        attributeTable.add(TextButton("[DIALOG_TITLE_LIGHT]${resourceBundle.get("Stat")}", skin, "label")).expandX().fillX().row()
-        attributeTable.add(createAttributeLabel("[GOLD]${resourceBundle.get("Experience")}[BLACK]", 0, 350)).expandX().fillX().padTop(20f).padLeft(100f).row()
-        attributeTable.add(createAttributeLabel("[GREEN]${resourceBundle.get("Life")}[BLACK]", 100, 100)).expandX().fillX().padLeft(100f).row()
-        attributeTable.add(createAttributeLabel("[SKY]${resourceBundle.get("Mana")}[BLACK]", 50, 50)).expandX().fillX().padLeft(100f).row()
-        attributeTable.add(createAttributeLabel("[RED]${resourceBundle.get("Strength")}[BLACK]", 25)).expandX().fillX().padLeft(100f).row()
-        attributeTable.add(createAttributeLabel("[LIME]${resourceBundle.get("Agility")}[BLACK]", 25)).expandX().fillX().padLeft(100f).row()
-        attributeTable.add(createAttributeLabel("[BLUE]${resourceBundle.get("Intelligence")}[BLACK]", 25)).expandX().fillX().padLeft(100f).row()
+        attributeTable.add(TextButton("[DIALOG_TITLE_LIGHT]${resourceBundle.get("Level")}: 0", skin, "label")).expandX().fillX().row()
+        attributeTable.add(createAttributeLabel("[GOLD]${resourceBundle.get("Experience")}[BLACK]", 0, 0)).expandX().fillX().padTop(20f).padLeft(100f).row()
+        attributeTable.add(createAttributeLabel("[GREEN]${resourceBundle.get("Life")}[BLACK]", 0, 0)).expandX().fillX().padLeft(100f).row()
+        attributeTable.add(createAttributeLabel("[SKY]${resourceBundle.get("Mana")}[BLACK]", 0, 0)).expandX().fillX().padLeft(100f).row()
+        attributeTable.add(createAttributeLabel("[RED]${resourceBundle.get("Strength")}[BLACK]", 0)).expandX().fillX().padLeft(100f).row()
+        attributeTable.add(createAttributeLabel("[LIME]${resourceBundle.get("Agility")}[BLACK]", 0)).expandX().fillX().padLeft(100f).row()
+        attributeTable.add(createAttributeLabel("[BLUE]${resourceBundle.get("Intelligence")}[BLACK]", 0)).expandX().fillX().padLeft(100f).row()
 
         contentTable.add(attributeTable).expand().fill().top()
     }
 
-    fun updateExperience(xp: Float, requiredXP: Float) {
-        (attributeTable.children[1] as TextButton).setText("[GOLD]${resourceBundle.get("Experience")}[BLACK]: ${xp.toInt()} / ${requiredXP.toInt()}")
+    fun updateLevel(level: Int) {
+        (attributeTable.children[0] as TextButton).setText("[DIALOG_TITLE_LIGHT]${resourceBundle.get("Level")}: $level")
+    }
+
+    fun updateExperience(xp: Int, requiredXP: Int) {
+        (attributeTable.children[1] as TextButton).setText("[GOLD]${resourceBundle.get("Experience")}[BLACK]: $xp / $requiredXP")
     }
 
     fun updateLife(life: Float, maxLife: Float) {

@@ -126,5 +126,41 @@
       "width": 0.75,
       "height": 0.75
     }
+  ],
+  "SMALL_XP_POTION": [
+    {
+      "class": "com.quillraven.masamune.ecs.component.IdentifyComponent",
+      "type": "SMALL_XP_POTION",
+      "entityType": "ITEM"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.DescriptionComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.PriceComponent",
+      "price": 100
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.ExperienceComponent",
+      "xp": 200
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.ConsumableComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.StackableComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.TransformComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.Box2DComponent"
+    },
+    {
+      "class": "com.quillraven.masamune.ecs.component.RenderComponent",
+      "texture": "white_new",
+      "width": 0.75,
+      "height": 0.75
+    }
   ]
 }

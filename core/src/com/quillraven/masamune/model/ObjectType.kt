@@ -12,6 +12,7 @@ enum class ObjectType {
     SWORD,
     MANA_POTION,
     STRENGTH_POTION,
+    SMALL_XP_POTION,
     // object
     ROCK
 }

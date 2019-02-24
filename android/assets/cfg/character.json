@@ -28,6 +28,9 @@
       "class": "com.quillraven.masamune.ecs.component.PlayerInputComponent"
     },
     {
+      "class": "com.quillraven.masamune.ecs.component.ExperienceComponent"
+    },
+    {
       "class": "com.quillraven.masamune.ecs.component.AttributeComponent",
       "attributes": {
         "items": [

@@ -37,7 +37,7 @@ inputFiles=[{path:characters,type:Input,dirFilePrefix:null,recursive:false,flatt
 
 -PROJ-
 
-version=4.8.1
+version=4.8.2
 fileTypeType=png
 fileTypeData={encoding:RGBA8888}
 previewBackgroundColor=ffffffff
